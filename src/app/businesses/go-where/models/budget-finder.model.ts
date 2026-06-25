@@ -1,15 +1,15 @@
 import { ApiId } from '@app/core/models/api-id.model';
 
 export interface BudgetPlannerRequest {
-  budget: number;
-  peopleCount: number;
-  daysCount: number;
-  fromGovernorateId: ApiId | null;
+  budget?: number;
+  peopleCount?: number;
+  daysCount?: number;
+  fromGovernorateId?: ApiId | null;
   cityId?: ApiId | null;
-  foodLevel: string;
+  foodLevel?: string;
   preferredAccommodationType?: number | null;
   preferredTransport?: number | null;
-  tripType: number;
+  tripType?: number;
   tripTypeCode?: string | null;
   foodLevelCode?: string | null;
   interestCodes?: string[] | null;

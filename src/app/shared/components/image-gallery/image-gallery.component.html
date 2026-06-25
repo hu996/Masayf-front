@@ -1,7 +1,23 @@
-<div class="image-gallery">
-  @for (image of images(); track image) {
-    <img loading="lazy" width="360" height="220" [src]="image" alt="">
-  } @empty {
-    <div class="placeholder">الصور غير متاحة حالياً</div>
+<section class="image-gallery">
+  @if (normalizedImages().length) {
+    @for (image of normalizedImages(); track image.imageUrl) {
+      <figure class="image-card">
+        <img loading="lazy" [src]="image.imageUrl" [alt]="image.caption || title()" />
+        @if (image.caption || image.isMain || image.isCover || image.status) {
+          <figcaption>
+            @if (image.caption) {
+              <span>{{ image.caption }}</span>
+            }
+            <small>
+              @if (image.isMain) { <b>Main</b> }
+              @if (image.isCover) { <b>Cover</b> }
+              @if (image.status) { <b>{{ image.status }}</b> }
+            </small>
+          </figcaption>
+        }
+      </figure>
+    }
+  } @else {
+    <div class="placeholder">الصور غير متاحة حاليًا</div>
   }
-</div>
+</section>

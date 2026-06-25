@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, finalize, of } from 'rxjs';
-import { City, LookupGroup, normalizeId } from '@app/core/models/api.models';
+import { City, Experience, LookupGroup, normalizeId } from '@app/core/models/api.models';
 import { BudgetCityRecommendationDto, BudgetPlannerRequest, BudgetPlannerResponse, RealTripExperiencePreviewDto } from '../models/budget-finder.model';
 import { BudgetPlannerService } from '../services/budget-planner.service';
 import { CitiesService } from '../../cities/services/cities.service';
+import { ExperiencesService } from '../../experiences/services/experiences.service';
 import { LookupsService } from '../../lookups/services/lookups.service';
 import { SavedDestinationsService } from '@app/core/services/saved-destinations.service';
 import { ToastService } from '@app/core/services/toast.service';
@@ -37,11 +38,13 @@ export class GoWhereComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly planner = inject(BudgetPlannerService);
   private readonly citiesService = inject(CitiesService);
+  private readonly experiencesService = inject(ExperiencesService);
   private readonly lookups = inject(LookupsService);
   private readonly savedDestinations = inject(SavedDestinationsService);
   private readonly toast = inject(ToastService);
 
   readonly cities = signal<City[]>([]);
+  readonly featuredExperiences = signal<Experience[]>([]);
   readonly governorates = signal<Array<{ id: string | number; name: string }>>([]);
   readonly tripTypes = signal<LookupOption[]>([]);
   readonly foodLevels = signal<LookupOption[]>([]);
@@ -53,6 +56,7 @@ export class GoWhereComponent implements OnInit {
   readonly loadingGovernorates = signal(true);
   readonly loadingLookups = signal(true);
   readonly loadingResults = signal(false);
+  readonly loadingExplore = signal(true);
 
   readonly citiesError = signal('');
   readonly governoratesError = signal('');
@@ -60,14 +64,15 @@ export class GoWhereComponent implements OnInit {
   readonly searchError = signal('');
 
   readonly searchResult = signal<BudgetPlannerResponse | null>(null);
+  readonly searchSubmitted = signal(false);
   readonly showAlternatives = signal(false);
   readonly sortMode = signal<SortMode>('fit');
   readonly onlyWithinBudget = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    budget: [9000],
-    peopleCount: [2],
-    daysCount: [3],
+    budget: [''],
+    peopleCount: [''],
+    daysCount: [''],
     cityId: [''],
     fromGovernorateId: [''],
     tripType: [''],
@@ -90,23 +95,16 @@ export class GoWhereComponent implements OnInit {
   readonly alternativeRecommendations = computed(() => {
     const response = this.searchResult();
     const alternatives = [...(response?.alternativeRecommendations ?? response?.results?.slice(1) ?? [])];
-    if (this.onlyWithinBudget()) {
-      return alternatives.filter((item) => item.remainingBudget >= 0);
-    }
-    return alternatives;
+    return this.onlyWithinBudget() ? alternatives.filter((item) => item.remainingBudget >= 0) : alternatives;
   });
 
   readonly visibleRecommendationCards = computed(() => {
-    const cards = this.primaryRecommendation() ? [this.primaryRecommendation() as BudgetCityRecommendationDto, ...this.alternativeRecommendations()] : [...this.alternativeRecommendations()];
-    if (this.onlyWithinBudget()) {
-      return cards.filter((item) => item.remainingBudget >= 0);
-    }
-    return cards;
+    const primary = this.primaryRecommendation();
+    const cards = primary ? [primary, ...this.alternativeRecommendations()] : [...this.alternativeRecommendations()];
+    return this.onlyWithinBudget() ? cards.filter((item) => item.remainingBudget >= 0) : cards;
   });
 
-  readonly primaryExperiences = computed(() => {
-    return this.primaryRecommendation()?.realExperiences ?? [];
-  });
+  readonly primaryExperiences = computed(() => this.primaryRecommendation()?.realExperiences ?? []);
 
   readonly selectedCityLabel = computed(() => {
     const cityId = this.normalizeSelection(this.form.controls.cityId.value);
@@ -121,18 +119,19 @@ export class GoWhereComponent implements OnInit {
     this.loadCities();
     this.loadGovernorates();
     this.loadLookups();
-    this.savedDestinations.load().pipe(catchError(() => of([]))).subscribe();
+    this.loadExploreContent();
 
-    if (this.route.snapshot.queryParamMap.has('budget')) {
+    if (this.route.snapshot.queryParamMap.keys.length) {
       this.form.patchValue({
-        budget: this.queryNumber('budget', 9000),
-        peopleCount: this.queryNumber('peopleCount', 2),
-        daysCount: this.queryNumber('daysCount', 3),
+        budget: this.route.snapshot.queryParamMap.get('budget') ?? '',
+        peopleCount: this.route.snapshot.queryParamMap.get('peopleCount') ?? '',
+        daysCount: this.route.snapshot.queryParamMap.get('daysCount') ?? '',
         cityId: this.route.snapshot.queryParamMap.get('cityId') ?? '',
         fromGovernorateId: this.route.snapshot.queryParamMap.get('fromGovernorateId') ?? '',
         tripType: this.route.snapshot.queryParamMap.get('tripType') ?? '',
         foodLevel: this.route.snapshot.queryParamMap.get('foodLevel') ?? ''
       });
+
       queueMicrotask(() => this.search());
     }
   }
@@ -140,36 +139,27 @@ export class GoWhereComponent implements OnInit {
   search(): void {
     this.searchError.set('');
     this.showAlternatives.set(false);
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.searchError.set('من فضلك كمّل بيانات الرحلة الأساسية قبل البحث.');
-      return;
-    }
+    this.searchSubmitted.set(true);
 
     const value = this.form.getRawValue();
-    const budget = this.positiveOrDefault(value.budget, 9000);
-    const daysCount = this.positiveOrDefault(value.daysCount, 3);
-    const peopleCount = this.positiveOrDefault(value.peopleCount, 2);
-
     const tripTypeValue = this.normalizeSelection(value.tripType);
     const tripTypeOption = this.tripTypes().find((item) => String(item.value) === tripTypeValue);
     const foodLevelOption = this.foodLevels().find((item) => item.code === this.normalizeSelection(value.foodLevel));
     const selectedFoodLevel = foodLevelOption?.code ?? this.foodLevels()[0]?.code ?? 'Economy';
 
     const payload: BudgetPlannerRequest = {
-      budget,
-      daysCount,
-      peopleCount,
-      cityId: this.optionalSelection(value.cityId),
-      fromGovernorateId: this.optionalSelection(value.fromGovernorateId),
-      tripType: Number(tripTypeValue || tripTypeOption?.value || 1),
-      tripTypeCode: tripTypeOption?.code ?? this.tripTypes()[0]?.code ?? null,
-      foodLevel: selectedFoodLevel,
-      foodLevelCode: selectedFoodLevel,
-      preferredAccommodationType: this.optionalNumber(value.preferredAccommodationType),
-      preferredTransport: this.optionalNumber(value.preferredTransport),
-      interestCodes: value.interestCodes
+      ...(this.optionalNumber(value.budget) !== null ? { budget: this.optionalNumber(value.budget)! } : {}),
+      ...(this.optionalNumber(value.daysCount) !== null ? { daysCount: this.optionalNumber(value.daysCount)! } : {}),
+      ...(this.optionalNumber(value.peopleCount) !== null ? { peopleCount: this.optionalNumber(value.peopleCount)! } : {}),
+      ...(this.optionalSelection(value.cityId) ? { cityId: this.optionalSelection(value.cityId) } : {}),
+      ...(this.optionalSelection(value.fromGovernorateId) ? { fromGovernorateId: this.optionalSelection(value.fromGovernorateId) } : {}),
+      ...(tripTypeValue ? { tripType: Number(tripTypeValue || tripTypeOption?.value || 1) } : {}),
+      ...(tripTypeOption?.code ? { tripTypeCode: tripTypeOption.code } : {}),
+      ...(selectedFoodLevel ? { foodLevel: selectedFoodLevel } : {}),
+      ...(selectedFoodLevel ? { foodLevelCode: selectedFoodLevel } : {}),
+      ...(this.optionalNumber(value.preferredAccommodationType) !== null ? { preferredAccommodationType: this.optionalNumber(value.preferredAccommodationType) } : {}),
+      ...(this.optionalNumber(value.preferredTransport) !== null ? { preferredTransport: this.optionalNumber(value.preferredTransport) } : {}),
+      ...(value.interestCodes?.length ? { interestCodes: value.interestCodes } : {})
     };
 
     this.loadingResults.set(true);
@@ -177,12 +167,12 @@ export class GoWhereComponent implements OnInit {
 
     this.planner.findBestCities(payload).pipe(
       catchError((error: unknown) => {
-        this.searchError.set(error instanceof Error ? error.message : 'تعذر حساب الوجهات المناسبة. حاول مرة أخرى.');
+        this.searchError.set(error instanceof Error ? error.message : 'تعذر جلب الترشيحات الآن. يمكنك متابعة التصفح بدون مشكلة.');
         return of({
           searchId: '' as never,
-          budget,
-          peopleCount,
-          daysCount,
+          budget: Number(value.budget) || 0,
+          peopleCount: Number(value.peopleCount) || 0,
+          daysCount: Number(value.daysCount) || 0,
           results: [],
           primaryRecommendation: null,
           alternativeRecommendations: [],
@@ -194,7 +184,7 @@ export class GoWhereComponent implements OnInit {
       this.searchResult.set(result);
 
       if (!result.primaryRecommendation && !result.alternativeRecommendations?.length && !result.results?.length) {
-        this.searchError.set('لم نتمكن من العثور على وجهات مناسبة الآن. جرّب ميزانية مختلفة.');
+        this.searchError.set('لم نتمكن من العثور على ترشيحات مناسبة الآن. يمكنك استكشاف المدن والتجارب المميزة بالأسفل.');
       }
     });
   }
@@ -259,8 +249,16 @@ export class GoWhereComponent implements OnInit {
     return result.imageUrl || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85';
   }
 
+  cityExploreImage(city: City): string {
+    return city.mainImageUrl || city.coverImage || city.imageUrl || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85';
+  }
+
   recommendationLabel(result: BudgetCityRecommendationDto): string {
     return result.confidence?.labelAr || (result.remainingBudget >= 0 ? 'داخل الميزانية' : 'أعلى من الميزانية');
+  }
+
+  currentBudget(): number {
+    return this.optionalNumber(this.form.controls.budget.value) ?? 0;
   }
 
   costPerPerson(result: BudgetCityRecommendationDto): number {
@@ -288,7 +286,7 @@ export class GoWhereComponent implements OnInit {
     return this.recommendationKey(item);
   }
 
-  trackByExperience(_: number, item: RealTripExperiencePreviewDto): string {
+  trackByExperience(_: number, item: RealTripExperiencePreviewDto | Experience): string {
     return `${item.title}-${item.startDate ?? ''}-${item.endDate ?? ''}`;
   }
 
@@ -302,9 +300,7 @@ export class GoWhereComponent implements OnInit {
         return of([] as City[] | { items?: City[] });
       }),
       finalize(() => this.loadingCities.set(false))
-    ).subscribe((result) => {
-      this.cities.set(this.normalizeCities(result));
-    });
+    ).subscribe((result) => this.cities.set(this.normalizeCities(result)));
   }
 
   private loadGovernorates(): void {
@@ -352,7 +348,26 @@ export class GoWhereComponent implements OnInit {
     });
   }
 
+  private loadExploreContent(): void {
+    this.loadingExplore.set(true);
+
+    this.experiencesService.search({ pageNumber: 1, pageSize: 6 }).pipe(
+      catchError(() => of([] as Experience[] | { items?: Experience[] })),
+      finalize(() => this.loadingExplore.set(false))
+    ).subscribe((result) => {
+      this.featuredExperiences.set(this.normalizeExperiences(result));
+    });
+  }
+
   private normalizeCities(result: City[] | { items?: City[] } | null | undefined): City[] {
+    if (Array.isArray(result)) {
+      return result;
+    }
+
+    return result?.items ?? [];
+  }
+
+  private normalizeExperiences(result: Experience[] | { items?: Experience[] } | null | undefined): Experience[] {
     if (Array.isArray(result)) {
       return result;
     }
@@ -388,15 +403,5 @@ export class GoWhereComponent implements OnInit {
   private optionalNumber(value: string): number | null {
     const number = Number(value);
     return Number.isFinite(number) && number > 0 ? number : null;
-  }
-
-  private positiveOrDefault(value: string | number, fallback: number): number {
-    const number = Number(value);
-    return Number.isFinite(number) && number > 0 ? number : fallback;
-  }
-
-  private queryNumber(key: string, fallback: number): number {
-    const value = Number(this.route.snapshot.queryParamMap.get(key));
-    return Number.isNaN(value) || value <= 0 ? fallback : value;
   }
 }

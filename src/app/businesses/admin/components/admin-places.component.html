@@ -1,0 +1,48 @@
+<section class="admin-page">
+  <div class="toolbar">
+    <div>
+      <p class="eyebrow">Places</p>
+      <h2>إدارة الأماكن والصور</h2>
+      <p class="muted">الصور بتتعرض كجاليري كامل من غير افتراض إنها صورة واحدة.</p>
+    </div>
+    <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+  </div>
+
+  <div class="layout">
+    <div class="table-card">
+      @if (loading()) {
+        <p>جاري التحميل...</p>
+      } @else {
+        <div class="cards">
+          @for (item of items(); track item.id) {
+            <article class="card" (click)="open(item)">
+              <img [src]="item.mainImageUrl || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=900&q=80'" [alt]="item.name" />
+              <div>
+                <h3>{{ item.name }}</h3>
+                <p class="muted">{{ item.cityName || '—' }} · {{ item.typeName || '—' }}</p>
+                <p class="muted">{{ item.priceFrom || 0 }} - {{ item.priceTo || 0 }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <aside class="detail-card">
+      @if (selected(); as item) {
+        <h3>{{ item.name }}</h3>
+        <p class="muted">{{ item.cityName || '—' }} · {{ item.typeName || '—' }}</p>
+        <div class="gallery">
+          @for (image of images(); track image.imageUrl) {
+            <figure>
+              <img [src]="image.imageUrl" [alt]="image.caption || item.name" />
+              @if (image.caption) { <figcaption>{{ image.caption }}</figcaption> }
+            </figure>
+          }
+        </div>
+      } @else {
+        <div class="empty-card">اختر مكانًا من القائمة لعرض الصور الكاملة.</div>
+      }
+    </aside>
+  </div>
+</section>

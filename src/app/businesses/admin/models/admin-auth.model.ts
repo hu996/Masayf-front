@@ -9,3 +9,19 @@ export interface AdminAuthSession {
   roles: string[];
 }
 
+export function readAdminAuthSession(): AdminAuthSession | null {
+  if (typeof localStorage === 'undefined') return null;
+
+  try {
+    const session = JSON.parse(localStorage.getItem(ADMIN_AUTH_SESSION_KEY) || 'null') as AdminAuthSession | null;
+    if (!session?.token || new Date(session.expiresAt).getTime() <= Date.now()) {
+      localStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+      return null;
+    }
+
+    return session;
+  } catch {
+    localStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+    return null;
+  }
+}

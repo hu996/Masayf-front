@@ -1,6 +1,6 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { normalizeId, Place } from '../../../core/models/api.models';
+import { MediaImage, normalizeId, Place } from '../../../core/models/api.models';
 import { PricePipe } from '../../pipes/price.pipe';
 
 @Component({
@@ -17,11 +17,12 @@ export class PlaceCardComponent {
 
   image(): string {
     const place = this.place();
-    return place.mainImageUrl || place.imageUrl || place.images?.[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80';
+    const firstImage = place.images?.[0];
+    const normalized = typeof firstImage === 'string' ? firstImage : (firstImage as MediaImage | undefined)?.imageUrl;
+    return place.mainImageUrl || place.imageUrl || normalized || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80';
   }
 
   placeId() {
     return normalizeId(this.place().id ?? this.place().placeId);
   }
 }
-

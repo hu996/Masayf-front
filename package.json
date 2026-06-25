@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:gh-pages": "ng build --configuration production --base-href /Masayf-front/ --deploy-url /Masayf-front/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:masayef-front": "node dist/masayef-front/server/server.mjs"

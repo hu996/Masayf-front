@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { catchError, forkJoin, map, Observable, of, switchMap } from 'rxjs';
-import { ApiId, Experience, normalizeId, Place } from '@app/core/models/api.models';
+import { ApiId, Experience, MediaImage, normalizeId, Place } from '@app/core/models/api.models';
 import { AccommodationsService } from '../../accommodations/services/accommodations.service';
 import { AttractionsService } from '../../attractions/services/attractions.service';
 import { ExperiencesService } from '../../experiences/services/experiences.service';
@@ -67,7 +67,7 @@ export class PlaceDetailsService {
       ...dto,
       id,
       displayType: isAccommodation ? 'إقامة' : (dto.category || 'نشاط'),
-      primaryImage: galleryImages[0],
+      primaryImage: galleryImages[0]?.imageUrl,
       galleryImages,
       displayPrice,
       ratingValue,
@@ -84,14 +84,51 @@ export class PlaceDetailsService {
     return viewModel;
   }
 
-  private uniqueImages(dto: Place): string[] {
-    const images = [
+  private uniqueImages(dto: Place): MediaImage[] {
+    const sources = [
+      ...(dto.imageItems ?? []),
       ...(dto.images ?? []),
       dto.mainImageUrl,
       dto.imageUrl
-    ].filter((image): image is string => Boolean(image?.trim()));
+    ];
 
-    return [...new Set(images)].slice(0, 5);
+    const normalized = sources
+      .map((image, index) => this.normalizeImage(image, index))
+      .filter((image): image is MediaImage => Boolean(image?.imageUrl?.trim()))
+      .sort((a, b) => Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0));
+
+    const seen = new Set<string>();
+    return normalized.filter((image) => {
+      const key = image.imageUrl.trim();
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    }).slice(0, 8);
+  }
+
+  private normalizeImage(image: string | MediaImage | null | undefined, index: number): MediaImage | null {
+    if (!image) {
+      return null;
+    }
+
+    if (typeof image === 'string') {
+      return {
+        imageUrl: image,
+        isMain: index === 0,
+        isCover: index === 0,
+        sortOrder: index
+      };
+    }
+
+    return {
+      ...image,
+      imageUrl: image.imageUrl,
+      isMain: Boolean(image.isMain ?? index === 0),
+      isCover: Boolean(image.isCover ?? index === 0),
+      sortOrder: Number.isFinite(Number(image.sortOrder)) ? Number(image.sortOrder) : index
+    };
   }
 
   private facts(place: Place, isAccommodation: boolean, price?: number, rating?: number): { label: string; value: string }[] {

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masayef</title>
+  <script>
+    (function () {
+      var redirectKey = 'masayef-gh-pages-path';
+      var path = location.pathname + location.search + location.hash;
+
+      try {
+        sessionStorage.setItem(redirectKey, path);
+      } catch (e) {
+        // Ignore storage failures and still try to recover by redirecting home.
+      }
+
+      location.replace('/Masayf-front/');
+    })();
+  </script>
+</head>
+<body>
+</body>
+</html>

@@ -19,3 +19,17 @@ p {
   margin-top: 14px;
 }
 
+@media (max-width: 620px) {
+  p {
+    min-height: auto;
+  }
+
+  .card-foot {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .card-foot .btn {
+    width: 100%;
+  }
+}

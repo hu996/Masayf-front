@@ -1,4 +1,5 @@
 import { ApiId } from './api-id.model';
+import { MediaImage } from './media-image.model';
 
 export interface Experience {
   id?: ApiId;
@@ -22,6 +23,8 @@ export interface Experience {
   coverImageUrl?: string;
   coverImage?: string;
   imageUrl?: string;
+  images?: Array<string | MediaImage>;
+  imageItems?: MediaImage[];
   activityNames?: string[];
   visitedPlaceNames?: string[];
   tripType?: number;

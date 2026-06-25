@@ -138,3 +138,49 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 620px) {
+  .hero {
+    padding: 28px 0 22px;
+    min-height: auto;
+  }
+
+  .hero-grid {
+    gap: 24px;
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .quick-form {
+    padding: 18px;
+  }
+
+  .two {
+    grid-template-columns: 1fr;
+  }
+
+  .why {
+    padding: 32px 0;
+  }
+
+  .why-grid {
+    gap: 12px;
+  }
+
+  .why-grid div {
+    padding: 18px 16px;
+  }
+
+  .home-cta {
+    margin: 16px 0 32px;
+    padding: 34px 0;
+  }
+
+  .home-cta .btn-primary,
+  .home-cta .btn {
+    width: 100%;
+  }
+}

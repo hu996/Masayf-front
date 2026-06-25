@@ -34,18 +34,8 @@
         </div>
       </header>
 
-      <section class="gallery" [class.gallery--placeholder]="!hasGallery()">
-        @if (hasGallery()) {
-          @for (image of p.galleryImages; track image; let index = $index) {
-            <img loading="lazy" width="640" height="420" [class.main-image]="index === 0" [src]="image" [alt]="p.name">
-          }
-          <button class="gallery-button" type="button">عرض كل الصور</button>
-        } @else {
-          <div class="image-placeholder">
-            <strong>صور المكان غير متاحة حالياً</strong>
-            <span>سنضيف الصور فور توفرها من مزود البيانات.</span>
-          </div>
-        }
+      <section class="gallery">
+        <app-image-gallery [images]="p.galleryImages" [title]="p.name" />
       </section>
 
       <section class="content-layout">
@@ -61,7 +51,7 @@
 
           <section class="content-section">
             <h2>عن المكان</h2>
-            <p>{{ p.description || 'هذا الاختيار مناسب لمن يبحث عن تجربة واضحة التكلفة داخل المدينة، مع إمكانية مقارنته بأماكن مشابهة حسب السعر والمنطقة والتقييم.' }}</p>
+            <p>{{ p.description || 'هذا الاختيار مناسب لمن يبحث عن تجربة واضحة التكلفة داخل المدينة، مع إمكانية المقارنة بأماكن مشابهة حسب السعر والمنطقة والتقييم.' }}</p>
             <div class="about-grid">
               <div><strong>لماذا تختاره؟</strong><span>{{ p.displayPrice ? 'تكلفته واضحة ويمكن حسابها حسب مدة الرحلة.' : 'مناسب للمقارنة ضمن خطة الرحلة.' }}</span></div>
               <div><strong>مناسب لمين؟</strong><span>{{ p.isAccommodation ? 'عائلات وأزواج ورحلات قصيرة.' : 'عائلات وشباب وتجارب يومية.' }}</span></div>
@@ -102,7 +92,7 @@
                 }
               </div>
             } @else {
-              <app-empty-state title="لا توجد أماكن مشابهة حالياً" description="جرّب الرجوع لاحقاً بعد تحديث بيانات المدينة." />
+              <app-empty-state title="لا توجد أماكن مشابهة حاليًا" description="جرّب الرجوع لاحقًا بعد تحديث بيانات المدينة." />
             }
           </section>
 
@@ -137,34 +127,34 @@
         </div>
 
         <app-sticky-cost-card>
-        <aside class="cost-card">
-          <div class="price-line">
-            <span>{{ p.isAccommodation ? 'السعر لليلة' : 'سعر الفرد' }}</span>
-            <strong>{{ p.displayPrice | price }}</strong>
-          </div>
-
-          @if (p.isAccommodation) {
-            <div class="field">
-              <label>عدد الليالي</label>
-              <input type="number" min="1" [formControl]="costForm.controls.nightsCount">
+          <aside class="cost-card">
+            <div class="price-line">
+              <span>{{ p.isAccommodation ? 'السعر لليلة' : 'سعر الفرد' }}</span>
+              <strong>{{ p.displayPrice | price }}</strong>
             </div>
-          }
 
-          <div class="field">
-            <label>عدد الأشخاص</label>
-            <input type="number" min="1" [formControl]="costForm.controls.personsCount">
-          </div>
+            @if (p.isAccommodation) {
+              <div class="field">
+                <label>عدد الليالي</label>
+                <input type="number" min="1" [formControl]="costForm.controls.nightsCount">
+              </div>
+            }
 
-          <div class="total-box">
-            <span>إجمالي تقديري</span>
-            <strong>{{ estimatedTotal() | price }}</strong>
-          </div>
+            <div class="field">
+              <label>عدد الأشخاص</label>
+              <input type="number" min="1" [formControl]="costForm.controls.personsCount">
+            </div>
 
-          <p class="muted">{{ p.isAccommodation ? 'السعة' : 'المدة' }}: {{ p.isAccommodation ? (p.capacity || 'غير متوفر') : (p.durationHours ? p.durationHours + ' ساعات' : 'غير متوفر') }}</p>
+            <div class="total-box">
+              <span>إجمالي تقديري</span>
+              <strong>{{ estimatedTotal() | price }}</strong>
+            </div>
 
-          <button class="btn btn-primary" (click)="addToPlan()">أضف إلى خطة الرحلة</button>
-          <button class="btn btn-ghost" (click)="compare()">قارن مع أماكن أخرى</button>
-        </aside>
+            <p class="muted">{{ p.isAccommodation ? 'السعة' : 'المدة' }}: {{ p.isAccommodation ? (p.capacity || 'غير متوفر') : (p.durationHours ? p.durationHours + ' ساعات' : 'غير متوفر') }}</p>
+
+            <button class="btn btn-primary" (click)="addToPlan()">أضف إلى خطة الرحلة</button>
+            <button class="btn btn-ghost" (click)="compare()">قارن مع أماكن أخرى</button>
+          </aside>
         </app-sticky-cost-card>
       </section>
 

@@ -1,4 +1,5 @@
 import { ApiId } from './api-id.model';
+import { MediaImage } from './media-image.model';
 
 export interface Place {
   id: ApiId;
@@ -24,7 +25,7 @@ export interface Place {
   duration?: string;
   mainImageUrl?: string;
   imageUrl?: string;
-  images?: string[];
+  images?: Array<string | MediaImage>;
+  imageItems?: MediaImage[];
   isActive?: boolean;
 }
-

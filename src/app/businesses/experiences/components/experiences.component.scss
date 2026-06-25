@@ -64,3 +64,26 @@
   font-size: 0.85rem;
   font-weight: 800;
 }
+
+@media (max-width: 720px) {
+  .experiences-hero {
+    padding: 42px 0;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .experience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-card {
+    padding: 14px;
+  }
+
+  .numbers {
+    grid-template-columns: 1fr;
+  }
+}

@@ -274,3 +274,50 @@
   }
 }
 
+@media (max-width: 620px) {
+  .details-page {
+    padding: 18px 0 44px;
+  }
+
+  .header-grid h1 {
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+  }
+
+  .breadcrumb {
+    gap: 6px;
+    font-size: 0.86rem;
+  }
+
+  .quick-actions {
+    width: 100%;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+  }
+
+  .content-section,
+  .cost-card,
+  .facts-strip div,
+  .about-grid div,
+  .cost-grid div {
+    border-radius: 14px;
+  }
+
+  .content-section,
+  .cost-card {
+    padding: 14px;
+  }
+
+  .final-cta {
+    padding: 18px;
+  }
+
+  .final-cta h2 {
+    font-size: 1.3rem;
+  }
+
+  .gallery {
+    margin-bottom: 20px;
+  }
+}

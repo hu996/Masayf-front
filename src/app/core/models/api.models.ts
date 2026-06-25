@@ -4,6 +4,7 @@ export * from './city.model';
 export * from './paged-result.model';
 export * from './pagination.model';
 export * from './place.model';
+export * from './media-image.model';
 export * from './trip-planner.model';
 export * from './experience.model';
 export * from './budget-planner.model';

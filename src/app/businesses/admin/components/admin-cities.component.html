@@ -1,0 +1,53 @@
+<section class="admin-page">
+  <div class="toolbar">
+    <div>
+      <p class="eyebrow">Cities</p>
+      <h2>إدارة المدن</h2>
+      <p class="muted">إضافة وتعديل وتفعيل/تعطيل المدن.</p>
+    </div>
+    <button class="btn btn-ghost" type="button" (click)="resetForm()">مدينة جديدة</button>
+  </div>
+
+  <div class="layout">
+    <div class="table-card">
+      @if (loading()) {
+        <p>جاري التحميل...</p>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Governorate</th><th>Price</th><th>Crowd</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              @for (item of items(); track item.id) {
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.governorateName || '—' }}</td>
+                  <td>{{ item.priceLevelName || '—' }}</td>
+                  <td>{{ item.crowdLevelName || '—' }}</td>
+                  <td>{{ item.isActive ? 'Active' : 'Inactive' }}</td>
+                  <td>
+                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">Edit</button>
+                    <button class="btn btn-ghost small" type="button" (click)="toggle(item)">{{ item.isActive ? 'Deactivate' : 'Activate' }}</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <aside class="form-card">
+      <h3>{{ editingId() ? 'Edit city' : 'Add city' }}</h3>
+      <form [formGroup]="form" (ngSubmit)="save()" class="form">
+        <label>Name<input formControlName="name" /></label>
+        <label>Governorate<input formControlName="governorateName" /></label>
+        <label>Price level<input formControlName="priceLevelName" /></label>
+        <label>Crowd level<input formControlName="crowdLevelName" /></label>
+        <label>Main image URL<input formControlName="mainImageUrl" /></label>
+        <label class="checkbox"><input type="checkbox" formControlName="isActive" /> Active</label>
+        @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
+        <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save' }}</button>
+      </form>
+    </aside>
+  </div>
+</section>

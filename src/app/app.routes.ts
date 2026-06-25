@@ -20,47 +20,14 @@ export const routes: Routes = [
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           { path: 'dashboard', loadComponent: () => import('./businesses/admin/components/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
-          {
-            path: 'experiences',
-            loadComponent: () => import('./businesses/admin/components/admin-section.component').then((m) => m.AdminSectionComponent),
-            data: {
-              title: 'مراجعة التجارب',
-              description: 'مركز منفصل لمراجعة تجارب الناس والموافقة على الصور والمحتوى قبل النشر.',
-              hint: 'هنا هنضيف جدول المراجعة والـ moderation actions قريبًا.'
-            }
-          },
-          {
-            path: 'cities',
-            loadComponent: () => import('./businesses/admin/components/admin-section.component').then((m) => m.AdminSectionComponent),
-            data: {
-              title: 'إدارة المدن',
-              description: 'إضافة وتعديل المدن وربطها بالتصنيفات والميزانيات والأنشطة.'
-            }
-          },
-          {
-            path: 'places',
-            loadComponent: () => import('./businesses/admin/components/admin-section.component').then((m) => m.AdminSectionComponent),
-            data: {
-              title: 'إدارة الأماكن',
-              description: 'إدارة الأماكن والـ accommodations والـ attractions من شاشة واحدة.'
-            }
-          },
-          {
-            path: 'food-profiles',
-            loadComponent: () => import('./businesses/admin/components/admin-section.component').then((m) => m.AdminSectionComponent),
-            data: {
-              title: 'Food Cost Profiles',
-              description: 'إعداد بروفايلات تكلفة الأكل لاستخدامها في اقتراحات الميزانية.'
-            }
-          },
-          {
-            path: 'lookups',
-            children: [
-              { path: '', pathMatch: 'full', redirectTo: 'types' },
-              { path: 'types', loadComponent: () => import('./businesses/admin/lookups/lookup-types/components/lookup-types.component').then((m) => m.LookupTypesComponent) },
-              { path: 'items', loadComponent: () => import('./businesses/admin/lookups/lookup-items/components/lookup-items.component').then((m) => m.LookupItemsComponent) }
-            ]
-          }
+          { path: 'users', loadComponent: () => import('./businesses/admin/components/admin-users.component').then((m) => m.AdminUsersComponent) },
+          { path: 'settings', loadComponent: () => import('./businesses/admin/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
+          { path: 'cities', loadComponent: () => import('./businesses/admin/components/admin-cities.component').then((m) => m.AdminCitiesComponent) },
+          { path: 'experiences', loadComponent: () => import('./businesses/admin/components/admin-experiences.component').then((m) => m.AdminExperiencesComponent) },
+          { path: 'places', loadComponent: () => import('./businesses/admin/components/admin-places.component').then((m) => m.AdminPlacesComponent) },
+          { path: 'lookups', loadComponent: () => import('./businesses/admin/components/admin-lookups-home.component').then((m) => m.AdminLookupsHomeComponent) },
+          { path: 'lookups/types', loadComponent: () => import('./businesses/admin/lookups/lookup-types/components/lookup-types.component').then((m) => m.LookupTypesComponent) },
+          { path: 'lookups/items', loadComponent: () => import('./businesses/admin/lookups/lookup-items/components/lookup-items.component').then((m) => m.LookupItemsComponent) }
         ]
       }
     ]

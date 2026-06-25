@@ -16,7 +16,7 @@
 
       <div class="hero-stats">
         <div>
-          <strong>{{ form.controls.budget.value | price }}</strong>
+          <strong>{{ currentBudget() | price }}</strong>
           <small>ميزانية الرحلة</small>
         </div>
         <div>
@@ -152,7 +152,7 @@
             <p class="muted">بحثنا بدأ من: {{ selectedCityLabel() }}</p>
           </div>
           <div class="summary-pills">
-            <span>{{ form.controls.budget.value | price }}</span>
+            <span>{{ currentBudget() | price }}</span>
             <span>{{ form.controls.peopleCount.value }} أشخاص</span>
             <span>{{ form.controls.daysCount.value }} أيام</span>
           </div>
@@ -350,10 +350,60 @@
           }
         </section>
       } @else {
-        <app-empty-state
-          title="ابدأ بإدخال الميزانية"
-          description="اكتب الميزانية وعدد الأيام والأشخاص وسنقترح لك المدن والأنشطة والتجارب المناسبة."
-        />
+        <section class="content-section explore-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">استكشف بدون بحث</p>
+              <h2>مدن وتجارب تقدر تبدأ منها حتى لو سيبت الحقول فاضية</h2>
+            </div>
+          </div>
+
+          @if (cities().length) {
+            <div class="alternatives-grid">
+              @for (city of cities().slice(0, 4); track city.id || city.cityId) {
+                <article class="alternative-card">
+                  <img [src]="cityExploreImage(city)" [alt]="city.name" />
+                  <div class="alternative-body">
+                    <h3>{{ city.name }}</h3>
+                    <p class="muted">{{ city.description || 'مدينة مناسبة لبدء الاستكشاف حسب الميزانية والتجارب المنشورة.' }}</p>
+                    <div class="actions">
+                      <a class="btn btn-primary" [routerLink]="['/go-where']" [queryParams]="{ cityId: city.id || city.cityId }">ابدأ بها</a>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          @if (featuredExperiences().length) {
+            <div class="section-head explore-head">
+              <div>
+                <p class="eyebrow">تجارب مميزة</p>
+                <h2>آخر تجارب السفر الحقيقية</h2>
+              </div>
+            </div>
+            <div class="experience-grid explore-experiences">
+              @for (experience of featuredExperiences().slice(0, 4); track trackByExperience($index, experience)) {
+                <article class="experience-card">
+                  <img [src]="experience.coverImageUrl || experience.coverImage || experience.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'" [alt]="experience.title" />
+                  <div class="experience-body">
+                    <h3>{{ experience.title }}</h3>
+                    <p class="muted">{{ experience.summary || 'تجربة منشورة من أحد المسافرين.' }}</p>
+                    <div class="experience-info">
+                      <span>{{ experience.cityName }}</span>
+                      <span>{{ experience.rating || 0 }}★</span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          <app-empty-state
+            title="ابدأ بإدخال الميزانية لو حابب ترشيحات أدق"
+            description="ممكن تكمل تصفح المدن والتجارب من غير ما تدخل أي بيانات، أو ترجع وتكتب الميزانية لما تكون جاهز."
+          />
+        </section>
       }
     }
   </div>

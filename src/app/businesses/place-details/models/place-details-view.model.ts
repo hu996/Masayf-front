@@ -1,10 +1,10 @@
-import { ApiId, Experience, Place } from '@app/core/models/api.models';
+import { ApiId, Experience, MediaImage, Place } from '@app/core/models/api.models';
 
 export interface PlaceDetailsViewModel extends Place {
   id: ApiId;
   displayType: string;
   primaryImage?: string;
-  galleryImages: string[];
+  galleryImages: MediaImage[];
   displayPrice?: number;
   ratingValue?: number;
   locationLine: string;
@@ -27,4 +27,3 @@ export interface CostRow {
   value: number;
   hint?: string;
 }
-
