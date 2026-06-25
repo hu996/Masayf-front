@@ -1,0 +1,276 @@
+.details-page {
+  padding: 28px 0 64px;
+}
+
+.details-header {
+  margin-bottom: 20px;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.header-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: end;
+}
+
+.header-grid h1 {
+  margin: 10px 0;
+  font-size: clamp(2rem, 4vw, 3.8rem);
+}
+
+.location-line,
+.rating-row {
+  color: var(--muted);
+}
+
+.rating-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.gallery {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-auto-rows: 190px;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.gallery img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.gallery .main-image {
+  grid-row: span 2;
+}
+
+.gallery-button {
+  position: absolute;
+  inset-inline-end: 14px;
+  inset-block-end: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  padding: 10px 14px;
+  font-weight: 800;
+  box-shadow: var(--shadow);
+}
+
+.gallery--placeholder {
+  display: block;
+}
+
+.image-placeholder {
+  min-height: 340px;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  border: 1px dashed var(--border, var(--line));
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e0f2fe, #fef3c7);
+  text-align: center;
+}
+
+.content-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.main-content {
+  display: grid;
+  gap: 18px;
+}
+
+.facts-strip,
+.about-grid,
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.facts-strip div,
+.about-grid div,
+.cost-grid div,
+.content-section,
+.cost-card,
+.final-cta {
+  border: 1px solid var(--border, var(--line));
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.facts-strip div,
+.about-grid div,
+.cost-grid div {
+  padding: 14px;
+}
+
+.facts-strip span,
+.cost-grid span,
+.price-line span,
+.total-box span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.content-section {
+  padding: 20px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chips span {
+  border-radius: 999px;
+  background: #ecfeff;
+  color: #0f766e;
+  padding: 8px 12px;
+  font-weight: 800;
+}
+
+.similar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.experience-list {
+  display: grid;
+  gap: 12px;
+}
+
+.experience-list article,
+.cta-empty {
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.experience-list span {
+  display: block;
+  color: var(--muted);
+  margin: 6px 0;
+}
+
+.tips {
+  margin: 0;
+  padding-inline-start: 22px;
+  color: var(--muted);
+}
+
+.tips li {
+  margin-bottom: 8px;
+}
+
+.cost-card {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.price-line,
+.total-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.total-box {
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+}
+
+.final-cta {
+  margin-top: 28px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.final-cta div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.details-skeleton {
+  display: grid;
+  gap: 16px;
+}
+
+.hero-skeleton {
+  min-height: 380px;
+}
+
+@media (max-width: 980px) {
+  .header-grid,
+  .content-layout,
+  .final-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-actions {
+    justify-content: flex-start;
+  }
+
+  .gallery,
+  .facts-strip,
+  .about-grid,
+  .cost-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery {
+    grid-auto-rows: 220px;
+  }
+
+  .gallery .main-image {
+    grid-row: auto;
+  }
+
+  .cost-card {
+    position: static;
+  }
+
+  .final-cta {
+    display: grid;
+  }
+}
+

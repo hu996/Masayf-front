@@ -1,0 +1,6 @@
+<section class="cost-breakdown-card">
+  <h3>{{ title() }}</h3>
+  @for (item of items(); track item.label) {
+    <div><span>{{ item.label }}</span><strong>{{ item.value | price }}</strong></div>
+  }
+</section>

@@ -1,0 +1,32 @@
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">الأنشطة</p>
+        <h1>تجارب وأنشطة تضيف للرحلة</h1>
+        <p class="muted">اكتشف المزارات والأنشطة حسب التصنيف والسعر.</p>
+      </div>
+    </div>
+
+    <form class="filters" [formGroup]="filters" (ngSubmit)="load()">
+      <div class="field"><label>المدينة</label><input formControlName="cityId" placeholder="معرّف المدينة"></div>
+      <div class="field"><label>المنطقة</label><input formControlName="areaId" placeholder="معرّف المنطقة"></div>
+      <div class="field"><label>التصنيف</label><input formControlName="category" placeholder="شاطئ، متحف، رحلة"></div>
+      <div class="field"><label>أقل سعر</label><input type="number" formControlName="minPrice"></div>
+      <div class="field"><label>أعلى سعر</label><input type="number" formControlName="maxPrice"></div>
+      <button class="btn btn-primary" type="submit">بحث</button>
+    </form>
+
+    @if (loading()) {
+      <app-skeleton-grid [count]="6" />
+    } @else if (places().length) {
+      <div class="card-grid">
+        @for (place of places(); track place.id || place.placeId) {
+          <app-place-card [place]="place" type="attraction" />
+        }
+      </div>
+    } @else {
+      <app-empty-state title="لا توجد أنشطة" description="جرّب تغيير الفلاتر أو تأكد من تشغيل الخادم." />
+    }
+  </div>
+</section>

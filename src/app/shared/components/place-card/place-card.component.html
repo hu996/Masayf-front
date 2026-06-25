@@ -1,0 +1,25 @@
+<article class="travel-card">
+  <img loading="lazy" width="420" height="260" [src]="image()" [alt]="place().name">
+  <div class="travel-card__body">
+    <div class="meta-row">
+      @if (place().category || place().type) {
+        <span class="badge">{{ place().category || place().type }}</span>
+      }
+      <span>★ {{ place().averageRating || place().rating || 'جديد' }}</span>
+    </div>
+    <h3>{{ place().name }}</h3>
+    <p class="muted">{{ place().description || 'تفاصيل المكان متاحة عند فتح الصفحة.' }}</p>
+    <div class="meta-row">
+      <span>{{ place().cityName || 'مدينة غير محددة' }}</span>
+      @if (place().areaName) {
+        <span>• {{ place().areaName }}</span>
+      }
+    </div>
+    <div class="card-foot">
+      <strong>{{ (place().pricePerNight ?? place().priceFrom ?? place().price) | price }}</strong>
+      @if (placeId(); as id) {
+        <a class="btn btn-ghost" [routerLink]="['/details', type(), id]">التفاصيل</a>
+      }
+    </div>
+  </div>
+</article>

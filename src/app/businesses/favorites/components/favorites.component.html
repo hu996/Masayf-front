@@ -1,0 +1,68 @@
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">المفضلة</p>
+        <h1>الأماكن المحفوظة</h1>
+        <p class="muted">راجع اختياراتك وافتح التفاصيل أو احذف المكان من القائمة.</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="btn" [class.btn-primary]="activeTab() === 'places'" [class.btn-ghost]="activeTab() !== 'places'" (click)="activeTab.set('places')">أماكن مفضلة</button>
+      <button class="btn" [class.btn-primary]="activeTab() === 'destinations'" [class.btn-ghost]="activeTab() !== 'destinations'" (click)="activeTab.set('destinations')">مدن محفوظة</button>
+    </div>
+
+    @if (activeTab() === 'places' && loading()) {
+      <div class="card-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    } @else if (activeTab() === 'places' && favorites().length) {
+      <div class="card-grid">
+        @for (place of favorites(); track place.id || place.placeId) {
+          <article class="travel-card">
+            <img loading="lazy" width="420" height="260" [src]="place.mainImageUrl || place.imageUrl || image" [alt]="place.name">
+            <div class="travel-card__body">
+              <h3>{{ place.name }}</h3>
+              <p class="muted">
+                {{ place.cityName || 'مدينة غير محددة' }}
+                @if (place.areaName) {
+                  - {{ place.areaName }}
+                }
+              </p>
+              <strong>{{ (place.pricePerNight ?? place.priceFrom ?? place.price) | price }}</strong>
+              @if (placeId(place); as id) {
+                <div class="actions">
+                  <a class="btn btn-ghost" [routerLink]="['/details', detailsType(place), id]">التفاصيل</a>
+                  <button class="btn btn-danger" (click)="remove(id)">حذف</button>
+                </div>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (activeTab() === 'places') {
+      <app-empty-state title="لا توجد أماكن محفوظة" description="عند إضافة أماكن للمفضلة ستظهر هنا." />
+    } @else if (savedDestinations().length) {
+      <div class="card-grid">
+        @for (destination of savedDestinations(); track destination.cityId) {
+          <article class="travel-card">
+            <img loading="lazy" width="420" height="260" [src]="destinationImage(destination)" [alt]="destination.cityName">
+            <div class="travel-card__body">
+              <h3>{{ destination.cityName }}</h3>
+              <p class="muted">تم الحفظ في {{ destination.savedAt | date: 'short' }}</p>
+              <strong>{{ destination.totalCost | price }}</strong>
+              <div class="meta-row">
+                <span>المتبقي: {{ destination.remainingBudget | price }}</span>
+              </div>
+              <div class="actions">
+                <a class="btn btn-primary" [routerLink]="['/destination-plan', destination.cityId]">اعرض الخطة</a>
+                <button class="btn btn-danger" (click)="removeDestination(destination.cityId)">حذف</button>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-empty-state title="لا توجد مدن محفوظة" description="احفظ وجهة من صفحة اعرف أروح فين وستظهر هنا." />
+    }
+  </div>
+</section>

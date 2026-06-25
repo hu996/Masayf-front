@@ -1,0 +1,18 @@
+<div class="timeline">
+  @for (item of items(); track item.day + item.title) {
+    <article>
+      <div class="day">اليوم {{ item.day }}</div>
+      <div>
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.place || 'المكان يحدد حسب الاختيار المتاح' }}</p>
+        <div class="meta">
+          <span>{{ item.cost !== undefined ? (item.cost | price) : 'التكلفة غير متاحة' }}</span>
+          <span>{{ item.duration || 'مدة مرنة' }}</span>
+        </div>
+        @if (item.notes) {
+          <small>{{ item.notes }}</small>
+        }
+      </div>
+    </article>
+  }
+</div>

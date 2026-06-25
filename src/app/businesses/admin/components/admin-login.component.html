@@ -1,0 +1,26 @@
+<section class="admin-login">
+  <div class="card">
+    <p class="eyebrow">Admin Access</p>
+    <h1>تسجيل دخول الأدمن</h1>
+    <p class="muted">ده دخول منفصل عن Login العادي وعن Google.</p>
+
+    <form [formGroup]="form" (ngSubmit)="login()" class="form">
+      <div class="field">
+        <label>اسم المستخدم</label>
+        <input type="text" formControlName="userName" placeholder="admin" />
+      </div>
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input type="password" formControlName="password" placeholder="••••••••" />
+      </div>
+
+      @if (auth.errorMessage()) {
+        <p class="error">{{ auth.errorMessage() }}</p>
+      }
+
+      <button type="submit" class="btn" [disabled]="auth.loading()">
+        {{ auth.loading() ? 'جارٍ الدخول...' : 'دخول الأدمن' }}
+      </button>
+    </form>
+  </div>
+</section>

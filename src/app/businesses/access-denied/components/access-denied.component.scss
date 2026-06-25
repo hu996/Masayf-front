@@ -1,0 +1,15 @@
+.denied {
+  min-height: 55vh;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 12px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+

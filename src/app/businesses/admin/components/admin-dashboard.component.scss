@@ -1,0 +1,14 @@
+.dashboard { display: grid; gap: 20px; }
+.hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; background: white; border-radius: 24px; padding: 24px; border: 1px solid #e2e8f0; }
+.eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; color: #0284c7; font-weight: 800; }
+.btn, .shortcut-grid a { border-radius: 14px; padding: 12px 14px; font-weight: 800; }
+.btn { background: #0f172a; color: white; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.kpi-grid article { background: white; border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; display: grid; gap: 6px; }
+.kpi-grid span { color: #64748b; font-size: .92rem; }
+.kpi-grid strong { font-size: 1.5rem; }
+.shortcut-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.shortcut-grid a { background: #e0f2fe; color: #0f172a; }
+@media (max-width: 760px) {
+  .hero, .kpi-grid, .shortcut-grid { grid-template-columns: 1fr; display: grid; }
+}

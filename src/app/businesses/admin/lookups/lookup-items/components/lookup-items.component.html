@@ -1,0 +1,201 @@
+<section class="page admin-page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Lookups Admin</p>
+        <h1>إدارة Lookup Items</h1>
+        <p class="muted">أضف العناصر تحت كل نوع واضبط flags الخاصة بالإقامة أو الأنشطة.</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn btn-ghost" routerLink="/admin/lookups/types">Lookup Types</a>
+        <button class="btn btn-primary" type="button" (click)="openCreate()">Add Lookup Item</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label>Lookup Type</label>
+        <select [formControl]="filters.controls.lookupTypeId">
+          <option [ngValue]="null">الكل</option>
+          @for (type of types(); track type.id) {
+            <option [ngValue]="type.id">{{ type.nameAr }} ({{ type.code }})</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>Type Code</label>
+        <input [formControl]="filters.controls.lookupTypeCode" placeholder="PlaceType">
+      </div>
+      <div class="field">
+        <label>الحالة</label>
+        <select [formControl]="filters.controls.isActive">
+          <option [ngValue]="null">الكل</option>
+          <option [ngValue]="true">Active</option>
+          <option [ngValue]="false">Inactive</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>System</label>
+        <select [formControl]="filters.controls.isSystem">
+          <option [ngValue]="null">الكل</option>
+          <option [ngValue]="true">System</option>
+          <option [ngValue]="false">Custom</option>
+        </select>
+      </div>
+    </div>
+
+    @if (error()) {
+      <p class="error-text">{{ error() }}</p>
+    }
+
+    <div class="admin-layout">
+      <div class="table-card card">
+        @if (loading()) {
+          <div class="skeleton"></div>
+        } @else if (items().length) {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type Code</th>
+                  <th>Type Name Ar</th>
+                  <th>Code</th>
+                  <th>Numeric Value</th>
+                  <th>Name Ar</th>
+                  <th>Name En</th>
+                  <th>Description Ar</th>
+                  <th>Description En</th>
+                  <th>Icon</th>
+                  <th>Color</th>
+                  <th>Sort</th>
+                  <th>Active</th>
+                  <th>System</th>
+                  <th>Accommodation</th>
+                  <th>Attraction</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of items(); track row.id) {
+                  <tr>
+                    <td>{{ row.typeCode }}</td>
+                    <td>{{ row.typeNameAr }}</td>
+                    <td><strong>{{ row.code }}</strong></td>
+                    <td>{{ row.numericValue ?? '—' }}</td>
+                    <td>{{ row.nameAr }}</td>
+                    <td>{{ row.nameEn || '—' }}</td>
+                    <td>{{ row.descriptionAr || '—' }}</td>
+                    <td>{{ row.descriptionEn || '—' }}</td>
+                    <td>{{ row.icon || '—' }}</td>
+                    <td>{{ row.color || '—' }}</td>
+                    <td>{{ row.sortOrder }}</td>
+                    <td><span class="pill" [class.ok]="row.isActive">{{ row.isActive ? 'Yes' : 'No' }}</span></td>
+                    <td><span class="pill" [class.system]="row.isSystem">{{ row.isSystem ? 'System' : 'Custom' }}</span></td>
+                    <td>{{ row.isAccommodationType ? 'Yes' : 'No' }}</td>
+                    <td>{{ row.isAttractionType ? 'Yes' : 'No' }}</td>
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn btn-ghost" type="button" (click)="openView(row)">View</button>
+                        <button class="btn btn-secondary" type="button" [disabled]="isProtected(row)" (click)="openEdit(row)">Edit</button>
+                        <button class="btn btn-danger" type="button" [disabled]="isProtected(row)" (click)="remove(row)">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button class="btn btn-ghost" type="button" (click)="loadPage(page() - 1)" [disabled]="page() === 1">السابق</button>
+            <span>Page {{ page() }} / {{ totalPages() }}</span>
+            <button class="btn btn-ghost" type="button" (click)="loadPage(page() + 1)" [disabled]="page() >= totalPages()">التالي</button>
+          </div>
+        } @else {
+          <div class="empty">
+            <h3>لا توجد عناصر مطابقة</h3>
+            <p class="muted">جرّب تغيير الفلاتر أو أضف lookup item جديد.</p>
+          </div>
+        }
+      </div>
+
+      <form class="form-card card" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Form</p>
+            <h2>
+              @switch (mode()) {
+                @case ('edit') { Edit Lookup Item }
+                @case ('view') { View Lookup Item }
+                @default { Add Lookup Item }
+              }
+            </h2>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Lookup Type</label>
+          <select formControlName="lookupTypeId">
+            @for (type of types(); track type.id) {
+              <option [ngValue]="type.id">{{ type.nameAr }} ({{ type.code }})</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Code</label>
+          <input formControlName="code" placeholder="hotel">
+        </div>
+        <div class="field">
+          <label>Numeric Value</label>
+          <input type="number" formControlName="numericValue">
+        </div>
+        <div class="field">
+          <label>Name Arabic</label>
+          <input formControlName="nameAr" placeholder="فندق">
+        </div>
+        <div class="field">
+          <label>Name English</label>
+          <input formControlName="nameEn" placeholder="Hotel">
+        </div>
+        <div class="field">
+          <label>Description Arabic</label>
+          <textarea rows="3" formControlName="descriptionAr"></textarea>
+        </div>
+        <div class="field">
+          <label>Description English</label>
+          <textarea rows="3" formControlName="descriptionEn"></textarea>
+        </div>
+        <div class="field">
+          <label>Icon</label>
+          <input formControlName="icon" placeholder="hotel">
+        </div>
+        <div class="field">
+          <label>Color</label>
+          <input formControlName="color" placeholder="#FFAA00">
+        </div>
+        <div class="field">
+          <label>Sort Order</label>
+          <input type="number" formControlName="sortOrder">
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" formControlName="isActive">
+          <span>Active</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" formControlName="isAccommodationType">
+          <span>Accommodation Type</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" formControlName="isAttractionType">
+          <span>Attraction Type</span>
+        </label>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="saving() || mode() === 'view'">{{ saving() ? 'Saving...' : 'Save' }}</button>
+          <button class="btn btn-ghost" type="button" (click)="openCreate()">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,130 @@
+@if (destination(); as plan) {
+  <section class="plan-hero">
+    <div class="container plan-hero__grid">
+      <div>
+        <p class="eyebrow">خطة الوجهة</p>
+        <h1>{{ plan.cityName }}</h1>
+        <p>ملخص واضح للتكلفة، الأنشطة، وخطة أيام مبدئية مبنية على نتيجة البحث التي اخترتها.</p>
+      </div>
+      <div class="summary-card">
+        <app-budget-status-badge [remaining]="adjustedRemaining()" />
+        <strong>{{ adjustedTotal() | price }}</strong>
+        <p>إجمالي الرحلة بعد تعديل الأنشطة</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="container plan-layout">
+      <div class="plan-main">
+        <section class="panel metrics-grid">
+          <app-city-budget-card [result]="plan" />
+          <div>
+            <span>الميزانية</span>
+            <strong>{{ budgetTotal(plan) | price }}</strong>
+          </div>
+          <div>
+            <span>إجمالي التكلفة</span>
+            <strong>{{ plan.totalCost | price }}</strong>
+          </div>
+          <div>
+            <span>المتبقي</span>
+            <strong>{{ adjustedRemaining() | price }}</strong>
+          </div>
+          <div>
+            <span>نسبة التوافق</span>
+            <strong>{{ plan.matchPercent || 0 }}%</strong>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">تفاصيل التكلفة</p>
+              <h2>هتصرف كام؟</h2>
+            </div>
+          </div>
+          <div class="breakdown-grid">
+            <div><span>إقامة</span><strong>{{ plan.accommodationCost | price }}</strong><small>{{ costPercent(plan.accommodationCost) }}%</small></div>
+            <div><span>مواصلات</span><strong>{{ plan.transportationCost | price }}</strong><small>{{ costPercent(plan.transportationCost) }}%</small></div>
+            <div><span>أكل</span><strong>{{ plan.foodCost | price }}</strong><small>{{ costPercent(plan.foodCost) }}%</small></div>
+            <div><span>أنشطة</span><strong>{{ activeActivitiesTotal() | price }}</strong><small>{{ costPercent(activeActivitiesTotal()) }}%</small></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">برنامج يومي</p>
+              <h2>خطة بسيطة للأيام</h2>
+            </div>
+          </div>
+          <app-activity-timeline [items]="timelineItems()" />
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">الإقامة المقترحة</p>
+              <h2>مكان مناسب حسب الميزانية</h2>
+            </div>
+          </div>
+          <article class="recommendation-card">
+            <div>
+              <h3>{{ accommodationName(plan) }}</h3>
+              <p>نعرض هنا أرخص إقامة مناسبة عندما يرسلها الخادم. حالياً يتم حساب بند الإقامة ضمن إجمالي الخطة.</p>
+            </div>
+            <div>
+              <span>تكلفة الإقامة</span>
+              <strong>{{ accommodationPrice(plan) | price }}</strong>
+            </div>
+            @if (plan.cheapestAccommodationId) {
+              <a class="btn btn-ghost" [routerLink]="['/details', 'accommodation', plan.cheapestAccommodationId]">التفاصيل</a>
+            }
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">تعديل الأنشطة</p>
+              <h2>شيل نشاط وشوف فرق التكلفة</h2>
+            </div>
+          </div>
+
+          <app-activity-customizer
+            [activities]="activities()"
+            [originalTotal]="originalTotal()"
+            [adjustedTotal]="adjustedTotal()"
+            [remaining]="adjustedRemaining()"
+            (toggled)="toggleActivity($event)"
+          />
+        </section>
+      </div>
+
+      <aside class="plan-side">
+        <div class="sticky-panel">
+          <h3>ملخص بعد التعديل</h3>
+          <div><span>إجمالي قبل</span><strong>{{ originalTotal() | price }}</strong></div>
+          <div><span>إجمالي بعد</span><strong>{{ adjustedTotal() | price }}</strong></div>
+          <div><span>فرق التكلفة</span><strong>{{ activityDifference() | price }}</strong></div>
+          <div><span>المتبقي</span><strong>{{ adjustedRemaining() | price }}</strong></div>
+          @if (adjustedRemaining() < 0) {
+            <p class="warning">الخطة الحالية تتجاوز الميزانية. جرّب تقليل الأنشطة أو عدد الأيام.</p>
+          }
+          <a class="btn btn-primary" routerLink="/trip-planner" [queryParams]="{ cityId: plan.cityId, budget: budgetTotal(plan), daysCount: days().length }">كمّل في مخطط الرحلة</a>
+          <a class="btn btn-ghost" routerLink="/experiences" [queryParams]="{ cityId: plan.cityId }">شوف تجارب الناس</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+} @else {
+  <section class="page">
+    <div class="container">
+      <app-empty-state title="لا توجد خطة لعرضها" [description]="errorMessage()" />
+      <div class="empty-action">
+        <a class="btn btn-primary" routerLink="/go-where">ارجع للبحث</a>
+      </div>
+    </div>
+  </section>
+}

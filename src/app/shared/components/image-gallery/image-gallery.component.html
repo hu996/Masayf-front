@@ -1,0 +1,7 @@
+<div class="image-gallery">
+  @for (image of images(); track image) {
+    <img loading="lazy" width="360" height="220" [src]="image" alt="">
+  } @empty {
+    <div class="placeholder">الصور غير متاحة حالياً</div>
+  }
+</div>

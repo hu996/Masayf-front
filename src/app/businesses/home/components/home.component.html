@@ -1,0 +1,104 @@
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">مصايف مصر بقرار أوضح</p>
+      <h1>معاك ميزانية ومش عارف تصيف فين؟</h1>
+      <p>اعرف أنسب مدينة، الإقامة، المواصلات، الأنشطة، وتكلفة الرحلة بناءً على بيانات وتجارب حقيقية.</p>
+    </div>
+    <form class="quick-form" [formGroup]="form" (ngSubmit)="goWhere()">
+      <h2>ابدأ من ميزانيتك</h2>
+      <div class="two">
+        <div class="field">
+          <label>الميزانية</label>
+          <input type="number" formControlName="budget" min="1">
+        </div>
+        <div class="field">
+          <label>عدد الأشخاص</label>
+          <input type="number" formControlName="peopleCount" min="1">
+        </div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label>عدد الأيام</label>
+          <input type="number" formControlName="daysCount" min="1">
+        </div>
+        <div class="field">
+          <label>نوع الرحلة</label>
+          <select formControlName="tripType">
+            <option value="" disabled>اختر نوع الرحلة</option>
+            @for (type of tripTypes(); track type.id) {
+              <option [value]="type.numericValue ?? type.code">{{ type.nameAr }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="field departure-field">
+        <label for="hero-governorate">محافظة السفر (اختياري)</label>
+        <select id="hero-governorate" formControlName="fromGovernorateId">
+          <option value="">من أي مكان</option>
+          @for (governorate of governorates(); track governorate.id) {
+            <option [value]="governorate.id">{{ governorate.name }}</option>
+          }
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">اعرف أروح فين</button>
+    </form>
+  </div>
+</section>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">كيف يعمل Masayef؟</p>
+        <h2>من الميزانية إلى خطة قابلة للتنفيذ</h2>
+      </div>
+    </div>
+    <div class="why-grid">
+      @for (item of howItWorks; track item.title) {
+        <div>
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.text }}</p>
+        </div>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="page featured-section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">مدن مناسبة لميزانيتك</p>
+        <h2>ابدأ باستكشاف المدن ثم احسب التكلفة</h2>
+      </div>
+      <a class="btn btn-ghost" routerLink="/go-where">احسب بميزانيتي</a>
+    </div>
+    @if (loading()) {
+      <app-skeleton-grid [count]="3" />
+    } @else if (cities().length) {
+      <div class="card-grid">
+        @for (city of cities().slice(0, 3); track city.id || city.cityId) {
+          <article class="travel-card">
+            <img loading="lazy" width="420" height="260" [src]="cityImage(city)" [alt]="city.name">
+            <div class="travel-card__body">
+              <h3>{{ city.name }}</h3>
+              <p class="muted">{{ city.description || 'وجهة صيفية مميزة تستحق الاكتشاف.' }}</p>
+              <a class="btn btn-ghost" routerLink="/go-where">اعرف تكلفتها</a>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-empty-state title="لا توجد مدن حالياً" description="قد يكون الخادم غير متاح أو لم يتم إضافة مدن بعد." />
+    }
+  </div>
+</section>
+
+<section class="home-cta">
+  <div class="container">
+    <h2>سافرت قبل كده؟ ساعد غيرك يقرر</h2>
+    <p>شارك تكلفة رحلتك ونصائحك وتجربتك، وسيتم مراجعتها قبل النشر.</p>
+    <a class="btn btn-primary" routerLink="/share-experience">شارك تجربتك</a>
+  </div>
+</section>

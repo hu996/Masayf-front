@@ -1,0 +1,13 @@
+.filter-panel {
+  position: sticky;
+  top: 96px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+@media (max-width: 760px) {
+  .filter-panel {
+    position: static;
+  }
+}

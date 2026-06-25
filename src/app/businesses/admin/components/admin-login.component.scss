@@ -1,0 +1,7 @@
+.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: linear-gradient(180deg, #f8fafc, #e0f2fe); }
+.card { width: min(440px, 100%); background: white; border-radius: 24px; padding: 28px; box-shadow: 0 24px 60px rgba(15, 23, 42, .12); }
+.form { display: grid; gap: 14px; margin-top: 18px; }
+.field { display: grid; gap: 8px; }
+.field input { border: 1px solid #cbd5e1; border-radius: 14px; padding: 14px 16px; }
+.btn { border: 0; background: #0f172a; color: white; border-radius: 14px; padding: 14px 16px; font-weight: 800; }
+.error { color: #b91c1c; margin: 0; }

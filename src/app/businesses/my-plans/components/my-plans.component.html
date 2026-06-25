@@ -1,0 +1,58 @@
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">خططي المحفوظة</p>
+        <h1>كل خططك في مكان واحد</h1>
+        <p class="muted">الخطط المحفوظة من مخطط الرحلة والعناصر التي تضيفها من صفحات التفاصيل تظهر هنا.</p>
+      </div>
+      <a class="btn btn-primary" routerLink="/trip-planner">خطط رحلة جديدة</a>
+    </div>
+
+    @if (plans().length) {
+      <div class="plans-grid">
+        @for (plan of plans(); track plan.tripPlanId) {
+          <article class="plan-card">
+            <div class="plan-head">
+              <div>
+                <h2>{{ plan.cityName }}</h2>
+                <p class="muted">تم الحفظ في {{ plan.savedAt | date: 'short' }}</p>
+              </div>
+              <strong>{{ plan.budget | price }}</strong>
+            </div>
+
+            <div class="meta-grid">
+              <div><span>السيناريوهات</span><strong>{{ plan.scenarios.length }}</strong></div>
+              <div><span>العناصر</span><strong>{{ totalItems(plan) }}</strong></div>
+              <div><span>أول إجمالي</span><strong>{{ (plan.scenarios[0]?.totalCost || 0) | price }}</strong></div>
+            </div>
+
+            @if (expandedPlanId() === plan.tripPlanId) {
+              <div class="details">
+                @for (scenario of plan.scenarios; track scenario.scenarioType) {
+                  <section>
+                    <h3>{{ scenarioLabel(scenario.scenarioType) }}</h3>
+                    <p>الإجمالي: {{ scenario.totalCost | price }} - المتبقي: {{ scenario.remainingBudget | price }}</p>
+                    @for (item of scenario.items; track item.placeId || item.name) {
+                      <div class="item-row">
+                        <strong>{{ item.name }}</strong>
+                        <span>{{ item.estimatedCost | price }}</span>
+                      </div>
+                    }
+                  </section>
+                }
+              </div>
+            }
+
+            <div class="actions">
+              <button class="btn btn-ghost" (click)="toggle(plan)">{{ expandedPlanId() === plan.tripPlanId ? 'إخفاء الخطة' : 'فتح الخطة' }}</button>
+              <button class="btn btn-danger" (click)="remove(plan.tripPlanId)">حذف</button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <app-empty-state title="لا توجد خطط محفوظة" description="احفظ خطة من مخطط الرحلة أو أضف مكاناً للخطة من صفحة التفاصيل." />
+    }
+  </div>
+</section>

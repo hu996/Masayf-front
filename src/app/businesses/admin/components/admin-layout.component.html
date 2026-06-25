@@ -1,0 +1,46 @@
+<div class="admin-shell">
+  <aside class="sidebar" [class.closed]="!sidebarOpen()">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <strong>Masayef Admin</strong>
+        <span>لوحة التحكم</span>
+      </div>
+    </div>
+
+    <nav class="menu">
+      <a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/admin/experiences" routerLinkActive="active">التجارب</a>
+      <a routerLink="/admin/cities" routerLinkActive="active">المدن</a>
+      <a routerLink="/admin/places" routerLinkActive="active">الأماكن</a>
+      <a routerLink="/admin/lookups/types" routerLinkActive="active">Lookup Types</a>
+      <a routerLink="/admin/lookups/items" routerLinkActive="active">Lookup Items</a>
+      <a routerLink="/admin/food-profiles" routerLinkActive="active">Food Profiles</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      @if (auth.session(); as session) {
+        <div class="session-card">
+          <strong>{{ session.fullName }}</strong>
+          <small>{{ session.userName }}</small>
+        </div>
+      }
+      <button type="button" (click)="logout()">خروج</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="topbar">
+      <button type="button" class="toggle" (click)="sidebarOpen.set(!sidebarOpen())">☰</button>
+      <div class="topbar-title">
+        <h1>لوحة التحكم</h1>
+        <p>إدارة الموقع، الموافقة على التجارب، والتحكم في المحتوى.</p>
+      </div>
+      <a class="preview-link" routerLink="/">فتح الموقع</a>
+    </header>
+
+    <section class="content">
+      <router-outlet />
+    </section>
+  </main>
+</div>

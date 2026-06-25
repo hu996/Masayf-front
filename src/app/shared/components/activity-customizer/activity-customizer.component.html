@@ -1,0 +1,25 @@
+<div class="customizer">
+  @if (activities().length) {
+    <div class="activity-list">
+      @for (activity of activities(); track activity.name; let index = $index) {
+        <button type="button" [class.inactive]="!activity.active" (click)="toggled.emit(index)">
+          <span>{{ activity.name }}</span>
+          <strong>{{ activity.cost | price }}</strong>
+        </button>
+      }
+    </div>
+
+    <div class="summary">
+      <div><span>إجمالي قبل</span><strong>{{ originalTotal() | price }}</strong></div>
+      <div><span>إجمالي بعد</span><strong>{{ adjustedTotal() | price }}</strong></div>
+      <div><span>فرق التكلفة</span><strong>{{ difference() | price }}</strong></div>
+      <div><span>المتبقي</span><strong>{{ remaining() | price }}</strong></div>
+    </div>
+
+    @if (remaining() < 0) {
+      <p class="warning">الخطة الحالية تتجاوز الميزانية. جرّب حذف نشاط أو تقليل مدة الرحلة.</p>
+    }
+  } @else {
+    <div class="todo-box">سيتم تفعيل اقتراح بدائل الأنشطة قريباً عند توفر بيانات الأنشطة من الخادم.</div>
+  }
+</div>
