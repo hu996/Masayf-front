@@ -13,13 +13,13 @@
         <h3>{{ experience().title }}</h3>
         <p>{{ experience().cityName }} · {{ experience().daysCount }} أيام · {{ experience().peopleCount }} أشخاص</p>
       </div>
-      <div class="avatar" [attr.title]="experience().authorName || experience().authorUserName || 'مستخدم'">
-        {{ (experience().authorName || experience().authorUserName || 'م').charAt(0) }}
+      <div class="avatar" [attr.title]="experience().authorName || 'مستخدم'">
+        {{ (experience().authorName || 'م').charAt(0) }}
       </div>
     </div>
 
-    @if (experience().authorName || experience().authorUserName) {
-      <p class="author">بواسطة {{ experience().authorName || experience().authorUserName }}</p>
+    @if (experience().authorName) {
+      <p class="author">بواسطة {{ experience().authorName }}</p>
     }
 
     <div class="numbers">
