@@ -1,0 +1,72 @@
+<section class="admin-page">
+  <div class="toolbar">
+    <div>
+      <p class="eyebrow">Moderation</p>
+      <h2>مراجعة التجارب المعلقة</h2>
+      <p class="muted">اعتمد أو ارفض التجارب مع سبب الرفض، ثم حدث القائمة فورًا.</p>
+    </div>
+    <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-card">جاري تحميل التجارب...</div>
+  } @else {
+    <div class="layout">
+      <div class="table-card">
+        @if (items().length) {
+          <div class="cards">
+            @for (item of items(); track item.id) {
+              <article class="card" (click)="open(item)">
+                <img [src]="item.coverImageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80'" [alt]="item.title" />
+                <div>
+                  <span class="pill pending">Pending</span>
+                  <h3>{{ item.title }}</h3>
+                  <p class="muted">{{ item.cityName }} · {{ item.authorName || item.authorUserName || 'غير متوفر' }}</p>
+                  <p class="muted">{{ item.summary || '—' }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="muted">لا توجد تجارب معلقة.</p>
+        }
+      </div>
+
+      <aside class="detail-card">
+        @if (selected(); as detail) {
+          <div class="selected-head">
+            <h3>{{ detail.title }}</h3>
+            <p class="muted">{{ detail.cityName }} · {{ detail.authorName || detail.authorUserName || '—' }}</p>
+          </div>
+          <div class="detail-meta">
+            <span>{{ detail.startDate || '—' }}</span>
+            <span>{{ detail.endDate || '—' }}</span>
+            <span>{{ detail.totalCost || 0 }}</span>
+          </div>
+          <p>{{ detail.summary || '—' }}</p>
+          <div class="gallery">
+            @for (image of selectedImages(); track image.imageUrl) {
+              <figure>
+                <img [src]="image.imageUrl" [alt]="image.caption || detail.title" />
+                @if (image.caption) { <figcaption>{{ image.caption }}</figcaption> }
+              </figure>
+            }
+          </div>
+          <form [formGroup]="rejectForm" class="reject-box" (ngSubmit)="reject(detail)">
+            <label>سبب الرفض<textarea formControlName="reason"></textarea></label>
+            <div class="actions">
+              <button class="btn" type="button" (click)="approve(detail)" [disabled]="busyId() === detail.id">Approve</button>
+              <button class="btn btn-ghost" type="submit" [disabled]="busyId() === detail.id">Reject</button>
+            </div>
+          </form>
+        } @else {
+          <div class="empty-card">
+            <p>اختر تجربة من القائمة لعرض التفاصيل.</p>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
+</section>

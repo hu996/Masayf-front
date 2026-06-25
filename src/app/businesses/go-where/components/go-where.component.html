@@ -1,0 +1,410 @@
+<section class="budget-hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">اعرف أروح فين</p>
+      <h1>أقدر أروح فين؟ بكام؟ وأعمل إيه؟</h1>
+      <p>
+        Masayef بيقترح لك مدن وتجارب حقيقية وأنشطة تناسب ميزانيتك وعدد الأيام والأشخاص،
+        من غير ما يطلب منك تسجيل دخول.
+      </p>
+
+      <div class="hero-highlights">
+        <span>المدينة الأساسية أولًا لو اخترتها</span>
+        <span>تجارب ناس سافروا فعلاً</span>
+        <span>بدائل مرتبة حسب الميزانية والتقييم</span>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <strong>{{ currentBudget() | price }}</strong>
+          <small>ميزانية الرحلة</small>
+        </div>
+        <div>
+          <strong>{{ form.controls.peopleCount.value }}</strong>
+          <small>أشخاص</small>
+        </div>
+        <div>
+          <strong>{{ form.controls.daysCount.value }}</strong>
+          <small>أيام</small>
+        </div>
+      </div>
+    </div>
+
+    <form class="finder-form" [formGroup]="form" (ngSubmit)="search()">
+      @if (lookupError() || citiesError() || governoratesError()) {
+        <div class="lookup-retry field-wide">
+          <div>
+            @if (lookupError()) { <p>{{ lookupError() }}</p> }
+            @if (citiesError()) { <p>{{ citiesError() }}</p> }
+            @if (governoratesError()) { <p>{{ governoratesError() }}</p> }
+          </div>
+          <button type="button" class="btn btn-ghost" (click)="retryLookups()">حاول مرة أخرى</button>
+        </div>
+      }
+
+      <div class="field field-wide">
+        <label>المدينة (اختياري)</label>
+        <select formControlName="cityId">
+          <option value="">مش محددة</option>
+          @for (city of cities(); track city.id) {
+            <option [value]="city.id">{{ city.name }}</option>
+          }
+        </select>
+        <small>لو اخترت مدينة، هتظهر كترشيح أساسي أولًا.</small>
+      </div>
+
+      <div class="field">
+        <label>الميزانية</label>
+        <input type="number" formControlName="budget" min="1" />
+      </div>
+      <div class="field">
+        <label>عدد الأشخاص</label>
+        <input type="number" formControlName="peopleCount" min="1" />
+      </div>
+      <div class="field">
+        <label>عدد الأيام</label>
+        <input type="number" formControlName="daysCount" min="1" />
+      </div>
+      <div class="field">
+        <label>نوع الرحلة</label>
+        <select formControlName="tripType">
+          <option value="">اختر</option>
+          @for (type of tripTypes(); track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>محافظة الانطلاق</label>
+        <select formControlName="fromGovernorateId">
+          <option value="">اختياري</option>
+          @for (governorate of governorates(); track governorate.id) {
+            <option [value]="governorate.id">{{ governorate.name }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>مستوى الأكل</label>
+        <select formControlName="foodLevel">
+          <option value="">اختر</option>
+          @for (level of foodLevels(); track level.value) {
+            <option [value]="level.code">{{ level.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>إقامة مفضلة</label>
+        <select formControlName="preferredAccommodationType">
+          <option value="">أي نوع</option>
+          @for (type of accommodationTypes(); track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="field">
+        <label>مواصلات مفضلة</label>
+        <select formControlName="preferredTransport">
+          <option value="">أي وسيلة</option>
+          @for (type of transportTypes(); track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+
+      @if (interestTypes().length) {
+        <div class="interest-picker field-wide">
+          <span>الاهتمامات</span>
+          @for (interest of interestTypes(); track interest.code) {
+            <label>
+              <input
+                type="checkbox"
+                [checked]="form.controls.interestCodes.value.includes(interest.code)"
+                (change)="toggleInterest(interest.code, $any($event.target).checked)"
+              />
+              {{ interest.label }}
+            </label>
+          }
+        </div>
+      }
+
+      <button class="btn btn-primary field-action" type="submit" [disabled]="loadingResults()">
+        {{ loadingResults() ? 'جارِ البحث...' : 'اعرف أروح فين' }}
+      </button>
+
+      @if (searchError()) {
+        <p class="error-text field-wide">{{ searchError() }}</p>
+      }
+    </form>
+  </div>
+</section>
+
+<section class="page">
+  <div class="container">
+    @if (loadingResults()) {
+      <div class="loading-message">بنجهّز لك أفضل الترشيحات والتجارب...</div>
+      <app-skeleton-grid [count]="4" />
+    } @else {
+      @if (primaryRecommendation(); as primary) {
+        <div class="results-summary">
+          <div>
+            <p class="eyebrow">المدينة الأساسية</p>
+            <h2>{{ primary.cityName }}</h2>
+            <p class="muted">بحثنا بدأ من: {{ selectedCityLabel() }}</p>
+          </div>
+          <div class="summary-pills">
+            <span>{{ currentBudget() | price }}</span>
+            <span>{{ form.controls.peopleCount.value }} أشخاص</span>
+            <span>{{ form.controls.daysCount.value }} أيام</span>
+          </div>
+        </div>
+
+        <article class="primary-card">
+          <img loading="lazy" [src]="cityImage(primary)" [alt]="primary.cityName" />
+          <div class="primary-content">
+            <div class="primary-top">
+              <div>
+                <app-budget-status-badge [remaining]="primary.remainingBudget" [label]="recommendationLabel(primary)" />
+                <h3>{{ primary.cityName }}</h3>
+                <p class="muted">{{ primary.summary || 'ترشيح مناسب لميزانيتك بناءً على التكلفة والتجارب المنشورة.' }}</p>
+              </div>
+              <div class="fit-box">
+                <span>Fit Score</span>
+                <strong>{{ fitPercent(primary) }}%</strong>
+                <small>{{ primary.averageRating || 0 }}★</small>
+              </div>
+            </div>
+
+            <div class="cost-hero">
+              <div>
+                <span>التكلفة التقديرية</span>
+                <strong>{{ primary.estimatedTotalCost | price }}</strong>
+              </div>
+              <div>
+                <span>المتبقي من الميزانية</span>
+                <strong [class.negative]="primary.remainingBudget < 0">{{ remainingBudget(primary) | price }}</strong>
+              </div>
+              <div>
+                <span>تكلفة للفرد</span>
+                <strong>{{ costPerPerson(primary) | price }}</strong>
+              </div>
+            </div>
+
+            <div class="breakdown-grid">
+              <div><span>الإقامة</span><b>{{ primary.costBreakdown.accommodation | price }}</b></div>
+              <div><span>المواصلات</span><b>{{ primary.costBreakdown.transportation | price }}</b></div>
+              <div><span>الأكل</span><b>{{ primary.costBreakdown.food | price }}</b></div>
+              <div><span>الأنشطة</span><b>{{ primary.costBreakdown.activities | price }}</b></div>
+              <div><span>عدد التجارب</span><b>{{ primary.experienceCount || 0 }}</b></div>
+              <div><span>التقييم</span><b>{{ primary.averageRating || 0 }}</b></div>
+            </div>
+
+            @if (primary.recommendedAccommodation?.name) {
+              <div class="recommendation-box">
+                <span>الإقامة المقترحة</span>
+                <strong>{{ primary.recommendedAccommodation?.name }}</strong>
+                <small>{{ primary.recommendedAccommodation?.pricePerNight | price }} / ليلة</small>
+              </div>
+            }
+
+            @if (primaryActivities(primary).length) {
+              <div class="chips-block">
+                <span>أنشطة مقترحة</span>
+                <div class="chips">
+                  @for (activity of primaryActivities(primary); track activity) {
+                    <span>{{ activity }}</span>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="actions">
+              <a class="btn btn-primary" [routerLink]="['/destination-plan', destinationPlanId(primary)]" [state]="{ destination: primary }" [queryParams]="{ budget: form.controls.budget.value, daysCount: form.controls.daysCount.value, personsCount: form.controls.peopleCount.value, tripType: form.controls.tripType.value }">
+                اعرض الخطة
+              </a>
+              <a class="btn btn-ghost" [routerLink]="['/experiences']" [queryParams]="{ cityId: primary.cityId }">شوف التجارب</a>
+              <button class="btn btn-ghost" type="button" (click)="saveDestination(primary)">
+                {{ isDestinationSaved(primary) ? 'محفوظة ✓' : 'احفظ الوجهة' }}
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <section class="content-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">تجارب ناس سافروا فعلاً</p>
+              <h2>التجارب الحقيقية جزء أساسي من القرار</h2>
+            </div>
+            <button class="btn btn-ghost" type="button" (click)="showAlternatives.set(false)">إخفاء البدائل</button>
+          </div>
+
+          @if (primaryExperiences().length) {
+            <div class="experience-grid">
+              @for (experience of primaryExperiences(); track trackByExperience($index, experience)) {
+                <article class="experience-card">
+                  <img [src]="experience.coverImageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'" [alt]="experience.title" />
+                  <div class="experience-body">
+                    <div class="experience-meta">
+                      <span>{{ experience.cityName }}</span>
+                      <span>{{ experience.rating || 0 }}★</span>
+                    </div>
+                    <h3>{{ experience.title }}</h3>
+                    <p class="muted">{{ experience.summary || 'تجربة حقيقية منشورة من مستخدمين للتقييم والمقارنة.' }}</p>
+                    <div class="experience-info">
+                      <span>{{ experience.daysCount }} أيام</span>
+                      <span>{{ experience.peopleCount }} أشخاص</span>
+                      <span>{{ experience.totalCost | price }}</span>
+                    </div>
+                    @if (experience.authorName || experience.authorUserName) {
+                      <small class="author-line">
+                        بواسطة {{ experience.authorName || 'مستخدم' }}
+                        @if (experience.authorUserName) {
+                          <span> · {{ experience.authorUserName }}</span>
+                        }
+                      </small>
+                    }
+                    @if (experience.activityNames.length || experience.visitedPlaceNames.length) {
+                      <div class="mini-tags">
+                        @for (activity of experience.activityNames.slice(0, 3); track activity) {
+                          <span>{{ activity }}</span>
+                        }
+                        @for (place of experience.visitedPlaceNames.slice(0, 3); track place) {
+                          <span>{{ place }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <app-empty-state title="لا توجد تجارب منشورة بعد" description="مافيش تجارب منشورة لهذه المدينة حالياً، لكن تقدر تكمل تصفح بقية الترشيحات." />
+          }
+        </section>
+
+        @if (primaryActivities(primary).length) {
+          <section class="content-section">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">أنشطة مقترحة بناءً على الميزانية والتجارب</p>
+                <h2>أفضل الأنشطة للرحلة</h2>
+              </div>
+            </div>
+
+            <div class="activity-grid">
+              @for (activity of activitiesDetails(primary); track activity.name) {
+                <article class="activity-card">
+                  <div class="activity-header">
+                    <h3>{{ activity.name }}</h3>
+                    <strong>{{ activity.cost | price }}</strong>
+                  </div>
+                  <p>{{ activity.categoryNameAr || activity.categoryCode }}</p>
+                  <div class="activity-footer">
+                    <span>{{ activity.durationHours }} ساعة</span>
+                    <span>{{ activity.rating || 0 }}★</span>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+        }
+
+        <section class="content-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">مدن بديلة</p>
+              <h2>بدائل مرتبة حسب الملاءمة والتكلفة والتقييم</h2>
+            </div>
+            <button class="btn btn-ghost" type="button" (click)="toggleAlternatives()">
+              {{ showAlternatives() ? 'إخفاء المدن البديلة' : 'عرض المدن البديلة' }}
+            </button>
+          </div>
+
+          @if (showAlternatives()) {
+            <div class="alternatives-grid">
+              @for (item of alternativeRecommendations(); track trackByCity($index, item)) {
+                <article class="alternative-card">
+                  <img [src]="cityImage(item)" [alt]="item.cityName" />
+                  <div class="alternative-body">
+                    <app-budget-status-badge [remaining]="item.remainingBudget" [label]="recommendationLabel(item)" />
+                    <h3>{{ item.cityName }}</h3>
+                    <p class="muted">{{ item.summary || 'ترشيح بديل مناسب للمقارنة.' }}</p>
+                      <div class="alternative-stats">
+                        <span>Fit {{ fitPercent(item) }}%</span>
+                        <span>{{ item.estimatedTotalCost | price }}</span>
+                        <span>{{ item.averageRating || 0 }}★</span>
+                        <span>{{ item.experienceCount || 0 }} تجربة</span>
+                      </div>
+                    <div class="actions">
+                      <a class="btn btn-primary" [routerLink]="['/destination-plan', destinationPlanId(item)]" [state]="{ destination: item }">اعرض التفاصيل</a>
+                      <button class="btn btn-ghost" type="button" (click)="saveDestination(item)">
+                        {{ isDestinationSaved(item) ? 'محفوظة ✓' : 'احفظ' }}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <p class="muted alternatives-note">اضغط على "عرض المدن البديلة" لو حابب تقارن بين المدن المرشحة.</p>
+          }
+        </section>
+      } @else {
+        <section class="content-section explore-section">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">استكشف بدون بحث</p>
+              <h2>مدن وتجارب تقدر تبدأ منها حتى لو سيبت الحقول فاضية</h2>
+            </div>
+          </div>
+
+          @if (cities().length) {
+            <div class="alternatives-grid">
+              @for (city of cities().slice(0, 4); track city.id || city.cityId) {
+                <article class="alternative-card">
+                  <img [src]="cityExploreImage(city)" [alt]="city.name" />
+                  <div class="alternative-body">
+                    <h3>{{ city.name }}</h3>
+                    <p class="muted">{{ city.description || 'مدينة مناسبة لبدء الاستكشاف حسب الميزانية والتجارب المنشورة.' }}</p>
+                    <div class="actions">
+                      <a class="btn btn-primary" [routerLink]="['/go-where']" [queryParams]="{ cityId: city.id || city.cityId }">ابدأ بها</a>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          @if (featuredExperiences().length) {
+            <div class="section-head explore-head">
+              <div>
+                <p class="eyebrow">تجارب مميزة</p>
+                <h2>آخر تجارب السفر الحقيقية</h2>
+              </div>
+            </div>
+            <div class="experience-grid explore-experiences">
+              @for (experience of featuredExperiences().slice(0, 4); track trackByExperience($index, experience)) {
+                <article class="experience-card">
+                  <img [src]="experience.coverImageUrl || experience.coverImage || experience.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'" [alt]="experience.title" />
+                  <div class="experience-body">
+                    <h3>{{ experience.title }}</h3>
+                    <p class="muted">{{ experience.summary || 'تجربة منشورة من أحد المسافرين.' }}</p>
+                    <div class="experience-info">
+                      <span>{{ experience.cityName }}</span>
+                      <span>{{ experience.rating || 0 }}★</span>
+                    </div>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+
+          <app-empty-state
+            title="ابدأ بإدخال الميزانية لو حابب ترشيحات أدق"
+            description="ممكن تكمل تصفح المدن والتجارب من غير ما تدخل أي بيانات، أو ترجع وتكتب الميزانية لما تكون جاهز."
+          />
+        </section>
+      }
+    }
+  </div>
+</section>

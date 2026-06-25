@@ -1,0 +1,136 @@
+<section class="dashboard">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">Admin dashboard</p>
+      <h2>لوحة تحكم Masayef</h2>
+      <p>مركز التحكم الداخلي للمحتوى، المراجعات، المدن، اللوكابس، الصور، والإحصائيات.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn" routerLink="/admin/experiences">مراجعة التجارب</a>
+      <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-card">جاري تحميل إحصائيات لوحة التحكم...</div>
+  } @else if (errorMessage()) {
+    <div class="loading-card error">
+      <p>{{ errorMessage() }}</p>
+      <button class="btn btn-ghost" type="button" (click)="load()">حاول مرة أخرى</button>
+    </div>
+  } @else {
+    <section class="section-block">
+      <div class="section-head">
+        <h3>KPIs</h3>
+      </div>
+      <div class="kpi-grid">
+        @for (item of kpis(); track item.label) {
+          <article>
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+            @if (item.hint) { <small>{{ item.hint }}</small> }
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head">
+        <h3>أرقام أسبوعية وشهرية</h3>
+      </div>
+      <div class="kpi-grid compact">
+        @for (item of weeklyMonthlyCards(); track item.label) {
+          <article>
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="analytics-grid">
+      <article class="chart-card">
+        <div class="section-head">
+          <h3>تجارب السفر</h3>
+          <span>Line trend</span>
+        </div>
+        <div class="trend-chart">
+          @for (point of experienceTrends(); track point.label) {
+            <div class="trend-row">
+              <span>{{ point.label }}</span>
+              <div class="bar-track"><i [style.width.%]="(point.value / maxValue(experienceTrends())) * 100"></i></div>
+              <b>{{ point.value }}</b>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <div class="section-head">
+          <h3>خطة الرحلات</h3>
+          <span>Line / Bar trend</span>
+        </div>
+        <div class="trend-chart">
+          @for (point of tripPlanTrends(); track point.label) {
+            <div class="trend-row">
+              <span>{{ point.label }}</span>
+              <div class="bar-track"><i [style.width.%]="(point.value / maxValue(tripPlanTrends())) * 100"></i></div>
+              <b>{{ point.value }}</b>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <div class="section-head">
+          <h3>Top cities</h3>
+          <span>Bar chart</span>
+        </div>
+        <div class="city-bars">
+          @for (point of topCities(); track point.label) {
+            <div class="trend-row">
+              <span>{{ point.label }}</span>
+              <div class="bar-track"><i [style.width.%]="(point.value / maxValue(topCities())) * 100"></i></div>
+              <b>{{ point.value }}</b>
+            </div>
+          }
+        </div>
+      </article>
+    </section>
+
+    <section class="section-block">
+      <div class="section-head">
+        <h3>آخر التجارب المعلقة</h3>
+        <a routerLink="/admin/experiences">فتح صفحة المراجعة</a>
+      </div>
+      @if (pendingExperiences().length) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>City</th>
+                <th>Author</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of pendingExperiences(); track item.id) {
+                <tr>
+                  <td>{{ item.title }}</td>
+                  <td>{{ item.cityName }}</td>
+                  <td>{{ item.authorName || item.authorUserName || 'غير متوفر' }}</td>
+                  <td>{{ item.startDate || '—' }}</td>
+                  <td><span class="pill pending">{{ item.status || 'Pending' }}</span></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="muted">لا توجد عناصر معلقة الآن.</p>
+      }
+    </section>
+  }
+</section>
