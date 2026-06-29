@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { catchError, finalize, of } from 'rxjs';
+import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { AdminUserFormValue, AdminUserRow } from '../models/admin-user.model';
 import { AdminUsersService } from '../services/admin-users.service';
+import { AdminRolesService } from '../services/admin-roles.service';
+import { AdminRoleRow } from '../models/admin-role.model';
 
 @Component({
   selector: 'app-admin-users',
@@ -15,11 +17,13 @@ import { AdminUsersService } from '../services/admin-users.service';
 export class AdminUsersComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(AdminUsersService);
+  private readonly rolesService = inject(AdminRolesService);
 
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly errorMessage = signal('');
   readonly items = signal<AdminUserRow[]>([]);
+  readonly roles = signal<AdminRoleRow[]>([]);
   readonly editingId = signal<string | null>(null);
 
   readonly filterForm = this.fb.nonNullable.group({
@@ -31,7 +35,7 @@ export class AdminUsersComponent implements OnInit {
     userName: [''],
     email: [''],
     password: [''],
-    roles: this.fb.nonNullable.control<string[]>(['Moderator'])
+    roles: this.fb.nonNullable.control<string[]>([])
   });
 
   ngOnInit(): void {
@@ -41,13 +45,20 @@ export class AdminUsersComponent implements OnInit {
   load(): void {
     this.loading.set(true);
     const search = this.filterForm.controls.search.value;
-    this.service.getUsers(search).pipe(
+
+    forkJoin({
+      users: this.service.getUsers(search).pipe(catchError(() => of([] as AdminUserRow[]))),
+      roles: this.rolesService.getRoles().pipe(catchError(() => of([] as AdminRoleRow[])))
+    }).pipe(
       catchError((error: unknown) => {
         this.errorMessage.set(error instanceof Error ? error.message : 'تعذر تحميل المستخدمين.');
-        return of([] as AdminUserRow[]);
+        return of({ users: [] as AdminUserRow[], roles: [] as AdminRoleRow[] });
       }),
       finalize(() => this.loading.set(false))
-    ).subscribe((items) => this.items.set(items));
+    ).subscribe(({ users, roles }) => {
+      this.items.set(users);
+      this.roles.set(roles);
+    });
   }
 
   save(): void {
@@ -78,7 +89,7 @@ export class AdminUsersComponent implements OnInit {
       userName: item.userName,
       email: item.email,
       password: '',
-      roles: item.roles?.length ? item.roles : ['Moderator']
+      roles: item.roles?.length ? item.roles : this.defaultRoles()
     });
   }
 
@@ -93,8 +104,12 @@ export class AdminUsersComponent implements OnInit {
       userName: '',
       email: '',
       password: '',
-      roles: ['Moderator']
+      roles: this.defaultRoles()
     });
+  }
+
+  roleLabel(roleName: string): string {
+    return this.roles().find((role) => role.name === roleName)?.displayName || roleName;
   }
 
   private buildPayload(): AdminUserFormValue {
@@ -103,7 +118,12 @@ export class AdminUsersComponent implements OnInit {
       userName: this.form.controls.userName.value,
       email: this.form.controls.email.value,
       password: this.form.controls.password.value || undefined,
-      roles: this.form.controls.roles.value?.length ? this.form.controls.roles.value : ['Moderator']
+      roles: this.form.controls.roles.value?.length ? this.form.controls.roles.value : this.defaultRoles()
     };
+  }
+
+  private defaultRoles(): string[] {
+    const availableRoles = this.roles();
+    return availableRoles.length ? [availableRoles[0].name] : [];
   }
 }

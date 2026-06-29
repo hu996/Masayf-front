@@ -1,7 +1,7 @@
 <section class="admin-page">
   <div class="toolbar">
     <div>
-      <p class="eyebrow">Moderation</p>
+      <p class="eyebrow">المراجعة</p>
       <h2>مراجعة التجارب المعلقة</h2>
       <p class="muted">اعتمد أو ارفض التجارب مع سبب الرفض، ثم حدث القائمة فورًا.</p>
     </div>
@@ -19,7 +19,7 @@
               <article class="card" (click)="open(item)">
                 <img [src]="item.coverImageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80'" [alt]="item.title" />
                 <div>
-                  <span class="pill pending">Pending</span>
+                  <span class="pill pending">معلق</span>
                   <h3>{{ item.title }}</h3>
                   <p class="muted">{{ item.cityName }} · {{ item.authorName || item.authorUserName || 'غير متوفر' }}</p>
                   <p class="muted">{{ item.summary || '—' }}</p>
@@ -55,8 +55,8 @@
           <form [formGroup]="rejectForm" class="reject-box" (ngSubmit)="reject(detail)">
             <label>سبب الرفض<textarea formControlName="reason"></textarea></label>
             <div class="actions">
-              <button class="btn" type="button" (click)="approve(detail)" [disabled]="busyId() === detail.id">Approve</button>
-              <button class="btn btn-ghost" type="submit" [disabled]="busyId() === detail.id">Reject</button>
+              <button class="btn" type="button" (click)="approve(detail)" [disabled]="busyId() === detail.id">اعتماد</button>
+              <button class="btn btn-ghost" type="submit" [disabled]="busyId() === detail.id">رفض</button>
             </div>
           </form>
         } @else {

@@ -19,6 +19,13 @@ p {
   margin-top: 14px;
 }
 
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 @media (max-width: 620px) {
   p {
     min-height: auto;
@@ -31,5 +38,10 @@ p {
 
   .card-foot .btn {
     width: 100%;
+  }
+
+  .card-actions {
+    width: 100%;
+    flex-direction: column;
   }
 }

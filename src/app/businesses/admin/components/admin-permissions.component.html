@@ -1,0 +1,66 @@
+<section class="admin-page">
+  <div class="toolbar">
+    <div>
+      <p class="eyebrow">الصلاحيات</p>
+      <h2>إدارة الصلاحيات</h2>
+      <p class="muted">اختر دورًا أو مستخدمًا ثم عدّل الصلاحيات مباشرة من هنا.</p>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn" type="button" [class.active]="mode() === 'role'" (click)="changeMode('role')">الأدوار</button>
+      <button class="btn btn-ghost" type="button" [class.active]="mode() === 'user'" (click)="changeMode('user')">المستخدمون</button>
+      <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-state">جاري تحميل الصلاحيات...</div>
+  } @else {
+    <div class="layout">
+      <aside class="side-card">
+        <label>اختيار {{ mode() === 'role' ? 'الدور' : 'المستخدم' }}
+          <select [formControl]="form.controls.targetId" (change)="selectTarget($any($event.target).value)">
+            @for (target of getTargets(); track target.id) {
+              <option [value]="target.id">{{ targetLabel(target) }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="target-summary">
+          <strong>العنصر الحالي</strong>
+          <p>{{ currentTargetLabel() }}</p>
+          <span>{{ selectedPermissions().length }} صلاحية محددة</span>
+        </div>
+
+        <button class="btn" type="button" (click)="save()" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ الصلاحيات' }}</button>
+
+        @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
+      </aside>
+
+      <div class="catalog-card">
+        @for (group of catalog(); track group.key) {
+          <details open class="permission-group">
+            <summary>
+              <span>{{ group.label }}</span>
+              <small>{{ group.items.length }} عنصر</small>
+            </summary>
+            <div class="permission-grid">
+              @for (permission of group.items; track permission.key) {
+                <label class="permission-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isSelected(permission.key)"
+                    (change)="togglePermission(permission.key, $any($event.target).checked)"
+                  />
+                  <span>
+                    <strong>{{ permission.label }}</strong>
+                    <small>{{ permission.key }}</small>
+                  </span>
+                </label>
+              }
+            </div>
+          </details>
+        }
+      </div>
+    </div>
+  }
+</section>

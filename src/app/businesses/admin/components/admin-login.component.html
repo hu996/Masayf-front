@@ -1,17 +1,23 @@
 <section class="admin-login">
   <div class="card">
-    <p class="eyebrow">Admin Access</p>
-    <h1>تسجيل دخول الأدمن</h1>
-    <p class="muted">ده دخول منفصل عن Login العادي وعن Google.</p>
+    <h1>دخول الإدارة</h1>
+    <p class="subtext">استخدم بريدك للدخول.</p>
 
     <form [formGroup]="form" (ngSubmit)="login()" class="form">
       <div class="field">
-        <label>اسم المستخدم</label>
-        <input type="text" formControlName="userName" placeholder="admin" />
+        <label>البريد الإلكتروني</label>
+        <input
+          type="email"
+          formControlName="userName"
+          placeholder="name@gmail.com"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+        />
       </div>
       <div class="field">
         <label>كلمة المرور</label>
-        <input type="password" formControlName="password" placeholder="••••••••" />
+        <input type="password" formControlName="password" placeholder="••••••••" autocomplete="current-password" />
       </div>
 
       @if (auth.errorMessage()) {
@@ -19,7 +25,7 @@
       }
 
       <button type="submit" class="btn" [disabled]="auth.loading()">
-        {{ auth.loading() ? 'جارٍ الدخول...' : 'دخول الأدمن' }}
+        {{ auth.loading() ? 'جاري الدخول...' : 'دخول' }}
       </button>
     </form>
   </div>

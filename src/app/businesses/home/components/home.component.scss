@@ -38,6 +38,11 @@
   text-wrap: balance;
 }
 
+.hero-copy .muted {
+  color: #d7ecf1;
+  max-width: 640px;
+}
+
 .quick-form {
   border: 1px solid rgba(255, 255, 255, .6);
   border-radius: 20px;
@@ -132,6 +137,13 @@
 .home-cta p { color: #d1eff0; max-width: 650px; }
 .home-cta .btn-primary { background: var(--accent); color: #16313b; box-shadow: none; }
 
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 @media (max-width: 860px) {
   .hero-grid,
   .why-grid {
@@ -181,6 +193,14 @@
 
   .home-cta .btn-primary,
   .home-cta .btn {
+    width: 100%;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions .btn {
     width: 100%;
   }
 }

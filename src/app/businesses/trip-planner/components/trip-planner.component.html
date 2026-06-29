@@ -111,7 +111,7 @@
 
           <section class="panel">
             <h3>الإقامة المقترحة</h3>
-            <p>{{ recommendedAccommodation(scenario) || 'سيتم عرض الإقامة المقترحة عند توفرها من الخادم.' }}</p>
+            <p>{{ recommendedAccommodation(scenario) || 'سيتم عرض الإقامة المقترحة عند توفرها.' }}</p>
           </section>
 
           <section class="panel">
@@ -120,7 +120,7 @@
               @for (activity of recommendedActivities(scenario); track activity.name) {
                 <span class="badge">{{ activity.name }}</span>
               } @empty {
-                <p class="muted">سيتم عرض الأنشطة المقترحة عند توفرها من الخادم.</p>
+                <p class="muted">سيتم عرض الأنشطة المقترحة عند توفرها.</p>
               }
             </div>
           </section>
@@ -190,7 +190,7 @@
           }
         </div>
       } @else {
-        <app-empty-state title="لا توجد بدائل متاحة" description="لم يرجع الخادم بدائل مناسبة حالياً. الخطة الحالية كما هي ولن تتأثر." />
+        <app-empty-state title="لا توجد بدائل متاحة" description="لم تتوفر بدائل مناسبة حاليًا. الخطة الحالية كما هي ولن تتأثر." />
       }
     </section>
   </div>

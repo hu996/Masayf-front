@@ -1,0 +1,23 @@
+.admin-page { display: grid; gap: 16px; }
+.toolbar { display: flex; justify-content: space-between; align-items: end; gap: 16px; }
+.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 12px; min-height: 44px; padding: 0 14px; font-weight: 800; background: #0f172a; color: #fff; }
+.btn-ghost { background: #e0f2fe; color: #0f172a; }
+.btn.active { box-shadow: inset 0 0 0 2px rgba(255,255,255,.25); }
+.layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+.side-card, .catalog-card, .empty-state { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; }
+.side-card { display: grid; gap: 14px; position: sticky; top: 16px; }
+.side-card label { display: grid; gap: 8px; font-weight: 800; }
+.side-card select { border: 1px solid #dbe3ef; border-radius: 12px; min-height: 44px; padding: 0 12px; }
+.target-summary { padding: 12px; border-radius: 14px; background: #f8fafc; display: grid; gap: 4px; }
+.target-summary p { margin: 0; font-weight: 800; }
+.target-summary span { color: #64748b; font-size: .9rem; }
+.error { color: #b91c1c; font-weight: 800; }
+.permission-group { border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+.permission-group summary { list-style: none; cursor: pointer; padding: 12px 14px; background: #f8fafc; display: flex; justify-content: space-between; gap: 10px; }
+.permission-grid { padding: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.permission-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid #eef2f7; border-radius: 12px; background: #fff; }
+.permission-item strong, .permission-item small { display: block; }
+.permission-item small { color: #64748b; font-weight: 700; margin-top: 3px; word-break: break-all; }
+@media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .side-card { position: static; } }
+@media (max-width: 620px) { .toolbar { align-items: flex-start; flex-direction: column; } .permission-grid { grid-template-columns: 1fr; } .btn { width: 100%; } }

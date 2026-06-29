@@ -2,36 +2,36 @@
   <div class="container">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Lookups Admin</p>
-        <h1>إدارة Lookup Types</h1>
-        <p class="muted">أنشئ وعدّل وامسح أنواع الـ lookup المستخدمة عبر التطبيق.</p>
+        <p class="eyebrow">القوائم المرجعية</p>
+        <h1>إدارة أنواع القوائم</h1>
+        <p class="muted">أنشئ وعدّل واحذف الأنواع المستخدمة في التطبيق.</p>
       </div>
 
       <div class="actions">
-        <a class="btn btn-ghost" routerLink="/admin/lookups/items">Lookup Items</a>
-        <button class="btn btn-primary" type="button" (click)="openCreate()">Add Lookup Type</button>
+        <a class="btn btn-ghost" routerLink="/admin/lookups/items">عناصر القوائم</a>
+        <button class="btn btn-primary" type="button" (click)="openCreate()">إضافة نوع</button>
       </div>
     </div>
 
     <div class="filters">
       <div class="field">
         <label>بحث</label>
-        <input [formControl]="filters.controls.search" placeholder="Code / Arabic name">
+          <input [formControl]="filters.controls.search" placeholder="الكود أو الاسم">
       </div>
       <div class="field">
         <label>الحالة</label>
         <select [formControl]="filters.controls.isActive">
           <option [ngValue]="null">الكل</option>
-          <option [ngValue]="true">Active</option>
-          <option [ngValue]="false">Inactive</option>
+          <option [ngValue]="true">نشط</option>
+          <option [ngValue]="false">غير نشط</option>
         </select>
       </div>
       <div class="field">
-        <label>System</label>
+        <label>نظامي</label>
         <select [formControl]="filters.controls.isSystem">
           <option [ngValue]="null">الكل</option>
-          <option [ngValue]="true">System</option>
-          <option [ngValue]="false">Custom</option>
+          <option [ngValue]="true">نظامي</option>
+          <option [ngValue]="false">مخصص</option>
         </select>
       </div>
     </div>
@@ -49,14 +49,14 @@
             <table>
               <thead>
                 <tr>
-                  <th>Code</th>
-                  <th>Arabic Name</th>
-                  <th>English Name</th>
-                  <th>Sort</th>
-                  <th>Active</th>
-                  <th>System</th>
-                  <th>Items</th>
-                  <th>Actions</th>
+                  <th>الكود</th>
+                  <th>الاسم بالعربية</th>
+                  <th>الاسم بالإنجليزية</th>
+                  <th>الترتيب</th>
+                  <th>نشط</th>
+                  <th>نظامي</th>
+                  <th>العناصر</th>
+                  <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -66,14 +66,14 @@
                     <td>{{ row.nameAr }}</td>
                     <td>{{ row.nameEn || '—' }}</td>
                     <td>{{ row.sortOrder }}</td>
-                    <td><span class="pill" [class.ok]="row.isActive">{{ row.isActive ? 'Yes' : 'No' }}</span></td>
-                    <td><span class="pill" [class.system]="row.isSystem">{{ row.isSystem ? 'System' : 'Custom' }}</span></td>
+                    <td><span class="pill" [class.ok]="row.isActive">{{ row.isActive ? 'نعم' : 'لا' }}</span></td>
+                    <td><span class="pill" [class.system]="row.isSystem">{{ row.isSystem ? 'نظامي' : 'مخصص' }}</span></td>
                     <td>{{ row.itemsCount }}</td>
                     <td>
                       <div class="row-actions">
-                        <button class="btn btn-ghost" type="button" (click)="openView(row)">View</button>
-                        <button class="btn btn-secondary" type="button" [disabled]="isProtected(row)" (click)="openEdit(row)">Edit</button>
-                        <button class="btn btn-danger" type="button" [disabled]="isProtected(row)" (click)="remove(row)">Delete</button>
+                        <button class="btn btn-ghost" type="button" (click)="openView(row)">عرض</button>
+                        <button class="btn btn-secondary" type="button" [disabled]="isProtected(row)" (click)="openEdit(row)">تعديل</button>
+                        <button class="btn btn-danger" type="button" [disabled]="isProtected(row)" (click)="remove(row)">حذف</button>
                       </div>
                     </td>
                   </tr>
@@ -84,7 +84,7 @@
 
           <div class="pagination">
             <button class="btn btn-ghost" type="button" (click)="loadPage(page() - 1)" [disabled]="page() === 1">السابق</button>
-            <span>Page {{ page() }} / {{ totalPages() }}</span>
+            <span>صفحة {{ page() }} / {{ totalPages() }}</span>
             <button class="btn btn-ghost" type="button" (click)="loadPage(page() + 1)" [disabled]="page() >= totalPages()">التالي</button>
           </div>
         } @else {
@@ -98,41 +98,41 @@
       <form class="form-card card" [formGroup]="form" (ngSubmit)="submit()">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Form</p>
+            <p class="eyebrow">البيانات</p>
             <h2>
               @switch (mode()) {
-                @case ('edit') { Edit Lookup Type }
-                @case ('view') { View Lookup Type }
-                @default { Add Lookup Type }
+                @case ('edit') { تعديل النوع }
+                @case ('view') { عرض النوع }
+                @default { إضافة نوع }
               }
             </h2>
           </div>
         </div>
 
         <div class="field">
-          <label>Code</label>
-          <input formControlName="code" placeholder="PlaceType">
+          <label>الكود</label>
+          <input formControlName="code" placeholder="نوع_المكان">
         </div>
         <div class="field">
-          <label>Name Arabic</label>
+          <label>الاسم بالعربية</label>
           <input formControlName="nameAr" placeholder="نوع المكان">
         </div>
         <div class="field">
-          <label>Name English</label>
+          <label>الاسم بالإنجليزية</label>
           <input formControlName="nameEn" placeholder="Place Type">
         </div>
         <div class="field">
-          <label>Sort Order</label>
+          <label>الترتيب</label>
           <input type="number" formControlName="sortOrder">
         </div>
         <label class="checkbox">
           <input type="checkbox" formControlName="isActive">
-          <span>Active</span>
+          <span>نشط</span>
         </label>
 
         <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="saving() || mode() === 'view'">{{ saving() ? 'Saving...' : 'Save' }}</button>
-          <button class="btn btn-ghost" type="button" (click)="openCreate()">Reset</button>
+          <button class="btn btn-primary" type="submit" [disabled]="saving() || mode() === 'view'">{{ saving() ? 'جاري الحفظ...' : 'حفظ' }}</button>
+          <button class="btn btn-ghost" type="button" (click)="openCreate()">إعادة ضبط</button>
         </div>
       </form>
     </div>

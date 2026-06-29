@@ -12,7 +12,19 @@ th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; text-align: start
 .btn.small { padding: 8px 10px; min-height: 36px; }
 .form { display: grid; gap: 12px; }
 .form label { display: grid; gap: 6px; font-weight: 700; }
-.form input { min-height: 44px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0 12px; width: 100%; }
+.form input,
+.form select,
+.form textarea { min-height: 44px; border: 1px solid #cbd5e1; border-radius: 12px; padding: 0 12px; width: 100%; background: #fff; }
+.form textarea { padding-top: 10px; padding-bottom: 10px; resize: vertical; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.checkbox-list { display: grid; gap: 10px; }
 .checkbox { display: inline-flex; align-items: center; gap: 8px; }
 .error { color: #b91c1c; }
-@media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) {
+  .layout { grid-template-columns: 1fr; }
+  table { min-width: 640px; }
+}
+@media (max-width: 640px) {
+  .table-card, .form-card { padding: 14px; border-radius: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+}

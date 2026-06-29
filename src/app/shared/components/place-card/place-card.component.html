@@ -17,9 +17,14 @@
     </div>
     <div class="card-foot">
       <strong>{{ (place().pricePerNight ?? place().priceFrom ?? place().price) | price }}</strong>
-      @if (placeId(); as id) {
-        <a class="btn btn-ghost" [routerLink]="['/details', type(), id]">التفاصيل</a>
-      }
+      <div class="card-actions">
+        @if (placeId(); as id) {
+          <a class="btn btn-ghost" [routerLink]="['/details', type(), id]">التفاصيل</a>
+        }
+        @if (place().cityId) {
+          <a class="btn btn-ghost" [routerLink]="['/experiences']" [queryParams]="{ cityId: place().cityId }">شوف التجارب</a>
+        }
+      </div>
     </div>
   </div>
 </article>

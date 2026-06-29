@@ -2,20 +2,20 @@
   <div class="container">
     <div class="section-head">
       <div>
-        <p class="eyebrow">Lookups Admin</p>
-        <h1>إدارة Lookup Items</h1>
-        <p class="muted">أضف العناصر تحت كل نوع واضبط flags الخاصة بالإقامة أو الأنشطة.</p>
+        <p class="eyebrow">القوائم المرجعية</p>
+        <h1>إدارة عناصر القوائم</h1>
+        <p class="muted">أضف العناصر تحت كل نوع واضبط خصائصها بسهولة.</p>
       </div>
 
       <div class="actions">
-        <a class="btn btn-ghost" routerLink="/admin/lookups/types">Lookup Types</a>
-        <button class="btn btn-primary" type="button" (click)="openCreate()">Add Lookup Item</button>
+        <a class="btn btn-ghost" routerLink="/admin/lookups/types">أنواع القوائم</a>
+        <button class="btn btn-primary" type="button" (click)="openCreate()">إضافة عنصر</button>
       </div>
     </div>
 
     <div class="filters">
       <div class="field">
-        <label>Lookup Type</label>
+        <label>نوع القائمة</label>
         <select [formControl]="filters.controls.lookupTypeId">
           <option [ngValue]="null">الكل</option>
           @for (type of types(); track type.id) {
@@ -24,23 +24,23 @@
         </select>
       </div>
       <div class="field">
-        <label>Type Code</label>
-        <input [formControl]="filters.controls.lookupTypeCode" placeholder="PlaceType">
+        <label>كود النوع</label>
+        <input [formControl]="filters.controls.lookupTypeCode" placeholder="نوع_المكان">
       </div>
       <div class="field">
         <label>الحالة</label>
         <select [formControl]="filters.controls.isActive">
           <option [ngValue]="null">الكل</option>
-          <option [ngValue]="true">Active</option>
-          <option [ngValue]="false">Inactive</option>
+          <option [ngValue]="true">نشط</option>
+          <option [ngValue]="false">غير نشط</option>
         </select>
       </div>
       <div class="field">
-        <label>System</label>
+        <label>نظامي</label>
         <select [formControl]="filters.controls.isSystem">
           <option [ngValue]="null">الكل</option>
-          <option [ngValue]="true">System</option>
-          <option [ngValue]="false">Custom</option>
+          <option [ngValue]="true">نظامي</option>
+          <option [ngValue]="false">مخصص</option>
         </select>
       </div>
     </div>
@@ -58,22 +58,22 @@
             <table>
               <thead>
                 <tr>
-                  <th>Type Code</th>
-                  <th>Type Name Ar</th>
-                  <th>Code</th>
-                  <th>Numeric Value</th>
-                  <th>Name Ar</th>
-                  <th>Name En</th>
-                  <th>Description Ar</th>
-                  <th>Description En</th>
-                  <th>Icon</th>
-                  <th>Color</th>
-                  <th>Sort</th>
-                  <th>Active</th>
-                  <th>System</th>
-                  <th>Accommodation</th>
-                  <th>Attraction</th>
-                  <th>Actions</th>
+                  <th>كود النوع</th>
+                  <th>اسم النوع</th>
+                  <th>الكود</th>
+                  <th>القيمة الرقمية</th>
+                  <th>الاسم بالعربية</th>
+                  <th>الاسم بالإنجليزية</th>
+                  <th>الوصف بالعربية</th>
+                  <th>الوصف بالإنجليزية</th>
+                  <th>الأيقونة</th>
+                  <th>اللون</th>
+                  <th>الترتيب</th>
+                  <th>نشط</th>
+                  <th>نظامي</th>
+                  <th>إقامة</th>
+                  <th>نشاط</th>
+                  <th>إجراءات</th>
                 </tr>
               </thead>
               <tbody>
@@ -90,15 +90,15 @@
                     <td>{{ row.icon || '—' }}</td>
                     <td>{{ row.color || '—' }}</td>
                     <td>{{ row.sortOrder }}</td>
-                    <td><span class="pill" [class.ok]="row.isActive">{{ row.isActive ? 'Yes' : 'No' }}</span></td>
-                    <td><span class="pill" [class.system]="row.isSystem">{{ row.isSystem ? 'System' : 'Custom' }}</span></td>
-                    <td>{{ row.isAccommodationType ? 'Yes' : 'No' }}</td>
-                    <td>{{ row.isAttractionType ? 'Yes' : 'No' }}</td>
+                    <td><span class="pill" [class.ok]="row.isActive">{{ row.isActive ? 'نعم' : 'لا' }}</span></td>
+                    <td><span class="pill" [class.system]="row.isSystem">{{ row.isSystem ? 'نظامي' : 'مخصص' }}</span></td>
+                    <td>{{ row.isAccommodationType ? 'نعم' : 'لا' }}</td>
+                    <td>{{ row.isAttractionType ? 'نعم' : 'لا' }}</td>
                     <td>
                       <div class="row-actions">
-                        <button class="btn btn-ghost" type="button" (click)="openView(row)">View</button>
-                        <button class="btn btn-secondary" type="button" [disabled]="isProtected(row)" (click)="openEdit(row)">Edit</button>
-                        <button class="btn btn-danger" type="button" [disabled]="isProtected(row)" (click)="remove(row)">Delete</button>
+                        <button class="btn btn-ghost" type="button" (click)="openView(row)">عرض</button>
+                        <button class="btn btn-secondary" type="button" [disabled]="isProtected(row)" (click)="openEdit(row)">تعديل</button>
+                        <button class="btn btn-danger" type="button" [disabled]="isProtected(row)" (click)="remove(row)">حذف</button>
                       </div>
                     </td>
                   </tr>
@@ -109,7 +109,7 @@
 
           <div class="pagination">
             <button class="btn btn-ghost" type="button" (click)="loadPage(page() - 1)" [disabled]="page() === 1">السابق</button>
-            <span>Page {{ page() }} / {{ totalPages() }}</span>
+            <span>صفحة {{ page() }} / {{ totalPages() }}</span>
             <button class="btn btn-ghost" type="button" (click)="loadPage(page() + 1)" [disabled]="page() >= totalPages()">التالي</button>
           </div>
         } @else {
@@ -123,19 +123,19 @@
       <form class="form-card card" [formGroup]="form" (ngSubmit)="submit()">
         <div class="card-head">
           <div>
-            <p class="eyebrow">Form</p>
+            <p class="eyebrow">البيانات</p>
             <h2>
               @switch (mode()) {
-                @case ('edit') { Edit Lookup Item }
-                @case ('view') { View Lookup Item }
-                @default { Add Lookup Item }
+                @case ('edit') { تعديل العنصر }
+                @case ('view') { عرض العنصر }
+                @default { إضافة عنصر }
               }
             </h2>
           </div>
         </div>
 
         <div class="field">
-          <label>Lookup Type</label>
+          <label>نوع القائمة</label>
           <select formControlName="lookupTypeId">
             @for (type of types(); track type.id) {
               <option [ngValue]="type.id">{{ type.nameAr }} ({{ type.code }})</option>
@@ -143,57 +143,57 @@
           </select>
         </div>
         <div class="field">
-          <label>Code</label>
-          <input formControlName="code" placeholder="hotel">
+          <label>الكود</label>
+          <input formControlName="code" placeholder="فندق">
         </div>
         <div class="field">
-          <label>Numeric Value</label>
+          <label>القيمة الرقمية</label>
           <input type="number" formControlName="numericValue">
         </div>
         <div class="field">
-          <label>Name Arabic</label>
+          <label>الاسم بالعربية</label>
           <input formControlName="nameAr" placeholder="فندق">
         </div>
         <div class="field">
-          <label>Name English</label>
+          <label>الاسم بالإنجليزية</label>
           <input formControlName="nameEn" placeholder="Hotel">
         </div>
         <div class="field">
-          <label>Description Arabic</label>
+          <label>الوصف بالعربية</label>
           <textarea rows="3" formControlName="descriptionAr"></textarea>
         </div>
         <div class="field">
-          <label>Description English</label>
+          <label>الوصف بالإنجليزية</label>
           <textarea rows="3" formControlName="descriptionEn"></textarea>
         </div>
         <div class="field">
-          <label>Icon</label>
-          <input formControlName="icon" placeholder="hotel">
+          <label>الأيقونة</label>
+          <input formControlName="icon" placeholder="فندق">
         </div>
         <div class="field">
-          <label>Color</label>
-          <input formControlName="color" placeholder="#FFAA00">
+          <label>اللون</label>
+          <input formControlName="color" placeholder="لون مثل #FFAA00">
         </div>
         <div class="field">
-          <label>Sort Order</label>
+          <label>الترتيب</label>
           <input type="number" formControlName="sortOrder">
         </div>
         <label class="checkbox">
           <input type="checkbox" formControlName="isActive">
-          <span>Active</span>
+          <span>نشط</span>
         </label>
         <label class="checkbox">
           <input type="checkbox" formControlName="isAccommodationType">
-          <span>Accommodation Type</span>
+          <span>نوع إقامة</span>
         </label>
         <label class="checkbox">
           <input type="checkbox" formControlName="isAttractionType">
-          <span>Attraction Type</span>
+          <span>نوع نشاط</span>
         </label>
 
         <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="saving() || mode() === 'view'">{{ saving() ? 'Saving...' : 'Save' }}</button>
-          <button class="btn btn-ghost" type="button" (click)="openCreate()">Reset</button>
+          <button class="btn btn-primary" type="submit" [disabled]="saving() || mode() === 'view'">{{ saving() ? 'جاري الحفظ...' : 'حفظ' }}</button>
+          <button class="btn btn-ghost" type="button" (click)="openCreate()">إعادة ضبط</button>
         </div>
       </form>
     </div>

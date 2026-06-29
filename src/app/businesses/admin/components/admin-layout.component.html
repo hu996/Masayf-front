@@ -3,19 +3,22 @@
     <div class="brand">
       <div class="brand-mark">M</div>
       <div>
-        <strong>Masayef Admin</strong>
-        <span>لوحة التحكم</span>
+        <strong>ماصايف</strong>
+        <span>لوحة الإدارة</span>
       </div>
     </div>
 
     <nav class="menu">
-      <a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/admin/dashboard" routerLinkActive="active">الرئيسية</a>
       <a routerLink="/admin/experiences" routerLinkActive="active">التجارب</a>
       <a routerLink="/admin/places" routerLinkActive="active">الأماكن</a>
       <a routerLink="/admin/cities" routerLinkActive="active">المدن</a>
-      <a routerLink="/admin/lookups" routerLinkActive="active">Lookups</a>
-      <a routerLink="/admin/users" routerLinkActive="active">Users</a>
-      <a routerLink="/admin/settings" routerLinkActive="active">Settings</a>
+      <a routerLink="/admin/price-profiles" routerLinkActive="active">ملفات الأسعار</a>
+      <a routerLink="/admin/roles" routerLinkActive="active">الأدوار</a>
+      <a routerLink="/admin/permissions" routerLinkActive="active">الصلاحيات</a>
+      <a routerLink="/admin/lookups" routerLinkActive="active">القوائم</a>
+      <a routerLink="/admin/users" routerLinkActive="active">المستخدمون</a>
+      <a routerLink="/admin/settings" routerLinkActive="active">الإعدادات</a>
     </nav>
 
     <div class="sidebar-footer">
@@ -34,7 +37,7 @@
       <button type="button" class="toggle" (click)="sidebarOpen.set(!sidebarOpen())">☰</button>
       <div class="topbar-title">
         <h1>لوحة التحكم</h1>
-        <p>إدارة الموقع، الموافقة على التجارب، والتحكم في المحتوى.</p>
+        <p>إدارة الموقع ومراجعة التجارب وتنظيم المحتوى.</p>
       </div>
       <a class="preview-link" routerLink="/">فتح الموقع</a>
     </header>

@@ -23,8 +23,11 @@ export const routes: Routes = [
           { path: 'users', loadComponent: () => import('./businesses/admin/components/admin-users.component').then((m) => m.AdminUsersComponent) },
           { path: 'settings', loadComponent: () => import('./businesses/admin/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
           { path: 'cities', loadComponent: () => import('./businesses/admin/components/admin-cities.component').then((m) => m.AdminCitiesComponent) },
+          { path: 'price-profiles', loadComponent: () => import('./businesses/admin/components/admin-price-profiles.component').then((m) => m.AdminPriceProfilesComponent) },
           { path: 'experiences', loadComponent: () => import('./businesses/admin/components/admin-experiences.component').then((m) => m.AdminExperiencesComponent) },
           { path: 'places', loadComponent: () => import('./businesses/admin/components/admin-places.component').then((m) => m.AdminPlacesComponent) },
+          { path: 'roles', loadComponent: () => import('./businesses/admin/components/admin-roles.component').then((m) => m.AdminRolesComponent) },
+          { path: 'permissions', loadComponent: () => import('./businesses/admin/components/admin-permissions.component').then((m) => m.AdminPermissionsComponent) },
           { path: 'lookups', loadComponent: () => import('./businesses/admin/components/admin-lookups-home.component').then((m) => m.AdminLookupsHomeComponent) },
           { path: 'lookups/types', loadComponent: () => import('./businesses/admin/lookups/lookup-types/components/lookup-types.component').then((m) => m.LookupTypesComponent) },
           { path: 'lookups/items', loadComponent: () => import('./businesses/admin/lookups/lookup-items/components/lookup-items.component').then((m) => m.LookupItemsComponent) }

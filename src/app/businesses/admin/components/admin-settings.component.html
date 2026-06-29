@@ -1,12 +1,12 @@
 <section class="admin-page">
   <div class="toolbar">
     <div>
-      <p class="eyebrow">Settings</p>
+      <p class="eyebrow">الإعدادات</p>
       <h2>إدارة إعدادات النظام</h2>
-      <p class="muted">إعدادات داخلية للموقع والموديريشن واللوحة.</p>
+      <p class="muted">إعدادات عامة للموقع ولوحة الإدارة.</p>
     </div>
     <div class="groups">
-      <button class="chip" type="button" (click)="applyGroup('')">All</button>
+      <button class="chip" type="button" (click)="applyGroup('')">الكل</button>
       @for (group of groups(); track group) {
         <button class="chip" type="button" (click)="applyGroup(group)">{{ group }}</button>
       }
@@ -22,11 +22,11 @@
           <table>
             <thead>
               <tr>
-                <th>Key</th>
-                <th>Value</th>
-                <th>Group</th>
-                <th>Public</th>
-                <th>Actions</th>
+                <th>المفتاح</th>
+                <th>القيمة</th>
+                <th>المجموعة</th>
+                <th>عام</th>
+                <th>إجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -35,10 +35,10 @@
                   <td>{{ item.key }}</td>
                   <td>{{ item.value }}</td>
                   <td>{{ item.group }}</td>
-                  <td>{{ item.isPublic ? 'Yes' : 'No' }}</td>
+                  <td>{{ item.isPublic ? 'نعم' : 'لا' }}</td>
                   <td>
-                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">Edit</button>
-                    <button class="btn btn-ghost small danger" type="button" (click)="remove(item)">Delete</button>
+                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">تعديل</button>
+                    <button class="btn btn-ghost small danger" type="button" (click)="remove(item)">حذف</button>
                   </td>
                 </tr>
               }
@@ -49,17 +49,17 @@
     </div>
 
     <aside class="form-card">
-      <h3>{{ editingId() ? 'Edit setting' : 'Add setting' }}</h3>
+      <h3>{{ editingId() ? 'تعديل الإعداد' : 'إضافة إعداد' }}</h3>
       <form [formGroup]="form" (ngSubmit)="save()" class="form">
-        <label>Key<input formControlName="key" /></label>
-        <label>Value<input formControlName="value" /></label>
-        <label>Group<input formControlName="group" /></label>
-        <label>Description<textarea formControlName="description"></textarea></label>
-        <label class="checkbox"><input type="checkbox" formControlName="isPublic" /> Public</label>
+        <label>المفتاح<input formControlName="key" /></label>
+        <label>القيمة<input formControlName="value" /></label>
+        <label>المجموعة<input formControlName="group" /></label>
+        <label>الوصف<textarea formControlName="description"></textarea></label>
+        <label class="checkbox"><input type="checkbox" formControlName="isPublic" /> ظاهر للجميع</label>
         @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
         <div class="actions">
-          <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save' }}</button>
-          <button class="btn btn-ghost" type="button" (click)="resetForm()">Reset</button>
+          <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ' }}</button>
+          <button class="btn btn-ghost" type="button" (click)="resetForm()">إعادة ضبط</button>
         </div>
       </form>
     </aside>

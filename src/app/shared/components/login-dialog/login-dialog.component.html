@@ -10,21 +10,21 @@
         <div class="provider-label">
           <span class="google-mark" aria-hidden="true">G</span>
           <div>
-            <strong>تسجيل الدخول بجوجل</strong>
-            <small>باستخدام Google Identity Services</small>
+            <strong>الدخول بجوجل</strong>
+            <small>طريقة سريعة وآمنة</small>
           </div>
         </div>
 
         <div #googleButton class="google-button" [class.loading]="googleLoading()"></div>
 
         @if (googleLoading()) {
-          <p class="login-status" role="status">جارِ تجهيز زر تسجيل الدخول بجوجل...</p>
+          <p class="login-status" role="status">جارِ تجهيز الدخول بجوجل...</p>
         }
       </div>
 
       <button class="facebook-button" type="button" [disabled]="auth.loading()" (click)="loginWithFacebook()">
         <span>f</span>
-        المتابعة باستخدام فيسبوك
+        الدخول بفيسبوك
       </button>
 
       @if (auth.loading()) {
@@ -35,7 +35,7 @@
         <p class="login-error" role="alert">{{ auth.errorMessage() }}</p>
       }
 
-      <small>لن نطلب منك تسجيل الدخول للتصفح. نستخدمه فقط لحفظ رحلاتك ومشاركة تجربتك.</small>
+      <small>تسجيل الدخول مطلوب فقط للحفظ والمشاركة.</small>
     </section>
   </div>
 }

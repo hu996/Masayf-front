@@ -66,15 +66,15 @@ export class AdminAuthService {
 
   private mapError(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
-      if (error.status === 0) return 'تعذر الاتصال بالسيرفر.';
-      if (error.status === 401) return 'اسم المستخدم أو كلمة المرور غير صحيحة.';
-      if (error.status === 403) return 'هذا الحساب غير مصرح له بالدخول إلى لوحة الإدارة.';
+      if (error.status === 0) return 'تعذر الاتصال بالخادم.';
+      if (error.status === 401) return 'بيانات الدخول غير صحيحة.';
+      if (error.status === 403) return 'هذا الحساب غير مصرح له بالدخول.';
 
       const body = error.error as { message?: string; errors?: string[] } | string | null;
       const message = typeof body === 'string' ? body : body?.message || body?.errors?.join(' - ');
-      return message || 'تعذر تسجيل دخول الأدمن.';
+      return message || 'تعذر تسجيل الدخول.';
     }
 
-    return error instanceof Error ? error.message : 'تعذر تسجيل دخول الأدمن.';
+    return error instanceof Error ? error.message : 'تعذر تسجيل الدخول.';
   }
 }

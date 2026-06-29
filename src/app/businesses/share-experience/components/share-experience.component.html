@@ -2,7 +2,7 @@
   <div class="container hero-content">
     <span class="eyebrow">🏖️ شارك تجربتك الحقيقية</span>
     <h1>كل رقم بتدخله هيساعد شخص يخطط رحلته صح</h1>
-    <p>فورم بسيط وذكي؛ بنظهر لك الأسئلة المناسبة لتجربتك فقط، وتقدر تحفظ وتكمل في أي وقت.</p>
+    <p>هتجاوب على الأسئلة المناسبة لتجربتك فقط، وتقدر تحفظ وتكمل في أي وقت.</p>
   </div>
 </section>
 
@@ -167,7 +167,7 @@
 
         @if (step() === 8) {
           <section class="step-section fade-in">
-            <div class="section-title"><span>✅</span><div><h2>راجع التكلفة قبل الإرسال</h2><p>الباك هو المصدر النهائي للحساب بعد حفظ التجربة.</p></div></div>
+            <div class="section-title"><span>✅</span><div><h2>راجع التكلفة قبل الإرسال</h2><p>بعد الحفظ، سيتم اعتماد الحساب النهائي تلقائيًا.</p></div></div>
             <div class="review-grid"><div><span>المواصلات</span><b>{{ transportationTotal() }} ج.م</b></div><div><span>السكن</span><b>{{ accommodationTotal() }} ج.م</b></div><div><span>الأكل</span><b>{{ foodTotal() }} ج.م</b></div><div><span>الأنشطة</span><b>{{ activitiesTotal() }} ج.م</b></div><div><span>أخرى</span><b>{{ otherTotal() }} ج.م</b></div><div class="highlight"><span>الإجمالي المحسوب</span><b>{{ calculatedTotal() }} ج.م</b></div><div><span>الإجمالي الذي أدخلته</span><b>{{ form.controls.userReportedTotalCost.value }} ج.م</b></div><div [class.danger]="hasLargeDifference()"><span>الفرق</span><b>{{ difference() }} ج.م</b></div></div>
             @if (hasLargeDifference()) {<div class="warning-card">في فرق واضح بين إجمالي البنود والإجمالي الذي كتبته. راجع الأرقام أو احفظها كتجربة تقريبية.</div>}
             <div class="moderation-note">🛡️ عند النشر ستُرسل التجربة للمراجعة، ولن تظهر للعامة قبل اعتمادها.</div>

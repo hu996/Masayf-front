@@ -39,28 +39,28 @@ export class AdminDashboardComponent implements OnInit {
   kpis(): DashboardStatCard[] {
     const overview = this.overview();
     return [
-      { label: 'Active users', value: overview?.activeUsers ?? 0 },
-      { label: 'Cities', value: overview?.citiesCount ?? 0 },
-      { label: 'Governorates', value: overview?.governoratesCount ?? 0 },
-      { label: 'Lookup types', value: overview?.lookupTypesCount ?? 0 },
-      { label: 'Lookup items', value: overview?.lookupItemsCount ?? 0 },
-      { label: 'Pending experiences', value: overview?.pendingExperiencesCount ?? 0 },
-      { label: 'Published experiences', value: overview?.publishedExperiencesCount ?? 0 },
-      { label: 'Pending places', value: overview?.pendingPlacesCount ?? 0 },
-      { label: 'Approved places', value: overview?.approvedPlacesCount ?? 0 },
-      { label: 'Trip plans', value: overview?.tripPlansCount ?? 0 }
+      { label: 'المستخدمين النشطين', value: overview?.activeUsers ?? 0 },
+      { label: 'المدن', value: overview?.citiesCount ?? 0 },
+      { label: 'المحافظات', value: overview?.governoratesCount ?? 0 },
+      { label: 'القوائم المرجعية', value: overview?.lookupTypesCount ?? 0 },
+      { label: 'عناصر القوائم المرجعية', value: overview?.lookupItemsCount ?? 0 },
+      { label: 'التجارب المعلقة', value: overview?.pendingExperiencesCount ?? 0 },
+      { label: 'التجارب المنشورة', value: overview?.publishedExperiencesCount ?? 0 },
+      { label: 'الأماكن المعلقة', value: overview?.pendingPlacesCount ?? 0 },
+      { label: 'الأماكن المعتمدة', value: overview?.approvedPlacesCount ?? 0 },
+      { label: 'خطط الرحلات', value: overview?.tripPlansCount ?? 0 }
     ];
   }
 
   weeklyMonthlyCards(): DashboardStatCard[] {
     const overview = this.overview();
     return [
-      { label: 'Experiences this week', value: overview?.tripExperiencesThisWeek ?? 0 },
-      { label: 'Experiences this month', value: overview?.tripExperiencesThisMonth ?? 0 },
-      { label: 'Trip plans this week', value: overview?.tripPlansThisWeek ?? 0 },
-      { label: 'Trip plans this month', value: overview?.tripPlansThisMonth ?? 0 },
-      { label: 'Places added this week', value: overview?.placesAddedThisWeek ?? 0 },
-      { label: 'Places added this month', value: overview?.placesAddedThisMonth ?? 0 }
+      { label: 'تجارب هذا الأسبوع', value: overview?.tripExperiencesThisWeek ?? 0 },
+      { label: 'تجارب هذا الشهر', value: overview?.tripExperiencesThisMonth ?? 0 },
+      { label: 'خطط هذا الأسبوع', value: overview?.tripPlansThisWeek ?? 0 },
+      { label: 'خطط هذا الشهر', value: overview?.tripPlansThisMonth ?? 0 },
+      { label: 'أماكن أضيفت هذا الأسبوع', value: overview?.placesAddedThisWeek ?? 0 },
+      { label: 'أماكن أضيفت هذا الشهر', value: overview?.placesAddedThisMonth ?? 0 }
     ];
   }
 

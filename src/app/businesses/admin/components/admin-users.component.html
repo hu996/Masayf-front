@@ -1,13 +1,13 @@
 <section class="admin-page">
   <div class="toolbar">
     <div>
-      <p class="eyebrow">Admin users</p>
-      <h2>إدارة مستخدمي الأدمن</h2>
-      <p class="muted">حسابات داخلية فقط لإدارة Masayef.</p>
+      <p class="eyebrow">المستخدمون</p>
+      <h2>إدارة المستخدمين</h2>
+      <p class="muted">الحسابات الداخلية فقط لإدارة Masayef.</p>
     </div>
     <div class="toolbar-actions">
       <form [formGroup]="filterForm" (ngSubmit)="load()" class="search-box">
-        <input type="search" formControlName="search" placeholder="ابحث بالاسم أو اليوزر..." />
+        <input type="search" formControlName="search" placeholder="ابحث بالاسم أو اسم المستخدم..." />
         <button class="btn" type="submit">بحث</button>
       </form>
       <button class="btn btn-ghost" type="button" (click)="resetForm()">مستخدم جديد</button>
@@ -23,12 +23,12 @@
           <table>
             <thead>
               <tr>
-                <th>Full name</th>
-                <th>UserName</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Roles</th>
-                <th>Actions</th>
+                <th>الاسم</th>
+                <th>اسم المستخدم</th>
+                <th>البريد</th>
+                <th>الحالة</th>
+                <th>الأدوار</th>
+                <th>إجراءات</th>
               </tr>
             </thead>
             <tbody>
@@ -37,11 +37,15 @@
                   <td>{{ item.fullName }}</td>
                   <td>{{ item.userName }}</td>
                   <td>{{ item.email }}</td>
-                  <td><span class="pill" [class.off]="!item.isActive">{{ item.isActive ? 'Active' : 'Inactive' }}</span></td>
-                  <td>{{ item.roles.join(', ') }}</td>
+                  <td><span class="pill" [class.off]="!item.isActive">{{ item.isActive ? 'نشط' : 'غير نشط' }}</span></td>
+                  <td class="roles-cell">
+                    @for (role of item.roles; track role) {
+                      <span class="role-pill">{{ roleLabel(role) }}</span>
+                    }
+                  </td>
                   <td>
-                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">Edit</button>
-                    <button class="btn btn-ghost small" type="button" (click)="toggle(item)">{{ item.isActive ? 'Deactivate' : 'Activate' }}</button>
+                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">تعديل</button>
+                    <button class="btn btn-ghost small" type="button" (click)="toggle(item)">{{ item.isActive ? 'تعطيل' : 'تفعيل' }}</button>
                   </td>
                 </tr>
               }
@@ -56,19 +60,19 @@
     <aside class="form-card">
       <h3>{{ editingId() ? 'تعديل مستخدم' : 'إضافة مستخدم' }}</h3>
       <form [formGroup]="form" (ngSubmit)="save()" class="form">
-        <label>Full name<input formControlName="fullName" /></label>
-        <label>UserName<input formControlName="userName" /></label>
-        <label>Email<input formControlName="email" /></label>
-        <label>Password {{ editingId() ? '(create only)' : '' }}<input type="password" formControlName="password" /></label>
-        <label>Roles
+        <label>الاسم<input formControlName="fullName" /></label>
+        <label>اسم المستخدم<input formControlName="userName" /></label>
+        <label>البريد الإلكتروني<input formControlName="email" /></label>
+        <label>كلمة المرور {{ editingId() ? '(لإضافة جديد فقط)' : '' }}<input type="password" formControlName="password" /></label>
+        <label>الأدوار
           <select multiple formControlName="roles">
-            <option value="Admin">Admin</option>
-            <option value="Moderator">Moderator</option>
-            <option value="ContentManager">ContentManager</option>
+            @for (role of roles(); track role.id) {
+              <option [value]="role.name">{{ role.displayName || role.name }}</option>
+            }
           </select>
         </label>
         @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
-        <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save user' }}</button>
+        <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'جاري الحفظ...' : 'حفظ المستخدم' }}</button>
       </form>
     </aside>
   </div>

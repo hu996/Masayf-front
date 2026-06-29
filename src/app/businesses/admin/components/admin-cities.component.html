@@ -1,9 +1,9 @@
 <section class="admin-page">
   <div class="toolbar">
     <div>
-      <p class="eyebrow">Cities</p>
+      <p class="eyebrow">المدن</p>
       <h2>إدارة المدن</h2>
-      <p class="muted">إضافة وتعديل وتفعيل/تعطيل المدن.</p>
+      <p class="muted">إضافة وتعديل وحذف المدن وربطها بالمحافظة المناسبة.</p>
     </div>
     <button class="btn btn-ghost" type="button" (click)="resetForm()">مدينة جديدة</button>
   </div>
@@ -15,18 +15,25 @@
       } @else {
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Name</th><th>Governorate</th><th>Price</th><th>Crowd</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>المحافظة</th>
+                <th>الازدحام</th>
+                <th>السعر</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
             <tbody>
               @for (item of items(); track item.id) {
                 <tr>
                   <td>{{ item.name }}</td>
                   <td>{{ item.governorateName || '—' }}</td>
-                  <td>{{ item.priceLevelName || '—' }}</td>
-                  <td>{{ item.crowdLevelName || '—' }}</td>
-                  <td>{{ item.isActive ? 'Active' : 'Inactive' }}</td>
+                  <td>{{ item.crowdLevel }}</td>
+                  <td>{{ item.priceLevel }}</td>
                   <td>
-                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">Edit</button>
-                    <button class="btn btn-ghost small" type="button" (click)="toggle(item)">{{ item.isActive ? 'Deactivate' : 'Activate' }}</button>
+                    <button class="btn btn-ghost small" type="button" (click)="edit(item)">تعديل</button>
+                    <button class="btn btn-ghost small danger" type="button" (click)="remove(item)">حذف</button>
                   </td>
                 </tr>
               }
@@ -37,16 +44,57 @@
     </div>
 
     <aside class="form-card">
-      <h3>{{ editingId() ? 'Edit city' : 'Add city' }}</h3>
+      <h3>{{ editingId() ? 'تعديل مدينة' : 'إضافة مدينة' }}</h3>
       <form [formGroup]="form" (ngSubmit)="save()" class="form">
-        <label>Name<input formControlName="name" /></label>
-        <label>Governorate<input formControlName="governorateName" /></label>
-        <label>Price level<input formControlName="priceLevelName" /></label>
-        <label>Crowd level<input formControlName="crowdLevelName" /></label>
-        <label>Main image URL<input formControlName="mainImageUrl" /></label>
-        <label class="checkbox"><input type="checkbox" formControlName="isActive" /> Active</label>
-        @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
-        <button class="btn" type="submit" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save' }}</button>
+        <label>
+          المحافظة
+          <select formControlName="governorateId">
+            <option value="">اختر المحافظة</option>
+            @for (governorate of governorates(); track governorate.id) {
+              <option [value]="governorate.id">{{ governorate.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          اسم المدينة
+          <input formControlName="name" />
+        </label>
+
+        <label>
+          وصف مختصر
+          <textarea rows="4" formControlName="description"></textarea>
+        </label>
+
+        <label>
+          رابط الصورة الرئيسية
+          <input formControlName="mainImageUrl" />
+        </label>
+
+        <div class="form-grid">
+          <label>
+            ازدحام
+            <input type="number" formControlName="crowdLevel" min="1" />
+          </label>
+          <label>
+            مستوى السعر
+            <input type="number" formControlName="priceLevel" min="1" />
+          </label>
+        </div>
+
+        <div class="checkbox-list">
+          <label class="checkbox"><input type="checkbox" formControlName="suitableForFamilies" /> مناسب للعائلات</label>
+          <label class="checkbox"><input type="checkbox" formControlName="suitableForYouth" /> مناسب للشباب</label>
+          <label class="checkbox"><input type="checkbox" formControlName="suitableForKids" /> مناسب للأطفال</label>
+        </div>
+
+        @if (errorMessage()) {
+          <p class="error">{{ errorMessage() }}</p>
+        }
+
+        <button class="btn" type="submit" [disabled]="saving()">
+          {{ saving() ? 'جاري الحفظ...' : 'حفظ' }}
+        </button>
       </form>
     </aside>
   </div>
