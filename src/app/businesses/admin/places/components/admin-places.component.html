@@ -1,48 +1,284 @@
-<section class="admin-page">
-  <div class="toolbar">
-    <div>
-      <p class="eyebrow">Places</p>
-      <h2>إدارة الأماكن والصور</h2>
-      <p class="muted">الصور بتتعرض كجاليري كامل من غير افتراض إنها صورة واحدة.</p>
+<section class="admin-page places-page">
+  <header class="hero card-surface">
+    <div class="hero__copy">
+      <p class="eyebrow">إدارة الأماكن</p>
+      <h2>Grid احترافي لإدارة الأماكن</h2>
+      <p class="muted">ابحث، أضف، عدّل، أو احذف من لوحة واحدة واضحة. البيانات تظهر كبطاقات رسمية مناسبة لنظام إداري.</p>
     </div>
-    <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
-  </div>
 
-  <div class="layout">
-    <div class="table-card">
-      @if (loading()) {
-        <p>جاري التحميل...</p>
-      } @else {
-        <div class="cards">
-          @for (item of items(); track item.id) {
-            <article class="card" (click)="open(item)">
-              <img [src]="placeImage(item)" [alt]="item.name" />
+    <div class="hero__actions">
+      <div class="search-box">
+        <span class="search-box__icon">⌕</span>
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="setSearch($any($event.target).value)"
+          placeholder="ابحث بالاسم أو المدينة أو النوع..."
+        />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost btn-sm" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
+
+      <button class="btn btn-ghost" type="button" (click)="refresh()">تحديث</button>
+      <button class="btn btn-primary" type="button" (click)="openCreate()">إضافة مكان جديد</button>
+    </div>
+  </header>
+
+  <section class="stats-row">
+    <article class="stat-card">
+      <span>إجمالي النتائج</span>
+      <strong>{{ filteredItems().length }}</strong>
+      <small>بعد تطبيق البحث الحالي</small>
+    </article>
+    <article class="stat-card accent">
+      <span>الصفحة الحالية</span>
+      <strong>{{ currentPage() }} / {{ totalPages() }}</strong>
+      <small>تنقل سهل بين الصفحات</small>
+    </article>
+    <article class="stat-card">
+      <span>عدد الأماكن المعروضة</span>
+      <strong>{{ items().length }}</strong>
+      <small>كل الأماكن المحملة من الـ API</small>
+    </article>
+  </section>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      <div class="skeleton-card large"></div>
+      <div class="skeleton-card detail"></div>
+    </div>
+  } @else {
+    <div class="layout">
+      <section class="grid-card card-surface">
+        <div class="panel-head">
+          <div>
+            <h3>Grid الأماكن</h3>
+            <p>اعرض المكان كـ بطاقة رسمية مع صورة، مدينة، نوع، وسعر.</p>
+          </div>
+          <span class="count-pill">صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+        </div>
+
+        @if (errorMessage()) {
+          <div class="alert-state">{{ errorMessage() }}</div>
+        }
+
+        @if (pagedItems().length) {
+          <div class="places-grid">
+            @for (item of pagedItems(); track item.id) {
+              <article class="place-card" [class.selected]="selected()?.id === item.id">
+                <button type="button" class="place-card__preview" (click)="select(item)">
+                  <img [src]="placeImage(item)" [alt]="item.name" />
+                  <span class="place-card__status" [class.off]="!item.isActive">{{ statusLabel(item.isActive) }}</span>
+                </button>
+
+                <div class="place-card__body">
+                  <div class="place-card__head">
+                    <div>
+                      <h4>{{ item.name }}</h4>
+                      <p>{{ cityLabel(item.cityName) }} · {{ typeLabel(item.typeName) }}</p>
+                    </div>
+                    @if (item.rating !== null && item.rating !== undefined) {
+                      <span class="rating-pill">★ {{ item.rating }}</span>
+                    }
+                  </div>
+
+                  <p class="place-card__description">
+                    {{ item.description || 'لا يوجد وصف مختصر لهذا المكان حالياً.' }}
+                  </p>
+
+                  <div class="meta-row">
+                    <span class="meta-pill">السعر: {{ priceRange(item) }}</span>
+                    <span class="meta-pill">ID: {{ item.id }}</span>
+                  </div>
+
+                  <div class="place-card__actions">
+                    <button class="btn btn-soft btn-sm" type="button" (click)="select(item)">التفاصيل</button>
+                    <button class="btn btn-soft btn-sm" type="button" (click)="edit(item)">تعديل</button>
+                    <button class="btn btn-ghost btn-sm danger" type="button" (click)="remove(item)">حذف</button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="pagination">
+            <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() - 1)" [disabled]="currentPage() === 1">
+              السابق
+            </button>
+
+            @for (page of paginationPages(); track page) {
+              <button class="page-chip" type="button" [class.active]="page === currentPage()" (click)="changePage(page)">
+                {{ page }}
+              </button>
+            }
+
+            <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+              التالي
+            </button>
+          </div>
+        } @else {
+          <div class="empty-card">
+            <strong>لا توجد أماكن مطابقة.</strong>
+            <p>جرّب كلمة بحث مختلفة أو أضف مكاناً جديداً من الزر أعلى الصفحة.</p>
+          </div>
+        }
+      </section>
+
+      <aside class="detail-card card-surface">
+        @if (selected(); as item) {
+          <div class="detail-hero">
+            <img [src]="placeImage(item)" [alt]="item.name" />
+            <div class="detail-hero__badge" [class.off]="!item.isActive">{{ statusLabel(item.isActive) }}</div>
+          </div>
+
+          <div class="detail-body">
+            <p class="eyebrow">تفاصيل المكان</p>
+            <h3>{{ item.name }}</h3>
+            <p class="muted">{{ item.description || 'لا يوجد وصف تفصيلي لهذا المكان.' }}</p>
+
+            <div class="detail-meta">
+              <span class="meta-pill">المدينة: {{ cityLabel(item.cityName) }}</span>
+              <span class="meta-pill">النوع: {{ typeLabel(item.typeName) }}</span>
+              <span class="meta-pill">السعر: {{ priceRange(item) }}</span>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn btn-primary" type="button" (click)="edit(item)">تعديل</button>
+              <button class="btn btn-ghost" type="button" (click)="remove(item)">حذف</button>
+            </div>
+          </div>
+
+          <div class="gallery-block">
+            <div class="panel-head compact">
               <div>
-                <h3>{{ item.name }}</h3>
-                <p class="muted">{{ item.cityName || '—' }} · {{ item.typeName || '—' }}</p>
-                <p class="muted">{{ item.priceFrom || 0 }} - {{ item.priceTo || 0 }}</p>
+                <h4>الصور</h4>
+                <p>اعرض الصور القادمة من الـ backend بشكل صحيح داخل لوحة الإدارة.</p>
               </div>
-            </article>
-          }
-        </div>
-      }
-    </div>
+              @if (loadingDetails()) {
+                <span class="count-pill">جارٍ التحميل...</span>
+              }
+            </div>
 
-    <aside class="detail-card">
-      @if (selected(); as item) {
-        <h3>{{ item.name }}</h3>
-        <p class="muted">{{ item.cityName || '—' }} · {{ item.typeName || '—' }}</p>
-        <div class="gallery">
-          @for (image of images(); track image.imageUrl) {
-            <figure>
-              <img [src]="imageUrl(image)" [alt]="image.caption || item.name" />
-              @if (image.caption) { <figcaption>{{ image.caption }}</figcaption> }
-            </figure>
-          }
+            @if (detailImages().length) {
+              <div class="gallery-grid">
+                @for (image of detailImages(); track image.id || image.imageUrl) {
+                  <figure class="gallery-item" [class.main]="image.isMain">
+                    <img [src]="detailImage(image)" [alt]="image.caption || item.name" />
+                    @if (image.isMain) {
+                      <span class="gallery-badge">الرئيسية</span>
+                    }
+                  </figure>
+                }
+              </div>
+            } @else {
+              <div class="empty-card empty-card--tight">
+                <strong>لا توجد صور مرتبطة بهذا المكان.</strong>
+                <p>يمكنك إضافة الصور من الـ API الخاص بالمكان إذا كان متاحاً.</p>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-detail">
+            <div class="empty-detail__icon">◌</div>
+            <h3>اختر مكاناً من الـ grid</h3>
+            <p>ستظهر هنا تفاصيل المكان والصور المرتبطة به بشكل منظم.</p>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (modalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <section class="modal-card" (click)="$event.stopPropagation()">
+        <div class="panel-head compact">
+          <div>
+            <p class="eyebrow">الأماكن</p>
+            <h3>{{ editingId() ? 'تعديل مكان' : 'إضافة مكان جديد' }}</h3>
+          </div>
+          <button type="button" class="icon-close" (click)="closeModal()">×</button>
         </div>
-      } @else {
-        <div class="empty-card">اختر مكانًا من القائمة لعرض الصور الكاملة.</div>
-      }
-    </aside>
-  </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()" class="form">
+          <label>
+            اسم المكان
+            <input formControlName="name" placeholder="مثال: فندق النيل" />
+          </label>
+
+          <div class="form-grid">
+            <label>
+              المدينة
+              <input formControlName="cityName" list="city-options" placeholder="اختر أو اكتب المدينة" />
+              <datalist id="city-options">
+                @for (city of cityOptions(); track city.id) {
+                  <option [value]="city.name"></option>
+                }
+              </datalist>
+            </label>
+
+            <label>
+              النوع
+              <input formControlName="typeName" list="type-options" placeholder="اختر نوع المكان" />
+              <datalist id="type-options">
+                @for (type of typeSuggestions; track type) {
+                  <option [value]="type"></option>
+                }
+              </datalist>
+            </label>
+          </div>
+
+          <label>
+            وصف مختصر
+            <textarea rows="4" formControlName="description" placeholder="أضف وصفاً رسمياً مختصراً للمكان"></textarea>
+          </label>
+
+          <div class="form-grid">
+            <label>
+              السعر من
+              <input type="number" formControlName="priceFrom" min="0" placeholder="0" />
+            </label>
+
+            <label>
+              السعر إلى
+              <input type="number" formControlName="priceTo" min="0" placeholder="0" />
+            </label>
+          </div>
+
+          <label class="toggle-row">
+            <input type="checkbox" formControlName="isActive" />
+            <span>المكان نشط</span>
+          </label>
+
+          @if (errorMessage()) {
+            <div class="alert-state">{{ errorMessage() }}</div>
+          }
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'جارٍ الحفظ...' : 'حفظ المكان' }}
+            </button>
+            <button class="btn btn-ghost" type="button" (click)="closeModal()">إلغاء</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (confirmTarget(); as item) {
+    <div class="modal-backdrop" (click)="closeConfirm()">
+      <section class="confirm-card" (click)="$event.stopPropagation()">
+        <p class="eyebrow">تأكيد الحذف</p>
+        <h3>حذف المكان</h3>
+        <p>هل تريد حذف <strong>{{ item.name }}</strong> من لوحة الإدارة؟</p>
+
+        <div class="modal-actions">
+          <button class="btn btn-danger" type="button" (click)="confirmRemove()" [disabled]="deleting()">
+            {{ deleting() ? 'جارٍ الحذف...' : 'تأكيد الحذف' }}
+          </button>
+          <button class="btn btn-ghost" type="button" (click)="closeConfirm()">إلغاء</button>
+        </div>
+      </section>
+    </div>
+  }
 </section>

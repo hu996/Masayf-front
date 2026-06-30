@@ -6,6 +6,7 @@ export interface AdminPlaceRow {
   name: string;
   cityName?: string | null;
   typeName?: string | null;
+  description?: string | null;
   priceFrom?: number | null;
   priceTo?: number | null;
   isActive: boolean;
@@ -13,4 +14,14 @@ export interface AdminPlaceRow {
   mainImageUrl?: string | null;
   rating?: number | null;
   images?: MediaImage[];
+}
+
+export interface AdminPlaceFormValue {
+  name: string;
+  cityName: string;
+  typeName: string;
+  description: string;
+  priceFrom: number | null;
+  priceTo: number | null;
+  isActive: boolean;
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@app/core/services/api.service';
-import { AdminPlaceRow } from '../models/admin-place.model';
+import { AdminPlaceFormValue, AdminPlaceRow } from '../models/admin-place.model';
 import { MediaImage } from '@app/core/models/api.models';
 
 @Injectable({ providedIn: 'root' })
@@ -10,6 +10,18 @@ export class AdminPlacesService {
 
   getPlaces(): Observable<AdminPlaceRow[]> {
     return this.api.get<AdminPlaceRow[]>('/Admin/Places');
+  }
+
+  createPlace(body: AdminPlaceFormValue): Observable<AdminPlaceRow> {
+    return this.api.post<AdminPlaceRow>('/Admin/Places', body);
+  }
+
+  updatePlace(id: string, body: AdminPlaceFormValue): Observable<AdminPlaceRow> {
+    return this.api.put<AdminPlaceRow>(`/Admin/Places/${id}`, body);
+  }
+
+  deletePlace(id: string): Observable<void> {
+    return this.api.delete<void>(`/Admin/Places/${id}`);
   }
 
   getImages(id: string): Observable<MediaImage[]> {
