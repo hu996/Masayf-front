@@ -1,0 +1,1 @@
+import{Ka as n}from"./chunk-MMBX3QAM.js";var t=class e{transform(r){return r==null?"\u0627\u0644\u0633\u0639\u0631 \u063A\u064A\u0631 \u0645\u062A\u0627\u062D":new Intl.NumberFormat("ar-EG",{style:"currency",currency:"EGP",maximumFractionDigits:0}).format(r)}static \u0275fac=function(i){return new(i||e)};static \u0275pipe=n({name:"price",type:e,pure:!0})};export{t as a};

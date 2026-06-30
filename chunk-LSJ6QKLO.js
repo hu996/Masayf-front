@@ -1,0 +1,1 @@
+import{b as t}from"./chunk-HBEWP4FU.js";import{J as r,R as e,V as i}from"./chunk-MMBX3QAM.js";var p=class o{constructor(a){this.api=a}all$;getAll(){return this.all$??=this.api.get("/Lookups/GetAll").pipe(r(1)),this.all$}static \u0275fac=function(l){return new(l||o)(i(t))};static \u0275prov=e({token:o,factory:o.\u0275fac,providedIn:"root"})};export{p as a};
