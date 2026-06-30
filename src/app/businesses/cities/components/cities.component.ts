@@ -6,6 +6,7 @@ import { ApiId, City, normalizeId } from '@app/core/models/api.models';
 import { CitiesService } from '../services/cities.service';
 import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-state.component';
 import { SkeletonGridComponent } from '@app/shared/components/skeleton-grid/skeleton-grid.component';
+import { resolveMediaUrl } from '@app/core/utils/media-url.util';
 
 @Component({
   selector: 'app-cities',
@@ -37,7 +38,7 @@ export class CitiesComponent implements OnInit {
   }
 
   cityImage(city: City): string {
-    return city.mainImageUrl || city.coverImage || city.imageUrl || this.image;
+    return resolveMediaUrl(city.mainImageUrl || city.coverImage || city.imageUrl, this.image);
   }
 
   private fetch() {

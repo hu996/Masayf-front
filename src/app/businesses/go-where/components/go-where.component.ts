@@ -14,6 +14,7 @@ import { BudgetStatusBadgeComponent } from '@app/shared/components/budget-status
 import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-state.component';
 import { SkeletonGridComponent } from '@app/shared/components/skeleton-grid/skeleton-grid.component';
 import { PricePipe } from '@app/shared/pipes/price.pipe';
+import { resolveMediaUrl } from '@app/core/utils/media-url.util';
 
 type SortMode = 'fit' | 'lowestCost' | 'highestRating' | 'mostExperiences' | 'mostRemaining';
 type LookupOption = { value: number | string; code: string; label: string };
@@ -246,11 +247,18 @@ export class GoWhereComponent implements OnInit {
   }
 
   cityImage(result: BudgetCityRecommendationDto): string {
-    return result.imageUrl || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85';
+    return resolveMediaUrl(result.imageUrl, 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85');
   }
 
   cityExploreImage(city: City): string {
-    return city.mainImageUrl || city.coverImage || city.imageUrl || 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85';
+    return resolveMediaUrl(city.mainImageUrl || city.coverImage || city.imageUrl, 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1000&q=85');
+  }
+
+  experienceImage(experience: { coverImageUrl?: string | null; coverImage?: string | null; imageUrl?: string | null }): string {
+    return resolveMediaUrl(
+      experience.coverImageUrl || experience.coverImage || experience.imageUrl,
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'
+    );
   }
 
   recommendationLabel(result: BudgetCityRecommendationDto): string {

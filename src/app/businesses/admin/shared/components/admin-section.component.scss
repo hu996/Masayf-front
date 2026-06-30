@@ -1,0 +1,66 @@
+.admin-section {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 1320px);
+  margin-inline: auto;
+}
+
+.panel {
+  background: rgba(8, 23, 46, 0.82);
+  border: 1px solid rgba(120, 174, 255, 0.18);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  color: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #86c7ff;
+  font-size: 0.78rem;
+}
+
+h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.description {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.7;
+}
+
+.notice {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}

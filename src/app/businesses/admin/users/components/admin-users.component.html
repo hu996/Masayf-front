@@ -1,0 +1,171 @@
+<section class="admin-page">
+  <header class="hero card-surface">
+    <div class="hero__copy">
+      <p class="eyebrow">إدارة المستخدمين</p>
+      <h2>مستخدمو الإدارة</h2>
+      <p class="muted">
+        شاشة احترافية لإضافة المستخدمين وتعديلهم مع ربط كل مستخدم بدور أساسي واحد فقط.
+      </p>
+    </div>
+
+    <div class="hero__actions">
+      <form [formGroup]="filterForm" (ngSubmit)="search()" class="search-box">
+        <input type="search" formControlName="search" placeholder="ابحث بالاسم أو البريد..." />
+        <button class="btn btn-primary" type="submit">بحث</button>
+      </form>
+      <button class="btn btn-soft" type="button" (click)="resetForm()">مستخدم جديد</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      <div class="skeleton-card table"></div>
+      <div class="skeleton-card form"></div>
+    </div>
+  } @else {
+    <div class="layout">
+      <section class="table-card card-surface">
+        <div class="panel-head">
+          <div>
+            <h3>القائمة</h3>
+            <p>{{ items().length }} مستخدم</p>
+          </div>
+          <span class="count-pill">{{ roles().length }} دور</span>
+        </div>
+
+        @if (pagedItems().length) {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الاسم</th>
+                  <th>اسم المستخدم</th>
+                  <th>البريد</th>
+                  <th>الدور</th>
+                  <th>الحالة</th>
+                  <th>تاريخ الإنشاء</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of pagedItems(); track item.id) {
+                  <tr [class.active-row]="item.id === editingId()">
+                    <td>
+                      <strong>{{ item.fullName }}</strong>
+                    </td>
+                    <td>{{ item.userName }}</td>
+                    <td>{{ item.email }}</td>
+                    <td>
+                      <span class="role-pill">{{ roleLabel(item.roleName || item.roles?.[0] || '') }}</span>
+                    </td>
+                    <td>
+                      <span class="status-pill" [class.off]="!item.isActive">{{ isActiveLabel(item.isActive) }}</span>
+                    </td>
+                    <td>{{ createdAt(item) }}</td>
+                    <td>
+                      <div class="actions-cell">
+                        <button class="btn btn-soft btn-sm" type="button" (click)="edit(item)">تعديل</button>
+                        <button class="btn btn-ghost btn-sm" type="button" (click)="askToggle(item)">
+                          {{ item.isActive ? 'تعطيل' : 'تفعيل' }}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() - 1)" [disabled]="currentPage() === 1">
+              السابق
+            </button>
+
+            @for (page of paginationPages(); track page) {
+              <button class="page-chip" type="button" [class.active]="page === currentPage()" (click)="changePage(page)">
+                {{ page }}
+              </button>
+            }
+
+            <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+              التالي
+            </button>
+          </div>
+        } @else {
+          <div class="empty-card">
+            <strong>لا توجد نتائج مطابقة.</strong>
+            <p>يمكنك إنشاء مستخدم جديد أو تعديل البحث الحالي.</p>
+          </div>
+        }
+      </section>
+
+      <aside class="form-card card-surface">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">بطاقة المستخدم</p>
+            <h3>{{ editingId() ? 'تعديل مستخدم' : 'إضافة مستخدم' }}</h3>
+          </div>
+          @if (editingId()) {
+            <span class="count-pill">Edit Mode</span>
+          }
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()" class="form">
+          <label>الاسم الكامل<input formControlName="fullName" /></label>
+          <label>اسم المستخدم<input formControlName="userName" /></label>
+          <label>البريد الإلكتروني<input formControlName="email" /></label>
+          <label>كلمة المرور {{ editingId() ? '(اختياري للتعديل)' : '' }}<input type="password" formControlName="password" /></label>
+
+          <label>الدور الأساسي
+            <select formControlName="roleName">
+              <option value="">اختر دورًا</option>
+              @for (role of roles(); track role.id) {
+                <option [value]="role.name">{{ role.displayName || role.name }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="toggle-row">
+            <input type="checkbox" formControlName="isActive" />
+            <span>المستخدم نشط</span>
+          </label>
+
+          <div class="role-preview">
+            <strong>الدور الحالي</strong>
+            <span>{{ selectedRoleLabel() }}</span>
+          </div>
+
+          @if (errorMessage()) {
+            <div class="alert-state error">{{ errorMessage() }}</div>
+          }
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'جاري الحفظ...' : 'حفظ المستخدم' }}
+            </button>
+            <button class="btn btn-ghost" type="button" (click)="cancelEdit()">إلغاء</button>
+          </div>
+        </form>
+      </aside>
+    </div>
+  }
+
+  @if (confirmTarget(); as user) {
+    <div class="modal-backdrop" (click)="closeConfirm()">
+      <section class="modal-card" (click)="$event.stopPropagation()">
+        <p class="eyebrow">تأكيد الإجراء</p>
+        <h3>{{ confirmNextState() ? 'تفعيل المستخدم' : 'تعطيل المستخدم' }}</h3>
+        <p>
+          هل تريد {{ confirmNextState() ? 'تفعيل' : 'تعطيل' }} المستخدم <strong>{{ user.fullName }}</strong> الآن؟
+        </p>
+
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="button" (click)="confirmToggle()" [disabled]="actionLoading()">
+            {{ actionLoading() ? 'جاري التنفيذ...' : 'تأكيد' }}
+          </button>
+          <button class="btn btn-ghost" type="button" (click)="closeConfirm()">إلغاء</button>
+        </div>
+      </section>
+    </div>
+  }
+</section>

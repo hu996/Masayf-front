@@ -8,6 +8,7 @@ import { SavedDestination, SavedDestinationsService } from '@app/core/services/s
 import { ToastService } from '@app/core/services/toast.service';
 import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-state.component';
 import { PricePipe } from '@app/shared/pipes/price.pipe';
+import { resolveMediaUrl } from '@app/core/utils/media-url.util';
 
 @Component({
   selector: 'app-favorites',
@@ -50,6 +51,10 @@ export class FavoritesComponent implements OnInit {
     return type.includes('attraction') || type.includes('activity') ? 'attraction' : 'accommodation';
   }
 
+  placeImage(place: Place): string {
+    return resolveMediaUrl(place.mainImageUrl || place.imageUrl, this.image);
+  }
+
   remove(id: ApiId): void {
     this.service.remove(id).pipe(catchError(() => of(null))).subscribe((result) => {
       if (result !== null) {
@@ -70,7 +75,7 @@ export class FavoritesComponent implements OnInit {
   }
 
   destinationImage(destination: SavedDestination): string {
-    return destination.imageUrl || this.image;
+    return resolveMediaUrl(destination.imageUrl, this.image);
   }
 
   private loadSavedDestinations(): void {

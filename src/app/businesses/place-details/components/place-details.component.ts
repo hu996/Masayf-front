@@ -9,18 +9,18 @@ import { SavedTripPlansService } from '@app/core/services/saved-trip-plans.servi
 import { ToastService } from '@app/core/services/toast.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-state.component';
-import { ImageGalleryComponent } from '@app/shared/components/image-gallery/image-gallery.component';
 import { PlaceCardComponent } from '@app/shared/components/place-card/place-card.component';
 import { StickyCostCardComponent } from '@app/shared/components/sticky-cost-card/sticky-cost-card.component';
 import { PricePipe } from '@app/shared/pipes/price.pipe';
 import { PlaceDetailsViewModel } from '../models/place-details-view.model';
 import { PlaceDetailsService, PlaceDetailsType } from '../services/place-details.service';
+import { resolveMediaImageUrl } from '@app/core/utils/media-url.util';
 
 @Component({
   selector: 'app-place-details',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, EmptyStateComponent, PlaceCardComponent, StickyCostCardComponent, PricePipe, ImageGalleryComponent],
+  imports: [ReactiveFormsModule, RouterLink, EmptyStateComponent, PlaceCardComponent, StickyCostCardComponent, PricePipe],
   templateUrl: './place-details.component.html',
   styleUrl: './place-details.component.scss'
 })
@@ -158,6 +158,10 @@ export class PlaceDetailsComponent implements OnInit {
 
   hasGallery(): boolean {
     return Boolean(this.place()?.galleryImages.length);
+  }
+
+  galleryImage(image: string | { imageUrl?: string | null; caption?: string | null }): string {
+    return resolveMediaImageUrl(image, 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80');
   }
 
 }

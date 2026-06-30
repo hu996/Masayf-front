@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@ang
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { catchError, of } from 'rxjs';
 import { normalizeId, Place } from '@app/core/models/api.models';
+import { CitiesService } from '@app/businesses/cities/services/cities.service';
 import { AttractionsService } from '../services/attractions.service';
 import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-state.component';
 import { PlaceCardComponent } from '@app/shared/components/place-card/place-card.component';
@@ -17,15 +18,34 @@ import { SkeletonGridComponent } from '@app/shared/components/skeleton-grid/skel
 })
 export class AttractionsComponent implements OnInit {
   private readonly service = inject(AttractionsService);
+  private readonly citiesService = inject(CitiesService);
   private readonly fb = inject(FormBuilder);
 
   readonly places = signal<Place[]>([]);
+  readonly cities = signal<Array<{ id: string; name: string }>>([]);
   readonly loading = signal(true);
   readonly page = signal(1);
   readonly filters = this.fb.group({ cityId: [''], areaId: [''], category: [''], minPrice: [''], maxPrice: [''] });
 
   ngOnInit(): void {
+    this.loadCities();
     this.load();
+  }
+
+  loadCities(): void {
+    this.citiesService.getCities().pipe(
+      catchError(() => of([]))
+    ).subscribe((result) => {
+      const items = Array.isArray(result) ? result : result.items ?? [];
+      this.cities.set(
+        items
+          .map((city) => ({
+            id: String(city.id ?? city.cityId ?? ''),
+            name: city.name
+          }))
+          .filter((city) => Boolean(city.id))
+      );
+    });
   }
 
   load(): void {

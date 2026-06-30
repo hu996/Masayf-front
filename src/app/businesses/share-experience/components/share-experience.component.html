@@ -159,9 +159,22 @@
             <div class="form-grid"><div class="field wide"><label>وصف التجربة</label><textarea rows="5" formControlName="description" placeholder="احكِ التجربة بطريقتك..."></textarea></div><div class="field"><label>أفضل حاجة</label><input formControlName="bestThing"></div><div class="field"><label>أسوأ حاجة</label><input formControlName="worstThing"></div></div>
             <div class="rating-grid"><label>التقييم العام <input type="number" min="1" max="5" formControlName="overallRating"></label><label>النظافة <input type="number" min="1" max="5" formControlName="cleanlinessRating"></label><label>الأسعار <input type="number" min="1" max="5" formControlName="priceRating"></label><label>الزحمة <input type="number" min="1" max="5" formControlName="crowdRating"></label><label>للعائلات <input type="number" min="1" max="5" formControlName="familyFriendlyRating"></label><label>للشباب <input type="number" min="1" max="5" formControlName="youthFriendlyRating"></label></div>
             <div class="choice-list"><label><input type="radio" formControlName="recommendToOthers" [value]="true"> أنصح بالمكان</label><label><input type="radio" formControlName="recommendToOthers" [value]="false"> لا أنصح به</label></div>
-            <label class="upload-box"><input type="file" accept="image/*" multiple (change)="onImagesSelected($event)"><span>📤</span><strong>اضغط لرفع صور الرحلة</strong><small>اختياري — حتى 20 صورة، 5MB للصورة</small></label>
-            @if (uploadedPreviews().length) {<div class="preview-grid">@for (image of uploadedPreviews(); track image; let index = $index) {<div class="preview-card"><img [src]="image" alt="صورة الرحلة"><button type="button" (click)="removePreview(index)">×</button></div>}</div>}
-            <div class="field"><label>أو روابط صور، كل رابط في سطر</label><textarea rows="3" formControlName="imageUrls"></textarea></div>
+            <label class="upload-box">
+              <input type="file" accept="image/*" multiple (change)="onImagesSelected($event)">
+              <span>📤</span>
+              <strong>اضغط لرفع صور الرحلة</strong>
+              <small>ارفع صورة أو أكثر من جهازك. من غير روابط نهائيًا.</small>
+            </label>
+            @if (uploadedPreviews().length) {
+              <div class="preview-grid">
+                @for (image of uploadedPreviews(); track image; let index = $index) {
+                  <div class="preview-card">
+                    <img [src]="image" alt="صورة الرحلة">
+                    <button type="button" (click)="removePreview(index)">×</button>
+                  </div>
+                }
+              </div>
+            }
           </section>
         }
 

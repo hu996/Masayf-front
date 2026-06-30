@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ToastService } from '../services/toast.service';
-import { AdminAuthService } from '../../businesses/admin/services/admin-auth.service';
+import { AdminAuthService } from '../../businesses/admin/auth/services/admin-auth.service';
 
 interface ApiErrorBody {
   message?: string;
@@ -18,9 +18,11 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (req.url.includes('/Admin/') && (error.status === 401 || error.status === 403)) {
+      if (req.url.includes('/Admin/') && error.status === 401) {
         adminAuth.logout();
         void router.navigateByUrl('/admin/login');
+      } else if (req.url.includes('/Admin/') && error.status === 403) {
+        void router.navigateByUrl('/admin/access-denied');
       }
 
       const body = error.error as ApiErrorBody | null;

@@ -1,0 +1,42 @@
+.dashboard {
+  display: grid;
+  gap: 20px;
+  width: min(100%, 1320px);
+  margin-inline: auto;
+}
+.hero { display: flex; justify-content: space-between; gap: 16px; align-items: center; background: white; border-radius: 24px; padding: 24px; border: 1px solid #e2e8f0; }
+.eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; color: #0284c7; font-weight: 800; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn, .shortcut-grid a { border-radius: 14px; padding: 12px 14px; font-weight: 800; }
+.btn { background: #0f172a; color: white; border: 0; }
+.btn-ghost { background: #e0f2fe; color: #0f172a; }
+.loading-card { background: white; border: 1px solid #e2e8f0; border-radius: 18px; padding: 20px; }
+.loading-card.error { color: #b91c1c; display: grid; gap: 12px; }
+.section-block { display: grid; gap: 14px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.kpi-grid.compact { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpi-grid article, .chart-card { background: white; border: 1px solid #e2e8f0; border-radius: 18px; padding: 16px; display: grid; gap: 6px; }
+.kpi-grid span { color: #64748b; font-size: .92rem; }
+.kpi-grid strong { font-size: 1.5rem; }
+.analytics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.trend-chart { display: grid; gap: 10px; }
+.trend-row { display: grid; grid-template-columns: 120px 1fr 40px; gap: 10px; align-items: center; }
+.bar-track { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+.bar-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(135deg, #0ea5e9, #0f766e); }
+.pill { display: inline-flex; padding: 4px 10px; border-radius: 999px; font-size: .82rem; font-weight: 800; }
+.pill.pending { background: #fef3c7; color: #92400e; }
+.table-wrap { overflow: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; text-align: start; }
+th { color: #64748b; font-size: .86rem; }
+
+@media (max-width: 860px) {
+  .hero, .analytics-grid, .kpi-grid, .kpi-grid.compact { grid-template-columns: 1fr; display: grid; }
+  .section-head { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 620px) {
+  .hero { padding: 18px; }
+  .trend-row { grid-template-columns: 90px 1fr 28px; }
+}
