@@ -43,7 +43,7 @@ main {
 
 :where(.admin-page, .dashboard, .admin-section) {
   width: 100%;
-  max-width: 1320px;
+  max-width: none;
   margin-inline: auto;
   min-width: 0;
 }
