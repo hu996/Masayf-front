@@ -1,0 +1,21 @@
+<label class="governorate-select">
+  <span>المحافظة</span>
+
+  <select
+    [value]="value()"
+    [disabled]="disabled() || loading()"
+    (change)="onSelect($any($event.target).value)"
+    (blur)="markTouched()"
+  >
+    <option value="">اختر المحافظة</option>
+    @for (governorate of governorates(); track trackById($index, governorate)) {
+      <option [value]="(governorate.id ?? governorate.name) + ''">{{ label(governorate) }}</option>
+    }
+  </select>
+
+  @if (loading()) {
+    <small>جارِ تحميل المحافظات...</small>
+  } @else if (error()) {
+    <small class="error">{{ error() }}</small>
+  }
+</label>

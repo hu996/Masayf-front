@@ -4,12 +4,17 @@ import { ApiService } from '@app/core/services/api.service';
 import { AdminPlaceFormValue, AdminPlaceRow } from '../models/admin-place.model';
 import { MediaImage } from '@app/core/models/api.models';
 
+export interface AdminPlacesQuery {
+  cityId?: string | null;
+  type?: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminPlacesService {
   constructor(private readonly api: ApiService) {}
 
-  getPlaces(): Observable<AdminPlaceRow[]> {
-    return this.api.get<AdminPlaceRow[]>('/Admin/Places');
+  getPlaces(query: AdminPlacesQuery = {}): Observable<AdminPlaceRow[]> {
+    return this.api.get<AdminPlaceRow[]>('/Admin/Places', query as Record<string, unknown>);
   }
 
   createPlace(body: AdminPlaceFormValue): Observable<AdminPlaceRow> {

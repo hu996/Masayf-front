@@ -5,7 +5,20 @@
       <h2>مراجعة التجارب المعلقة</h2>
       <p class="muted">اعتمد أو ارفض التجارب مع سبب الرفض، ثم حدّث القائمة فورًا.</p>
     </div>
-    <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+    <div class="toolbar-actions">
+      <div class="search-box">
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+          placeholder="ابحث بعنوان التجربة أو المدينة..."
+        />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost small" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
+      <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+    </div>
   </div>
 
   @if (loading()) {
@@ -13,7 +26,7 @@
   } @else {
     <div class="layout">
       <div class="table-card">
-        @if (items().length) {
+        @if (filteredItems().length) {
           <div class="table-wrap">
             <table>
               <thead>
@@ -33,7 +46,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of items(); track item.id) {
+                @for (item of filteredItems(); track item.id) {
                   <tr (click)="open(item)" class="row-clickable">
                     <td>
                       <img class="cover" [src]="coverImage(item)" [alt]="item.title" />

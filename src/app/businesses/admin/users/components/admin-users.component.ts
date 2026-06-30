@@ -3,10 +3,10 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 import { ToastService } from '@app/core/services/toast.service';
 import { AdminAccessService } from '../../shared/services/admin-access.service';
+import { AdminRoleRow } from '../../roles/models/admin-role.model';
+import { AdminRolesService } from '../../roles/services/admin-roles.service';
 import { AdminUserFormValue, AdminUserRow } from '../models/admin-user.model';
 import { AdminUsersService } from '../services/admin-users.service';
-import { AdminRolesService } from '../../roles/services/admin-roles.service';
-import { AdminRoleRow } from '../../roles/models/admin-role.model';
 
 @Component({
   selector: 'app-admin-users',
@@ -32,20 +32,10 @@ export class AdminUsersComponent implements OnInit {
   readonly editingId = signal<string | null>(null);
   readonly confirmTarget = signal<AdminUserRow | null>(null);
   readonly confirmNextState = signal<boolean | null>(null);
+  readonly modalOpen = signal(false);
   readonly currentPage = signal(1);
+  readonly searchTerm = signal('');
   readonly pageSize = 8;
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.items().length / this.pageSize)));
-  readonly pagedItems = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize;
-    return this.items().slice(start, start + this.pageSize);
-  });
-  readonly paginationPages = computed(() => {
-    const total = this.totalPages();
-    const current = this.currentPage();
-    const start = Math.max(1, current - 2);
-    const end = Math.min(total, start + 4);
-    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
-  });
 
   readonly filterForm = this.fb.nonNullable.group({
     search: ['']
@@ -60,6 +50,40 @@ export class AdminUsersComponent implements OnInit {
     isActive: [true]
   });
 
+  readonly filteredItems = computed(() => {
+    const search = this.normalize(this.searchTerm());
+    if (!search) {
+      return this.items();
+    }
+
+    return this.items().filter((user) =>
+      [user.fullName, user.userName, user.email, user.roleName, user.roleDisplayName]
+        .some((value) => this.normalize(value).includes(search))
+    );
+  });
+
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredItems().length / this.pageSize)));
+  readonly pagedItems = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return this.filteredItems().slice(start, start + this.pageSize);
+  });
+  readonly paginationPages = computed(() => {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const start = Math.max(1, current - 2);
+    const end = Math.min(total, start + 4);
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  });
+  readonly modalTitle = computed(() => this.editingId() ? 'تعديل مستخدم' : 'إضافة مستخدم جديد');
+  readonly canManageUsers = computed(() => this.access.canAccess(
+    'admin.users.view',
+    'admin.users.edit',
+    'admin.users.create',
+    'users.view',
+    'users.edit',
+    'users.create'
+  ));
+
   ngOnInit(): void {
     this.load();
   }
@@ -67,33 +91,66 @@ export class AdminUsersComponent implements OnInit {
   load(): void {
     this.loading.set(true);
     this.errorMessage.set('');
-    const search = this.filterForm.controls.search.value;
+    const search = this.searchTerm();
 
     forkJoin({
       users: this.service.getUsers(search).pipe(catchError(() => of([] as AdminUserRow[]))),
       roles: this.rolesService.getRoles().pipe(catchError(() => of([] as AdminRoleRow[])))
-    }).pipe(
-      finalize(() => this.loading.set(false))
-    ).subscribe(({ users, roles }) => {
-      this.items.set(users);
-      this.roles.set(roles);
-      this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(users.length / this.pageSize))));
+    })
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe(({ users, roles }) => {
+        this.items.set(users);
+        this.roles.set(roles);
+        this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(Math.max(users.length, 1) / this.pageSize))));
 
-      if (this.editingId()) {
-        const item = users.find((user) => String(user.id) === this.editingId());
-        if (item) {
-          this.patchForm(item);
+        if (this.editingId()) {
+          const item = users.find((user) => String(user.id) === this.editingId());
+          if (item) {
+            this.patchForm(item);
+          }
         }
-      }
-    });
+      });
   }
 
   search(): void {
+    this.currentPage.set(1);
     this.load();
+  }
+
+  openCreate(): void {
+    this.editingId.set(null);
+    this.errorMessage.set('');
+    this.form.reset({
+      fullName: '',
+      userName: '',
+      email: '',
+      password: '',
+      roleName: '',
+      isActive: true
+    });
+    this.modalOpen.set(true);
+  }
+
+  openEdit(item: AdminUserRow): void {
+    this.editingId.set(String(item.id));
+    this.errorMessage.set('');
+    this.patchForm(item);
+    this.modalOpen.set(true);
+  }
+
+  closeModal(): void {
+    this.modalOpen.set(false);
+    this.editingId.set(null);
+    this.errorMessage.set('');
   }
 
   save(): void {
     const payload = this.buildPayload();
+
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
 
     if (!this.editingId() && !payload.password) {
       this.errorMessage.set('أدخل كلمة المرور للمستخدم الجديد.');
@@ -101,6 +158,8 @@ export class AdminUsersComponent implements OnInit {
     }
 
     this.saving.set(true);
+    this.errorMessage.set('');
+
     const request = this.editingId()
       ? this.service.updateUser(this.editingId()!, payload)
       : this.service.createUser(payload as Required<AdminUserFormValue>);
@@ -114,16 +173,29 @@ export class AdminUsersComponent implements OnInit {
     ).subscribe((result) => {
       if (result) {
         this.toast.show(this.editingId() ? 'تم تحديث المستخدم بنجاح.' : 'تم إنشاء المستخدم بنجاح.', 'success');
-        this.resetForm();
+        this.closeModal();
         this.load();
       }
     });
   }
 
+  removeFilters(): void {
+    this.searchTerm.set('');
+    this.filterForm.controls.search.setValue('');
+    this.currentPage.set(1);
+    this.load();
+  }
+
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  clearSearch(): void {
+    this.removeFilters();
+  }
+
   edit(item: AdminUserRow): void {
-    this.editingId.set(String(item.id));
-    this.errorMessage.set('');
-    this.patchForm(item);
+    this.openEdit(item);
   }
 
   askToggle(item: AdminUserRow): void {
@@ -157,26 +229,9 @@ export class AdminUsersComponent implements OnInit {
     this.confirmNextState.set(null);
   }
 
-  resetForm(): void {
-    this.editingId.set(null);
-    this.errorMessage.set('');
-    this.form.reset({
-      fullName: '',
-      userName: '',
-      email: '',
-      password: '',
-      roleName: '',
-      isActive: true
-    });
-  }
-
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
-  }
-
-  cancelEdit(): void {
-    this.resetForm();
   }
 
   roleLabel(roleName: string): string {
@@ -191,19 +246,12 @@ export class AdminUsersComponent implements OnInit {
     return item.createdAt ? new Date(item.createdAt).toLocaleDateString('ar-EG') : '—';
   }
 
-  canManageUsers(): boolean {
-    return this.access.canAccess(
-      'admin.users.view',
-      'admin.users.edit',
-      'admin.users.create',
-      'users.view',
-      'users.edit',
-      'users.create'
-    );
-  }
-
   isActiveLabel(value: boolean): string {
     return value ? 'نشط' : 'غير نشط';
+  }
+
+  canEditUsers(): boolean {
+    return this.canManageUsers();
   }
 
   private patchForm(item: AdminUserRow): void {
@@ -226,5 +274,9 @@ export class AdminUsersComponent implements OnInit {
       roleName: this.form.controls.roleName.value,
       isActive: this.form.controls.isActive.value
     };
+  }
+
+  private normalize(value: string | null | undefined): string {
+    return String(value ?? '').trim().toLowerCase();
   }
 }

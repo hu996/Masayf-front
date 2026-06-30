@@ -48,6 +48,75 @@ main {
   min-width: 0;
 }
 
+.card-surface {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.admin-page {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+}
+
+.admin-page .hero,
+.admin-page .table-card,
+.admin-page .modal-card,
+.admin-page .detail-card,
+.admin-page .group-card,
+.admin-page .upload-panel,
+.admin-page .existing-photos {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.admin-page .hero {
+  padding: 20px 22px;
+}
+
+.admin-page .table-card,
+.admin-page .modal-card {
+  padding: 18px;
+}
+
+.admin-page .panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.admin-page .count-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  font-weight: 800;
+  font-size: 0.84rem;
+}
+
+.admin-page .empty-card,
+.admin-page .loading-card,
+.admin-page .alert-state {
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+}
+
+.admin-page .empty-card,
+.admin-page .loading-card {
+  padding: 24px;
+}
+
 :where(.admin-page, .dashboard, .admin-section, .layout, .hero, .table-card, .form-card, .detail-card, .empty-card, .chart-card, .loading-card, .panel) {
   min-width: 0;
 }

@@ -173,6 +173,7 @@ export class AdminLayoutComponent implements OnInit {
       [/users|user|مستخدم|accounts?/, 'users'],
       [/settings|setting|اعداد|إعداد|configuration|config/, 'settings'],
       [/cities|city|مدن|مدينة/, 'cities'],
+      [/governorate|governorates|محافظة|محافظات/, 'governorates'],
       [/price|pricing|cost|سعر|أسعار|profile/, 'price-profiles'],
       [/experience|تجربة|تجارب|review/, 'experiences'],
       [/place|أماكن|مكان|location/, 'places'],

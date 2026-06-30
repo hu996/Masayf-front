@@ -6,6 +6,17 @@
       <p class="muted">كل ملف يربط مدينة بمستوى سعر وتكلفة يومية للفرد.</p>
     </div>
     <div class="toolbar-actions">
+      <div class="search-box">
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+          placeholder="ابحث باسم المدينة أو المستوى..."
+        />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost small" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
       <form [formGroup]="filterForm" (ngSubmit)="load()" class="search-box">
         <select formControlName="cityId">
           <option value="">كل المدن</option>
@@ -23,7 +34,7 @@
     <div class="table-card">
       @if (loading()) {
         <p>جاري التحميل...</p>
-      } @else if (items().length) {
+      } @else if (filteredItems().length) {
         <div class="table-wrap">
           <table>
             <thead>
@@ -36,7 +47,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of items(); track item.id) {
+              @for (item of filteredItems(); track item.id) {
                 <tr>
                   <td>{{ item.cityName }}</td>
                   <td>
@@ -56,7 +67,7 @@
           </table>
         </div>
       } @else {
-        <div class="empty-state">لا توجد ملفات أسعار حالياً.</div>
+        <div class="empty-state">لا توجد ملفات أسعار مطابقة.</div>
       }
     </div>
 

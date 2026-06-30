@@ -22,6 +22,7 @@ export const routes: Routes = [
           { path: 'dashboard', data: { title: 'لوحة التحكم' }, loadComponent: () => import('./businesses/admin/dashboard/components/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
           { path: 'users', data: { title: 'إدارة المستخدمين' }, loadComponent: () => import('./businesses/admin/users/components/admin-users.component').then((m) => m.AdminUsersComponent) },
           { path: 'settings', data: { title: 'الإعدادات' }, loadComponent: () => import('./businesses/admin/settings/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
+          { path: 'governorates', data: { title: 'المحافظات' }, loadComponent: () => import('./businesses/admin/governorates/components/admin-governorates.component').then((m) => m.AdminGovernoratesComponent) },
           { path: 'cities', data: { title: 'المدن' }, loadComponent: () => import('./businesses/admin/cities/components/admin-cities.component').then((m) => m.AdminCitiesComponent) },
           { path: 'price-profiles', data: { title: 'ملفات الأسعار' }, loadComponent: () => import('./businesses/admin/price-profiles/components/admin-price-profiles.component').then((m) => m.AdminPriceProfilesComponent) },
           { path: 'experiences', data: { title: 'التجارب' }, loadComponent: () => import('./businesses/admin/experiences/components/admin-experiences.component').then((m) => m.AdminExperiencesComponent) },

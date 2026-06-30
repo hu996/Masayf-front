@@ -7,6 +7,12 @@
     </div>
 
     <div class="hero__actions">
+      <div class="search-box">
+        <input type="search" [value]="searchTerm()" (input)="updateSearch($any($event.target).value)" placeholder="ابحث باسم المدينة أو المحافظة..." />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost btn-sm" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
       <button class="btn btn-primary" type="button" (click)="openCreate()">إضافة مدينة جديدة</button>
     </div>
   </header>
@@ -18,7 +24,7 @@
       <div class="panel-head">
         <div>
           <h3>قائمة المدن</h3>
-          <p>{{ items().length }} مدينة</p>
+          <p>{{ filteredItems().length }} مدينة مطابقة من أصل {{ items().length }}</p>
         </div>
         <span class="count-pill">صفحة {{ currentPage() }} من {{ totalPages() }}</span>
       </div>
@@ -113,15 +119,7 @@
         </div>
 
         <form [formGroup]="form" (ngSubmit)="save()" class="form">
-          <label>
-            المحافظة
-            <select formControlName="governorateId">
-              <option value="">اختر المحافظة</option>
-              @for (governorate of governorates(); track governorate.id) {
-                <option [value]="governorate.id">{{ governorate.name }}</option>
-              }
-            </select>
-          </label>
+          <app-admin-governorate-select formControlName="governorateId"></app-admin-governorate-select>
 
           <label>
             اسم المدينة

@@ -4,6 +4,7 @@ import { MediaImage } from '@app/core/models/api.models';
 export interface AdminCityRow {
   id: ApiId;
   name: string;
+  governorateId?: ApiId | null;
   governorateName: string;
   description: string;
   mainImageUrl?: string | null;

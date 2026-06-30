@@ -6,6 +6,7 @@ import { resolveImageUrl } from '@app/core/utils/media-url.util';
 import { AdminCitiesService } from '../services/admin-cities.service';
 import { AdminCityFormValue, AdminCityRow } from '../models/admin-city.model';
 import { MediaImage } from '@app/core/models/api.models';
+import { AdminGovernorateSelectComponent } from '../../shared/components/admin-governorate-select.component';
 
 type GovernorateOption = { id: string; name: string };
 type CityPhotoDraft = {
@@ -23,7 +24,7 @@ type LevelOption = {
   selector: 'app-admin-cities',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AdminGovernorateSelectComponent],
   templateUrl: './admin-cities.component.html',
   styleUrl: './admin-cities.component.scss'
 })
@@ -37,6 +38,7 @@ export class AdminCitiesComponent implements OnInit {
   readonly items = signal<AdminCityRow[]>([]);
   readonly governorates = signal<GovernorateOption[]>([]);
   readonly errorMessage = signal('');
+  readonly searchTerm = signal('');
   readonly editingId = signal<string | null>(null);
   readonly modalOpen = signal(false);
   readonly currentPage = signal(1);
@@ -58,10 +60,20 @@ export class AdminCitiesComponent implements OnInit {
     { value: 4, label: 'فاخر', hint: 'فئة راقية جدًا' }
   ];
 
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.items().length / this.pageSize)));
+  readonly filteredItems = computed(() => {
+    const search = this.normalize(this.searchTerm());
+    if (!search) return this.items();
+
+    return this.items().filter((item) =>
+      [item.name, item.governorateName, item.description, item.crowdLevel, item.priceLevel].some((value) =>
+        this.normalize(value).includes(search)
+      )
+    );
+  });
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredItems().length / this.pageSize)));
   readonly pagedItems = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize;
-    return this.items().slice(start, start + this.pageSize);
+    return this.filteredItems().slice(start, start + this.pageSize);
   });
   readonly paginationPages = computed(() => {
     const total = this.totalPages();
@@ -95,7 +107,9 @@ export class AdminCitiesComponent implements OnInit {
   loadGovernorates(): void {
     this.citiesService.getGovernorates().pipe(
       catchError(() => of([] as GovernorateOption[]))
-    ).subscribe((governorates) => this.governorates.set(governorates));
+    ).subscribe((governorates) => this.governorates.set(
+      (governorates ?? []).map((item) => ({ id: String(item.id), name: item.name }))
+    ));
   }
 
   load(): void {
@@ -110,7 +124,7 @@ export class AdminCitiesComponent implements OnInit {
       finalize(() => this.loading.set(false))
     ).subscribe((items) => {
       this.items.set(items);
-      this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(items.length / this.pageSize))));
+      this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(this.filteredItems().length / this.pageSize))));
     });
   }
 
@@ -176,7 +190,7 @@ export class AdminCitiesComponent implements OnInit {
     const governorate = this.governorates().find((g) => g.name === item.governorateName);
 
     this.form.patchValue({
-      governorateId: governorate?.id || '',
+      governorateId: String(item.governorateId ?? governorate?.id ?? ''),
       name: item.name,
       description: item.description || '',
       crowdLevel: item.crowdLevel || 0,
@@ -293,6 +307,16 @@ export class AdminCitiesComponent implements OnInit {
     this.currentPage.set(page);
   }
 
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.currentPage.set(1);
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.currentPage.set(1);
+  }
+
   governorateLabel(governorateId: string | null | undefined): string {
     if (!governorateId) {
       return '—';
@@ -332,5 +356,9 @@ export class AdminCitiesComponent implements OnInit {
 
   isEditing(): boolean {
     return Boolean(this.editingId());
+  }
+
+  private normalize(value: string | number | boolean | null | undefined): string {
+    return String(value ?? '').trim().toLowerCase();
   }
 }

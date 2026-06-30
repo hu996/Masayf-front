@@ -6,6 +6,12 @@
       <p class="muted">إعدادات عامة للموقع ولوحة الإدارة.</p>
     </div>
     <div class="groups">
+      <div class="search-box">
+        <input type="search" [value]="searchTerm()" (input)="updateSearch($any($event.target).value)" placeholder="ابحث بالمفتاح أو القيمة..." />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost small" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
       <button class="chip" type="button" (click)="applyGroup('')">الكل</button>
       @for (group of groups(); track group) {
         <button class="chip" type="button" (click)="applyGroup(group)">{{ group }}</button>
@@ -30,7 +36,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of pagedItems(); track item.id) {
+              @for (item of filteredItems().slice((currentPage() - 1) * pageSize, currentPage() * pageSize); track item.id) {
                 <tr>
                   <td>{{ item.key }}</td>
                   <td>{{ item.value }}</td>

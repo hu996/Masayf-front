@@ -22,6 +22,23 @@ export class AdminExperiencesComponent implements OnInit {
   readonly selected = signal<AdminExperienceModerationDetail | null>(null);
   readonly busyId = signal<string | null>(null);
   readonly errorMessage = signal('');
+  readonly searchTerm = signal('');
+
+  readonly filteredItems = computed(() => {
+    const search = this.normalize(this.searchTerm());
+    if (!search) return this.items();
+
+    return this.items().filter((item) =>
+        [
+        item.title,
+        item.cityName,
+        item.summary,
+        item.authorName,
+        item.authorUserName,
+        item.status
+      ].some((value) => this.normalize(value).includes(search))
+    );
+  });
 
   readonly rejectForm = this.fb.nonNullable.group({
     reason: ['']
@@ -43,6 +60,14 @@ export class AdminExperiencesComponent implements OnInit {
       }),
       finalize(() => this.loading.set(false))
     ).subscribe((items) => this.items.set(items));
+  }
+
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
   }
 
   open(item: AdminExperienceRow): void {
@@ -113,5 +138,9 @@ export class AdminExperiencesComponent implements OnInit {
 
   imageUrl(image: string | { imageUrl: string } | null | undefined): string {
     return resolveMediaImageUrl(image, 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80');
+  }
+
+  private normalize(value: string | number | boolean | null | undefined): string {
+    return String(value ?? '').trim().toLowerCase();
   }
 }

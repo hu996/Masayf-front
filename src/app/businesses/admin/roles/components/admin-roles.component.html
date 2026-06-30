@@ -1,194 +1,262 @@
-<section class="admin-page">
-  <header class="hero card-surface">
-    <div class="hero__copy">
-      <p class="eyebrow">الأدوار والصلاحيات</p>
-      <h2>إدارة الصلاحيات</h2>
+<section class="admin-roles-page">
+  <header class="page-hero card-surface">
+    <div class="page-hero__copy">
+      <p class="eyebrow">إدارة الأدوار والصلاحيات</p>
+      <h1>الأدوار</h1>
       <p class="muted">
-        اختر دورًا من القائمة ثم عدّل الصلاحيات المتاحة له داخل لوحة مرتبة توضح كل مجموعة بوضوح.
+        راجع الأدوار المتاحة داخل جدول منظم، ثم افتح نافذة مستقلة لتعديل الاسم والوصف والصلاحيات.
       </p>
     </div>
 
-    <div class="hero__actions">
-      <form [formGroup]="filterForm" (ngSubmit)="searchRoles()" class="search-box">
-        <input type="search" formControlName="search" placeholder="ابحث عن دور..." />
-        <button class="btn btn-primary" type="submit">بحث</button>
-      </form>
-      <button class="btn btn-soft" type="button" (click)="load()">تحديث</button>
+    <div class="page-hero__actions">
+      <div class="search-box">
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+          placeholder="ابحث عن دور..."
+          aria-label="بحث في الأدوار"
+        />
+        @if (searchTerm()) {
+          <button type="button" class="icon-btn" (click)="clearSearch()" aria-label="مسح البحث">×</button>
+        }
+      </div>
+
+      @if (canEditRoles()) {
+        <button type="button" class="btn btn-primary" (click)="openCreate()">إضافة دور جديد</button>
+      }
+
+      <button type="button" class="btn btn-secondary" (click)="load()">تحديث</button>
     </div>
   </header>
 
   @if (loading()) {
     <div class="skeleton-grid">
-      @for (_ of [1, 2, 3, 4]; track $index) {
-        <div class="skeleton-card"></div>
+      @for (_ of [1, 2]; track $index) {
+        <article class="skeleton-card"></article>
       }
     </div>
   } @else {
-    <div class="layout">
-      <aside class="roles-panel card-surface">
-        <div class="panel-head">
-          <div>
-            <h3>الأدوار</h3>
-            <p>{{ filteredRoles().length }} دور متاح</p>
+    <section class="list-panel card-surface">
+      <div class="list-panel__head">
+        <div>
+          <p class="eyebrow">القائمة</p>
+          <h2>الأدوار المتاحة</h2>
+          <p class="muted">{{ pageInfo() }}</p>
+        </div>
+
+        <div class="list-panel__meta">
+          <span class="meta-pill">الصفحة {{ currentPage() }} من {{ totalPages() }}</span>
+          <span class="meta-pill">{{ roles().length }} إجمالي</span>
+        </div>
+      </div>
+
+      @if (pagedRoles().length) {
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>اسم الدور</th>
+                <th>الوصف</th>
+                <th>المستخدمون</th>
+                <th>الصلاحيات</th>
+                <th>الحالة</th>
+                <th>تاريخ الإنشاء</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (role of pagedRoles(); track role.id) {
+                <tr [class.is-inactive]="role.isActive === false">
+                  <td>
+                    <strong>{{ role.displayName || role.name }}</strong>
+                    <div class="table-subtle">{{ role.name }}</div>
+                  </td>
+                  <td>
+                    {{ role.description || '—' }}
+                  </td>
+                  <td>
+                    <span class="pill">{{ role.usersCount ?? 0 }}</span>
+                  </td>
+                  <td>
+                    <span class="pill pill-soft">{{ role.permissionKeys?.length ?? 0 }}</span>
+                  </td>
+                  <td>
+                    <span class="status-pill" [class.off]="role.isActive === false">{{ roleStatus(role) }}</span>
+                  </td>
+                  <td>{{ role.createdAt ? formatDate(role.createdAt) : '—' }}</td>
+                  <td>
+                    <div class="actions-cell">
+                      @if (canEditRoles()) {
+                        <button type="button" class="btn btn-soft btn-sm" (click)="openEdit(role)">تعديل</button>
+                        <button type="button" class="btn btn-ghost btn-sm" (click)="remove(role)" [disabled]="deleting()">حذف</button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="pagination-bar">
+          <button type="button" class="page-btn" (click)="changePage(currentPage() - 1)" [disabled]="currentPage() === 1">
+            السابق
+          </button>
+
+          <div class="pagination-links">
+            @for (page of paginationPages(); track page) {
+              <button
+                type="button"
+                class="page-link"
+                [class.active]="page === currentPage()"
+                (click)="changePage(page)"
+              >
+                {{ page }}
+              </button>
+            }
           </div>
-          <span class="count-pill">{{ selectedRole() ? 'محدد' : 'اختر دورًا' }}</span>
-        </div>
 
-        <div class="roles-list">
-          @for (role of filteredRoles(); track role.id) {
-            <button
-              type="button"
-              class="role-card"
-              [class.active]="role.id === selectedRoleId()"
-              (click)="openRole(role)"
-            >
-              <div class="role-card__main">
-                <div>
-                  <strong>{{ role.displayName || role.name }}</strong>
-                  <p>{{ role.description || 'دور إداري مضبوط من الـ API' }}</p>
-                </div>
-                <span class="role-card__chip">{{ role.usersCount ?? 0 }} مستخدم</span>
-              </div>
-
-              <div class="role-card__footer">
-                <span>{{ roleMeta(role) }}</span>
-                <span class="edit-link">تعديل الصلاحيات</span>
-              </div>
-            </button>
-          }
-
-          @if (!filteredRoles().length) {
-            <div class="empty-card">
-              <strong>لا توجد أدوار مطابقة.</strong>
-              <p>جرّب كلمة بحث أخرى أو أعد تحميل البيانات.</p>
-            </div>
+          <button type="button" class="page-btn" (click)="changePage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+            التالي
+          </button>
+        </footer>
+      } @else {
+        <div class="empty-state">
+          <h3>لا توجد أدوار مطابقة</h3>
+          <p>جرّب كلمة بحث أخرى أو أضف دورًا جديدًا إذا كانت لديك صلاحية الإنشاء.</p>
+          @if (canEditRoles()) {
+            <button type="button" class="btn btn-primary" (click)="openCreate()">إضافة دور جديد</button>
           }
         </div>
-      </aside>
+      }
+    </section>
+  }
 
-      <section class="editor card-surface">
-        @if (selectedRole(); as role) {
-          <div class="editor__head">
-            <div>
-              <p class="eyebrow">تحرير الدور</p>
-              <h3>{{ role.displayName || role.name }}</h3>
-              <p class="muted">{{ role.description || 'تعديل صلاحيات هذا الدور بشكل دقيق ومنظم.' }}</p>
+  @if (errorMessage()) {
+    <div class="alert-box">{{ errorMessage() }}</div>
+  }
+
+  @if (modalOpen()) {
+    <div class="modal-backdrop" role="presentation" (click)="closeModal()">
+      <div class="role-modal card-surface" role="dialog" aria-modal="true" [attr.aria-label]="modalTitle()"
+        (click)="$event.stopPropagation()">
+        <header class="role-modal__header">
+          <div>
+            <p class="eyebrow">نموذج الإدارة</p>
+            <h2>{{ modalTitle() }}</h2>
+            <p class="muted">
+              عدّل بيانات الدور ثم اختر الصلاحيات من شبكة مختصرة وواضحة.
+            </p>
+          </div>
+
+          <button type="button" class="icon-btn icon-btn--close" (click)="closeModal()" aria-label="إغلاق">×</button>
+        </header>
+
+        <div class="role-modal__content">
+          <section class="role-form-panel">
+            <div class="panel-card">
+              <label class="field">
+                <span>اسم الدور</span>
+                <input type="text" [formControl]="form.controls.name" placeholder="مثال: Manager" />
+              </label>
+
+              <label class="field">
+                <span>الوصف</span>
+                <textarea [formControl]="form.controls.description" rows="4" placeholder="وصف مختصر للدور"></textarea>
+              </label>
             </div>
 
-            <div class="editor__stats">
+            <div class="panel-card panel-card--summary">
               <div>
                 <strong>{{ selectedCount() }}</strong>
-                <span>محددة</span>
+                <span>صلاحية محددة</span>
               </div>
               <div>
                 <strong>{{ availableCount() }}</strong>
-                <span>إجمالي</span>
+                <span>إجمالي الصلاحيات</span>
               </div>
             </div>
-          </div>
 
-          <div class="editor__toolbar">
-            <form [formGroup]="permissionFilterForm" class="search-box search-box--small" (ngSubmit)="$event.preventDefault()">
-              <input type="search" formControlName="search" placeholder="فلتر الصلاحيات..." (input)="permissionSearch.set(permissionFilterForm.controls.search.value)" />
-            </form>
+            <div class="panel-card panel-card--toolbar">
+              <div class="search-box search-box--compact">
+                <input
+                  type="search"
+                  [value]="permissionSearch()"
+                  (input)="updatePermissionSearch($any($event.target).value)"
+                  placeholder="فلتر الصلاحيات..."
+                  aria-label="بحث في الصلاحيات"
+                />
+                @if (permissionSearch()) {
+                  <button type="button" class="icon-btn" (click)="clearPermissionSearch()" aria-label="مسح فلتر الصلاحيات">×</button>
+                }
+              </div>
 
-            <div class="toolbar-actions">
-              <button type="button" class="btn btn-soft" (click)="resetSelectedPermissions()">استرجاع التحديد</button>
-              <button type="button" class="btn btn-ghost" (click)="backToList()">رجوع</button>
-              <button type="button" class="btn btn-primary" (click)="save()" [disabled]="saving()">
-                {{ saving() ? 'جاري الحفظ...' : 'حفظ الصلاحيات' }}
-              </button>
+              <div class="panel-actions">
+                <button type="button" class="btn btn-secondary" (click)="resetPermissions()">استرجاع</button>
+                <button type="button" class="btn btn-ghost" (click)="closeModal()">رجوع</button>
+              </div>
             </div>
-          </div>
+          </section>
 
-          @if (errorMessage()) {
-            <div class="alert-state error">{{ errorMessage() }}</div>
-          }
+          <section class="permissions-panel">
+            @if (filteredCatalog().length) {
+              @for (group of filteredCatalog(); track group.key) {
+                <article class="group-card">
+                  <div class="group-card__head">
+                    <div>
+                      <h3>{{ group.label }}</h3>
+                      <p>{{ group.items.length }} صلاحية</p>
+                    </div>
 
-          <div class="permission-summary">
-            <div class="permission-summary__copy">
-              <strong>الصلاحيات المحددة</strong>
-              <p>يمكنك اختيار مجموعة كاملة أو تعديل العناصر الفردية من داخل كل قسم.</p>
-            </div>
-            <div class="selected-tags">
-              @for (permissionId of selectedPermissionIds().slice(0, 6); track permissionId) {
-                <span>{{ permissionId }}</span>
-              }
-              @if (selectedPermissionIds().length > 6) {
-                <span>+{{ selectedPermissionIds().length - 6 }}</span>
-              }
-            </div>
-          </div>
-
-          <div class="catalog">
-            @for (group of filteredCatalog(); track group.key) {
-              <details class="group-card" open>
-                <summary>
-                  <div>
-                    <strong>{{ group.label }}</strong>
-                    <small>{{ group.items.length }} صلاحية</small>
-                  </div>
-                  <div class="group-summary">
-                    <span>{{ permissionState(group) }}</span>
-                    <label class="group-toggle" [class.partial]="isGroupPartial(group)">
+                    <label class="group-toggle" [class.group-toggle--partial]="isGroupPartial(group)">
                       <input
                         type="checkbox"
                         [checked]="isGroupSelected(group)"
                         (change)="toggleGroup(group, $any($event.target).checked)"
                       />
-                      <span>تحديد المجموعة</span>
+                      <span>تحديد الكل</span>
                     </label>
                   </div>
-                </summary>
 
-                <div class="permission-grid">
-                  @for (permission of group.items; track permission.key) {
-                    <label class="permission-card" [class.selected]="isSelected(permissionId(permission))" [class.inactive]="permission.isActive === false">
-                      <input
-                        type="checkbox"
-                        [checked]="isSelected(permissionId(permission))"
-                        (change)="togglePermission(permissionId(permission), $any($event.target).checked)"
-                      />
+                  <div class="permission-grid">
+                    @for (permission of group.items; track permissionId(permission)) {
+                      <label
+                        class="permission-chip"
+                        [class.permission-chip--selected]="isSelected(permissionId(permission))"
+                        [class.permission-chip--inactive]="permission.isActive === false"
+                      >
+                        <input
+                          type="checkbox"
+                          [checked]="isSelected(permissionId(permission))"
+                          (change)="togglePermission(permissionId(permission), $any($event.target).checked)"
+                        />
 
-                      <div class="permission-card__body">
-                        <div class="permission-card__top">
+                        <div class="permission-chip__body">
                           <strong>{{ itemLabel(permission) }}</strong>
-                          <span class="state" [class.active]="permission.isActive !== false">
-                            {{ permission.isActive === false ? 'غير نشطة' : 'نشطة' }}
-                          </span>
-                        </div>
-
-                        <p>{{ permission.description || permission.nameEn || permission.key }}</p>
-
-                        <div class="permission-meta">
                           <span>{{ itemSecondary(permission) }}</span>
-                          @if (permission.isMenuItem) {
-                            <span class="meta-pill">Menu Item</span>
-                          }
-                          @if (permission.controller) {
-                            <span class="meta-pill">{{ permission.controller }}</span>
-                          }
-                          @if (permission.action) {
-                            <span class="meta-pill">{{ permission.action }}</span>
-                          }
                         </div>
-                      </div>
-                    </label>
-                  }
-                </div>
-              </details>
+                      </label>
+                    }
+                  </div>
+                </article>
+              }
+            } @else {
+              <div class="empty-permissions">
+                <h3>لا توجد صلاحيات مطابقة</h3>
+                <p>جرّب كلمة فلتر مختلفة لعرض الصلاحيات المناسبة.</p>
+              </div>
             }
-          </div>
-        } @else {
-          <div class="empty-editor">
-            <div class="empty-editor__icon">⚖</div>
-            <h3>اختر دورًا لبدء تعديل الصلاحيات</h3>
-            <p>
-              ستظهر هنا المجموعات والـ chips الخاصة بكل permission بعد اختيار أحد الأدوار من القائمة.
-            </p>
-          </div>
-        }
-      </section>
+          </section>
+        </div>
+
+        <footer class="role-modal__footer">
+          <button type="button" class="btn btn-ghost" (click)="closeModal()">إلغاء</button>
+          <button type="button" class="btn btn-primary" (click)="save()" [disabled]="saving()">
+            {{ saving() ? 'جارٍ الحفظ...' : 'حفظ التغييرات' }}
+          </button>
+        </footer>
+      </div>
     </div>
   }
 </section>

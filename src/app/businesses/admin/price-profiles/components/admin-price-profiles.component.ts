@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { catchError, finalize, of } from 'rxjs';
 import { AdminPriceProfilesService } from '../services/admin-price-profiles.service';
@@ -30,6 +30,7 @@ export class AdminPriceProfilesComponent implements OnInit {
   readonly items = signal<AdminPriceProfileRow[]>([]);
   readonly cities = signal<AdminCityRow[]>([]);
   readonly errorMessage = signal('');
+  readonly searchTerm = signal('');
   readonly editingId = signal<string | null>(null);
   readonly levelOptions: LevelOption[] = [
     { value: 'اقتصادي', label: 'اقتصادي', hint: 'للخيارات ذات التكلفة الأقل' },
@@ -40,6 +41,22 @@ export class AdminPriceProfilesComponent implements OnInit {
 
   readonly filterForm = this.fb.nonNullable.group({
     cityId: ['']
+  });
+
+  readonly filteredItems = computed(() => {
+    const search = this.normalize(this.searchTerm());
+    const cityFilter = this.filterForm.controls.cityId.value || '';
+
+    return this.items().filter((item) => {
+      const matchesCity = !cityFilter || String(item.cityId) === String(cityFilter);
+      const matchesSearch =
+        !search ||
+        [item.cityName, item.level, item.notes, item.costPerPersonPerDay].some((value) =>
+          this.normalize(value).includes(search)
+        );
+
+      return matchesCity && matchesSearch;
+    });
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -71,6 +88,14 @@ export class AdminPriceProfilesComponent implements OnInit {
       }),
       finalize(() => this.loading.set(false))
     ).subscribe((items) => this.items.set(items));
+  }
+
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
   }
 
   save(): void {
@@ -145,5 +170,9 @@ export class AdminPriceProfilesComponent implements OnInit {
 
   levelHint(level: string): string {
     return this.levelOptions.find((item) => item.value === level)?.hint || '';
+  }
+
+  private normalize(value: string | number | boolean | null | undefined): string {
+    return String(value ?? '').trim().toLowerCase();
   }
 }

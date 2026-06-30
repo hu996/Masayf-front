@@ -1,6 +1,9 @@
 .admin-page { padding-top: 28px; display: grid; gap: 18px; }
 .toolbar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.toolbar-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .layout { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(340px, 1fr); gap: 16px; align-items: start; }
+.search-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; min-height: 44px; padding: 0 10px; border: 1px solid #dbe4ef; border-radius: 14px; background: #fff; }
+.search-box input { min-width: 240px; border: 0; outline: 0; background: transparent; }
 .table-card, .detail-card, .empty-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; }
 .table-wrap { overflow: auto; }
 table { width: 100%; min-width: 1200px; border-collapse: collapse; }

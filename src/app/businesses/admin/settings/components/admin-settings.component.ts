@@ -20,14 +20,15 @@ export class AdminSettingsComponent implements OnInit {
   readonly saving = signal(false);
   readonly items = signal<AdminSettingRow[]>([]);
   readonly errorMessage = signal('');
+  readonly searchTerm = signal('');
   readonly selectedGroup = signal('');
   readonly editingId = signal<string | null>(null);
   readonly currentPage = signal(1);
   readonly pageSize = 10;
-  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.items().length / this.pageSize)));
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.filteredItems().length / this.pageSize)));
   readonly pagedItems = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize;
-    return this.items().slice(start, start + this.pageSize);
+    return this.filteredItems().slice(start, start + this.pageSize);
   });
   readonly paginationPages = computed(() => {
     const total = this.totalPages();
@@ -38,6 +39,15 @@ export class AdminSettingsComponent implements OnInit {
   });
 
   readonly groups = computed(() => [...new Set(this.items().map((item) => item.group))]);
+
+  readonly filteredItems = computed(() => {
+    const search = this.normalize(this.searchTerm());
+    if (!search) return this.items();
+
+    return this.items().filter((item) =>
+      [item.key, item.value, item.group, item.description].some((value) => this.normalize(value).includes(search))
+    );
+  });
 
   readonly form = this.fb.nonNullable.group({
     key: [''],
@@ -61,7 +71,7 @@ export class AdminSettingsComponent implements OnInit {
       finalize(() => this.loading.set(false))
     ).subscribe((items) => {
       this.items.set(items);
-      this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(items.length / this.pageSize))));
+      this.currentPage.set(Math.min(this.currentPage(), Math.max(1, Math.ceil(this.filteredItems().length / this.pageSize))));
     });
   }
 
@@ -120,5 +130,19 @@ export class AdminSettingsComponent implements OnInit {
   changePage(page: number): void {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage.set(page);
+  }
+
+  updateSearch(value: string): void {
+    this.searchTerm.set(value);
+    this.currentPage.set(1);
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
+    this.currentPage.set(1);
+  }
+
+  private normalize(value: string | number | boolean | null | undefined): string {
+    return String(value ?? '').trim().toLowerCase();
   }
 }

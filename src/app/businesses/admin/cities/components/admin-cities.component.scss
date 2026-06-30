@@ -33,6 +33,24 @@
   flex-wrap: wrap;
 }
 
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 10px;
+  border: 1px solid #dbe4ef;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.search-box input {
+  min-width: 260px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+
 .panel-head {
   display: flex;
   justify-content: space-between;

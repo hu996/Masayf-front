@@ -39,7 +39,6 @@
           <section class="menu-group">
             <div class="menu-group__head">
               <strong>{{ group.label }}</strong>
-              <small>{{ group.items.length }}</small>
             </div>
 
             <div class="menu-group__items">
@@ -73,11 +72,6 @@
         }
       }
     </nav>
-
-    <div class="sidebar__footer">
-      <button type="button" class="ghost-link" (click)="goToAccessDenied($event)">عرض منع الوصول</button>
-      <button type="button" class="logout-btn" (click)="logout()">تسجيل الخروج</button>
-    </div>
   </aside>
 
   <div class="backdrop" [class.show]="sidebarOpen()" (click)="closeSidebar()"></div>
@@ -96,6 +90,8 @@
           <span class="bell">🔔</span>
           <i class="pulse"></i>
         </button>
+
+        <button type="button" class="topbar-logout" (click)="logout()">تسجيل الخروج</button>
 
         <div class="user-chip">
           <span class="user-chip__avatar">{{ initials() }}</span>
