@@ -6,7 +6,7 @@ const ABSOLUTE_MEDIA_URL = /^(https?:|data:|blob:|\/\/)/i;
 function getMediaBaseUrl(): string {
   const configuredBaseUrl = (environment.backendBaseUrl || '').trim();
 
-  if (configuredBaseUrl) {
+  if (configuredBaseUrl && (!environment.production || configuredBaseUrl.startsWith('https://'))) {
     return configuredBaseUrl.replace(/\/$/, '');
   }
 

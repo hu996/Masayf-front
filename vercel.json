@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "http://masayef.runasp.net/api/$1"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "http://masayef.runasp.net/uploads/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
