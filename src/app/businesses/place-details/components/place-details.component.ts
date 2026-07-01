@@ -103,19 +103,20 @@ export class PlaceDetailsComponent implements OnInit {
       return;
     }
 
-    this.favorites.add(id).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          this.toast.show('يجب تسجيل الدخول لإضافة المكان للمفضلة.', 'error');
-        } else if (error.status === 404) {
-          this.toast.show('لم يتم العثور على المكان.', 'error');
+    const place = this.place();
+    this.auth.requireLogin('سجّل دخولك علشان تضيف المكان للمفضلة باستخدام حسابك.', () => {
+      this.favorites.add(id).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.toast.show('لم يتم العثور على المكان.', 'error');
+          }
+          return of(null);
+        })
+      ).subscribe((result) => {
+        if (result !== null) {
+          this.toast.show(`تمت إضافة ${place?.name || 'المكان'} للمفضلة.`, 'success');
         }
-        return of(null);
-      })
-    ).subscribe((result) => {
-      if (result !== null) {
-        this.toast.show('تمت إضافة المكان للمفضلة.', 'success');
-      }
+      });
     });
   }
 

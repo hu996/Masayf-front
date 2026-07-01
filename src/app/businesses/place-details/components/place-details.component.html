@@ -17,7 +17,7 @@
         </nav>
 
         <div class="header-grid">
-          <div>
+          <div class="header-copy">
             <span class="badge">{{ p.displayType }}</span>
             <h1>{{ p.name }}</h1>
             <p class="location-line">{{ p.locationLine }}</p>
@@ -26,30 +26,38 @@
               <span>{{ p.ratingValue ? 'تقييم المستخدمين' : 'لا توجد تقييمات كافية بعد' }}</span>
             </div>
           </div>
-          <div class="quick-actions">
-            <button class="btn btn-ghost" (click)="addFavorite()">إضافة للمفضلة</button>
-            <button class="btn btn-secondary" (click)="addToPlan()">إضافة للخطة</button>
-            <button class="btn btn-ghost" (click)="share()">مشاركة</button>
+          <div class="header-media">
+            @if (p.galleryImages.length) {
+              <div class="gallery gallery--hero">
+                <figure class="gallery-card gallery-card--main">
+                  <img loading="eager" [src]="galleryImage(p.galleryImages[0])" [alt]="p.galleryImages[0].caption || p.name" />
+                </figure>
+
+                @if (p.galleryImages.length > 1) {
+                  <div class="gallery-thumbs">
+                    @for (image of p.galleryImages.slice(1, 4); track image.imageUrl || $index) {
+                      <figure class="gallery-card">
+                        <img loading="lazy" [src]="galleryImage(image)" [alt]="image.caption || p.name" />
+                      </figure>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="gallery gallery--placeholder">
+                <div class="image-placeholder">
+                  <strong>لا توجد صور مضافة لهذا المكان بعد</strong>
+                </div>
+              </div>
+            }
+            <div class="quick-actions">
+              <button class="btn btn-ghost" type="button" (click)="addFavorite()">إضافة للمفضلة</button>
+              <button class="btn btn-secondary" type="button" (click)="addToPlan()">إضافة للخطة</button>
+              <button class="btn btn-ghost" type="button" (click)="share()">مشاركة</button>
+            </div>
           </div>
         </div>
       </header>
-
-      <section class="gallery">
-        @if (p.galleryImages.length) {
-          <div class="gallery-grid">
-            @for (image of p.galleryImages; track image.imageUrl || $index) {
-              <figure class="gallery-card">
-                <img loading="lazy" [src]="galleryImage(image)" [alt]="image.caption || p.name" />
-                @if (image.caption) {
-                  <figcaption>{{ image.caption }}</figcaption>
-                }
-              </figure>
-            }
-          </div>
-        } @else {
-          <div class="gallery-empty">لا توجد صور مضافة لهذا المكان بعد</div>
-        }
-      </section>
 
       <section class="content-layout">
         <div class="main-content">
