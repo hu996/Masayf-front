@@ -1,0 +1,121 @@
+<section class="admin-page governorates-page">
+  <header class="hero card-surface">
+    <div class="hero__copy">
+      <p class="eyebrow">المحافظات</p>
+      <h2>إدارة المحافظات</h2>
+      <p class="muted">عرض المحافظات وإضافة محافظة جديدة لتكون الأساس في ربط المدن والأماكن المصيفية لاحقًا.</p>
+    </div>
+
+    <div class="hero__actions">
+      <div class="search-box">
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+          placeholder="ابحث باسم المحافظة..."
+        />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost btn-sm" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
+
+      <button class="btn btn-primary" type="button" (click)="openCreate()">Add Governorate</button>
+    </div>
+  </header>
+
+  <section class="stats-row">
+    <article class="stat-card">
+      <span>إجمالي المحافظات</span>
+      <strong>{{ items().length }}</strong>
+      <small>من المصدر الموحد</small>
+    </article>
+    <article class="stat-card accent">
+      <span>محافظات مطابقة</span>
+      <strong>{{ filteredItems().length }}</strong>
+      <small>بعد البحث</small>
+    </article>
+    <article class="stat-card">
+      <span>إجمالي المدن المرتبطة</span>
+      <strong>{{ totalCities() }}</strong>
+      <small>لو البيانات متاحة من الباك</small>
+    </article>
+  </section>
+
+  @if (loading()) {
+    <div class="loading-card">جارِ تحميل المحافظات...</div>
+  } @else {
+    @if (errorMessage()) {
+      <div class="alert-state">{{ errorMessage() }}</div>
+    }
+
+    <section class="table-card card-surface">
+      <div class="panel-head">
+        <div>
+          <h3>قائمة المحافظات</h3>
+          <p>الحفظ يتم مباشرة على الباك مع إعادة تحميل القائمة بعد الإضافة.</p>
+        </div>
+        <span class="count-pill">{{ filteredItems().length }} محافظة</span>
+      </div>
+
+      @if (filteredItems().length) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>اسم المحافظة</th>
+                <th>عدد المدن</th>
+                <th>تاريخ الإضافة</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of filteredItems(); track trackGovernorate(item, $index)) {
+                <tr>
+                  <td><strong>{{ item.name }}</strong></td>
+                  <td>{{ countLabel(item) }}</td>
+                  <td>{{ createdAtLabel(item) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="empty-card">
+          <strong>لا توجد محافظات مطابقة.</strong>
+          <p>يمكنك إضافة أول محافظة من الزر بالأعلى.</p>
+        </div>
+      }
+    </section>
+  }
+
+  @if (modalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <section class="modal-card" (click)="$event.stopPropagation()">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">إضافة جديدة</p>
+            <h3>Add Governorate</h3>
+          </div>
+          <button type="button" class="icon-close" (click)="closeModal()">×</button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="save()" class="form">
+          <label>
+            Governorate Name
+            <input formControlName="name" placeholder="مثال: مطروح" />
+          </label>
+
+          @if (errorMessage()) {
+            <p class="error">{{ errorMessage() }}</p>
+          }
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'جارٍ الحفظ...' : 'حفظ المحافظة' }}
+            </button>
+            <button class="btn btn-ghost" type="button" (click)="closeModal()">إلغاء</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</section>

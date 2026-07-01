@@ -1,0 +1,180 @@
+<section class="admin-page">
+  <div class="toolbar">
+    <div>
+      <p class="eyebrow">المراجعة</p>
+      <h2>مراجعة التجارب المعلقة</h2>
+      <p class="muted">اعتمد أو ارفض التجارب مع سبب الرفض، ثم حدّث القائمة فورًا.</p>
+    </div>
+    <div class="toolbar-actions">
+      <div class="search-box">
+        <input
+          type="search"
+          [value]="searchTerm()"
+          (input)="updateSearch($any($event.target).value)"
+          placeholder="ابحث بعنوان التجربة أو المدينة..."
+        />
+        @if (searchTerm()) {
+          <button class="btn btn-ghost small" type="button" (click)="clearSearch()">مسح</button>
+        }
+      </div>
+      <button class="btn btn-ghost" type="button" (click)="load()">تحديث</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="empty-card">جاري تحميل التجارب...</div>
+  } @else {
+    <div class="layout">
+      <div class="table-card">
+        @if (filteredItems().length) {
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>الصورة</th>
+                  <th>العنوان</th>
+                  <th>المدينة</th>
+                  <th>الفترة</th>
+                  <th>الأيام</th>
+                  <th>الأشخاص</th>
+                  <th>التكلفة</th>
+                  <th>التقييم</th>
+                  <th>الحالة</th>
+                  <th>الملخص</th>
+                  <th>الكاتب</th>
+                  <th>إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (item of filteredItems(); track item.id) {
+                  <tr (click)="open(item)" class="row-clickable">
+                    <td>
+                      <img class="cover" [src]="coverImage(item)" [alt]="item.title" />
+                    </td>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.cityName }}</td>
+                    <td>{{ item.startDate || '—' }} - {{ item.endDate || '—' }}</td>
+                    <td>{{ item.daysCount ?? '—' }}</td>
+                    <td>{{ item.peopleCount ?? '—' }}</td>
+                    <td>{{ item.totalCost ?? 0 }}</td>
+                    <td>{{ item.rating ?? '—' }}</td>
+                    <td><span class="pill pending">{{ statusLabel(item.status) }}</span></td>
+                    <td>{{ item.summary || '—' }}</td>
+                    <td>{{ item.authorName || item.authorUserName || '—' }}</td>
+                    <td class="actions-cell">
+                      <button class="btn btn-ghost small" type="button" (click)="$event.stopPropagation(); open(item)">تفاصيل</button>
+                      <button class="btn btn-ghost small" type="button" (click)="$event.stopPropagation(); approve(item)">اعتماد</button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="muted">لا توجد تجارب معلقة حاليًا.</p>
+        }
+      </div>
+
+      <aside class="detail-card">
+        @if (selected(); as detail) {
+          <div class="selected-head">
+            <img class="detail-cover" [src]="coverImage(detail)" [alt]="detail.title" />
+            <div>
+              <h3>{{ detail.title }}</h3>
+              <p class="muted">{{ detail.cityName }} · {{ detail.authorName || detail.authorUserName || '—' }}</p>
+              <p class="muted">{{ detail.startDate || '—' }} - {{ detail.endDate || '—' }}</p>
+            </div>
+          </div>
+
+          <div class="detail-meta">
+            <span>الأيام: {{ detail.daysCount ?? '—' }}</span>
+            <span>الأشخاص: {{ detail.peopleCount ?? '—' }}</span>
+            <span>الإجمالي: {{ detail.totalCost ?? 0 }}</span>
+            <span>التقييم: {{ detail.rating ?? '—' }}</span>
+            <span>الحالة: {{ selectedStatusLabel() }}</span>
+            <span>الاستخدام في البحث: {{ detail.allowUseInSearch ? 'نعم' : 'لا' }}</span>
+          </div>
+
+          <section class="detail-section">
+            <h4>ملخص</h4>
+            <p>{{ detail.summary || '—' }}</p>
+          </section>
+
+          <section class="detail-section">
+            <h4>تفاصيل الرحلة</h4>
+            <p>{{ detail.tripDetails || detail.dateRange || '—' }}</p>
+          </section>
+
+          <section class="detail-section">
+            <h4>الإقامة</h4>
+            <p>{{ detail.accommodation || '—' }}</p>
+          </section>
+
+          <section class="detail-section">
+            <h4>التقييم التفصيلي</h4>
+            <div class="detail-grid">
+              <span>النظافة: {{ detail.ratingBreakdown?.cleanliness ?? '—' }}</span>
+              <span>السعر: {{ detail.ratingBreakdown?.price ?? '—' }}</span>
+              <span>الازدحام: {{ detail.ratingBreakdown?.crowd ?? '—' }}</span>
+              <span>العائلة: {{ detail.ratingBreakdown?.family ?? '—' }}</span>
+              <span>الأمان: {{ detail.ratingBreakdown?.safety ?? '—' }}</span>
+              <span>القيمة: {{ detail.ratingBreakdown?.valueForMoney ?? '—' }}</span>
+            </div>
+          </section>
+
+            <section class="detail-section">
+              <h4>المصروفات</h4>
+              @if (detail.expenses?.length) {
+                <ul class="detail-list">
+                @for (expense of detail.expenses; track $index) {
+                  <li>{{ expense.title || 'مصروف' }} - {{ expense.amount ?? 0 }}</li>
+                }
+                </ul>
+              } @else {
+                <p class="muted">لا توجد مصروفات.</p>
+            }
+          </section>
+
+            <section class="detail-section">
+              <h4>الأماكن التي تمت زيارتها</h4>
+              @if (detail.visitedPlaces?.length) {
+                <ul class="detail-list">
+                @for (place of detail.visitedPlaces; track $index) {
+                  <li>{{ place.name || 'مكان' }} - {{ place.visitDate || '—' }}</li>
+                }
+                </ul>
+              } @else {
+                <p class="muted">لا توجد أماكن مسجلة.</p>
+            }
+          </section>
+
+          <section class="detail-section">
+            <h4>الصور</h4>
+            <div class="gallery">
+              @for (image of selectedImages(); track $index) {
+                <figure>
+                  <img [src]="imageUrl(image)" [alt]="image.caption || detail.title" />
+                  @if (image.caption) { <figcaption>{{ image.caption }}</figcaption> }
+                </figure>
+              }
+            </div>
+          </section>
+
+          <form [formGroup]="rejectForm" class="reject-box" (ngSubmit)="reject(detail)">
+            <label>سبب الرفض<textarea formControlName="reason" rows="3"></textarea></label>
+            <div class="actions">
+              <button class="btn" type="button" (click)="approve(detail)" [disabled]="busyId() === detail.id">اعتماد</button>
+              <button class="btn btn-ghost" type="submit" [disabled]="busyId() === detail.id">رفض</button>
+            </div>
+          </form>
+        } @else {
+          <div class="empty-card">
+            <p>اختر تجربة من القائمة لعرض التفاصيل الكاملة.</p>
+          </div>
+        }
+      </aside>
+    </div>
+  }
+
+  @if (errorMessage()) { <p class="error">{{ errorMessage() }}</p> }
+</section>

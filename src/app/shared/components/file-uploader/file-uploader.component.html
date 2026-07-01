@@ -1,0 +1,45 @@
+<section class="uploader" [class.disabled]="disabled">
+  <div class="uploader__head">
+    <div>
+      <strong>{{ label }}</strong>
+      <p>{{ hint }}</p>
+    </div>
+    <button type="button" class="uploader__clear" (click)="clear()" [disabled]="disabled || isEmpty()">مسح الكل</button>
+  </div>
+
+  <label class="uploader__zone">
+    <input
+      type="file"
+      [accept]="accept"
+      [multiple]="multiple"
+      [disabled]="disabled"
+      (change)="onFileChange($event)"
+    />
+    <span>📤</span>
+    <strong>اضغط أو اسحب الملفات هنا</strong>
+    <small>المسموح: PNG, JPG, JPEG, WEBP</small>
+  </label>
+
+  @if (error) {
+    <p class="uploader__error" role="alert">{{ error }}</p>
+  }
+
+  @if (previews.length) {
+    <div class="uploader__grid">
+      @for (preview of previews; track preview.previewUrl; let index = $index) {
+        <article class="uploader__card">
+          @if (preview.isImage) {
+            <img [src]="preview.previewUrl" [alt]="preview.file.name" />
+          } @else {
+            <div class="uploader__fallback">{{ preview.file.name.split('.').pop()?.toUpperCase() || 'FILE' }}</div>
+          }
+          <div class="uploader__meta">
+            <strong>{{ preview.file.name }}</strong>
+            <small>{{ (preview.file.size / 1024 / 1024) | number:'1.1-1' }} MB</small>
+          </div>
+          <button type="button" class="uploader__remove" (click)="remove(index)" [disabled]="disabled">حذف</button>
+        </article>
+      }
+    </div>
+  }
+</section>

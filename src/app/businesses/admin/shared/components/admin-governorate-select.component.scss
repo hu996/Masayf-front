@@ -1,0 +1,27 @@
+.governorate-select {
+  display: grid;
+  gap: 8px;
+}
+
+.governorate-select span {
+  font-weight: 800;
+}
+
+.governorate-select select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #fff;
+  color: #0f172a;
+}
+
+.governorate-select small {
+  color: #64748b;
+}
+
+.governorate-select small.error {
+  color: #b91c1c;
+}
+

@@ -9,7 +9,15 @@
     </div>
 
     <form class="filters" [formGroup]="filters" (ngSubmit)="load()">
-      <div class="field"><label>المدينة</label><input formControlName="cityId" placeholder="معرّف المدينة"></div>
+      <div class="field">
+        <label>المدينة</label>
+        <select formControlName="cityId">
+          <option value="">كل المدن</option>
+          @for (city of cities(); track city.id) {
+            <option [value]="city.id">{{ city.name }}</option>
+          }
+        </select>
+      </div>
       <div class="field"><label>المنطقة</label><input formControlName="areaId" placeholder="معرّف المنطقة"></div>
       <div class="field"><label>التصنيف</label><input formControlName="category" placeholder="شاطئ، متحف، رحلة"></div>
       <div class="field"><label>أقل سعر</label><input type="number" formControlName="minPrice"></div>

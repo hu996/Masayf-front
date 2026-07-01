@@ -19,7 +19,7 @@
       <div class="card-grid">
         @for (place of favorites(); track place.id || place.placeId) {
           <article class="travel-card">
-            <img loading="lazy" width="420" height="260" [src]="place.mainImageUrl || place.imageUrl || image" [alt]="place.name">
+            <img loading="lazy" width="420" height="260" [src]="placeImage(place)" [alt]="place.name">
             <div class="travel-card__body">
               <h3>{{ place.name }}</h3>
               <p class="muted">

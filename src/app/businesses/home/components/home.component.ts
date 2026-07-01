@@ -9,6 +9,7 @@ import { EmptyStateComponent } from '@app/shared/components/empty-state/empty-st
 import { SkeletonGridComponent } from '@app/shared/components/skeleton-grid/skeleton-grid.component';
 import { SavedDestinationsService } from '@app/core/services/saved-destinations.service';
 import { ToastService } from '@app/core/services/toast.service';
+import { resolveMediaUrl } from '@app/core/utils/media-url.util';
 
 @Component({
   selector: 'app-home',
@@ -60,7 +61,11 @@ export class HomeComponent implements OnInit {
   }
 
   cityImage(city: City): string {
-    return city.mainImageUrl || city.coverImage || city.imageUrl || this.seaImage;
+    return resolveMediaUrl(city.mainImageUrl || city.coverImage || city.imageUrl, this.seaImage);
+  }
+
+  experienceImage(experience: { coverImageUrl?: string | null; coverImage?: string | null; imageUrl?: string | null }): string {
+    return resolveMediaUrl(experience.coverImageUrl || experience.coverImage || experience.imageUrl, this.seaImage);
   }
 
   goWhere(): void {

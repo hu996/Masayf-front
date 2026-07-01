@@ -10,27 +10,32 @@ export const routes: Routes = [
     children: [
       {
         path: 'login',
-        loadComponent: () => import('./businesses/admin/components/admin-login.component').then((m) => m.AdminLoginComponent)
+        loadComponent: () => import('./businesses/admin/auth/components/admin-login.component').then((m) => m.AdminLoginComponent)
       },
       {
         path: '',
         canActivate: [adminAuthGuard],
         canActivateChild: [adminAuthChildGuard],
-        loadComponent: () => import('./businesses/admin/components/admin-layout.component').then((m) => m.AdminLayoutComponent),
+        loadComponent: () => import('./businesses/admin/layout/components/admin-layout.component').then((m) => m.AdminLayoutComponent),
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-          { path: 'dashboard', loadComponent: () => import('./businesses/admin/components/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
-          { path: 'users', loadComponent: () => import('./businesses/admin/components/admin-users.component').then((m) => m.AdminUsersComponent) },
-          { path: 'settings', loadComponent: () => import('./businesses/admin/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
-          { path: 'cities', loadComponent: () => import('./businesses/admin/components/admin-cities.component').then((m) => m.AdminCitiesComponent) },
-          { path: 'price-profiles', loadComponent: () => import('./businesses/admin/components/admin-price-profiles.component').then((m) => m.AdminPriceProfilesComponent) },
-          { path: 'experiences', loadComponent: () => import('./businesses/admin/components/admin-experiences.component').then((m) => m.AdminExperiencesComponent) },
-          { path: 'places', loadComponent: () => import('./businesses/admin/components/admin-places.component').then((m) => m.AdminPlacesComponent) },
-          { path: 'roles', loadComponent: () => import('./businesses/admin/components/admin-roles.component').then((m) => m.AdminRolesComponent) },
-          { path: 'permissions', loadComponent: () => import('./businesses/admin/components/admin-permissions.component').then((m) => m.AdminPermissionsComponent) },
-          { path: 'lookups', loadComponent: () => import('./businesses/admin/components/admin-lookups-home.component').then((m) => m.AdminLookupsHomeComponent) },
-          { path: 'lookups/types', loadComponent: () => import('./businesses/admin/lookups/lookup-types/components/lookup-types.component').then((m) => m.LookupTypesComponent) },
-          { path: 'lookups/items', loadComponent: () => import('./businesses/admin/lookups/lookup-items/components/lookup-items.component').then((m) => m.LookupItemsComponent) }
+          { path: 'dashboard', data: { title: 'لوحة التحكم' }, loadComponent: () => import('./businesses/admin/dashboard/components/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
+          { path: 'analytics', data: { title: 'تحليلات الزوار' }, loadComponent: () => import('./businesses/admin/analytics/components/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
+          { path: 'support', data: { title: 'الدعم الفني' }, loadComponent: () => import('./businesses/admin/support/components/admin-support.component').then((m) => m.AdminSupportComponent) },
+          { path: 'support/:id', data: { title: 'تفاصيل التذكرة' }, loadComponent: () => import('./businesses/admin/support/components/admin-support.component').then((m) => m.AdminSupportComponent) },
+          { path: 'users', data: { title: 'إدارة المستخدمين' }, loadComponent: () => import('./businesses/admin/users/components/admin-users.component').then((m) => m.AdminUsersComponent) },
+          { path: 'settings', data: { title: 'الإعدادات' }, loadComponent: () => import('./businesses/admin/settings/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
+          { path: 'governorates', data: { title: 'المحافظات' }, loadComponent: () => import('./businesses/admin/governorates/components/admin-governorates.component').then((m) => m.AdminGovernoratesComponent) },
+          { path: 'cities', data: { title: 'المدن' }, loadComponent: () => import('./businesses/admin/cities/components/admin-cities.component').then((m) => m.AdminCitiesComponent) },
+          { path: 'price-profiles', data: { title: 'ملفات الأسعار' }, loadComponent: () => import('./businesses/admin/price-profiles/components/admin-price-profiles.component').then((m) => m.AdminPriceProfilesComponent) },
+          { path: 'experiences', data: { title: 'التجارب' }, loadComponent: () => import('./businesses/admin/experiences/components/admin-experiences.component').then((m) => m.AdminExperiencesComponent) },
+          { path: 'places', data: { title: 'الأماكن' }, loadComponent: () => import('./businesses/admin/places/components/admin-places.component').then((m) => m.AdminPlacesComponent) },
+          { path: 'roles', data: { title: 'الأدوار' }, loadComponent: () => import('./businesses/admin/roles/components/admin-roles.component').then((m) => m.AdminRolesComponent) },
+          { path: 'permissions', data: { title: 'كتالوج الصلاحيات' }, loadComponent: () => import('./businesses/admin/permissions/components/admin-permissions.component').then((m) => m.AdminPermissionsComponent) },
+          { path: 'lookups', data: { title: 'القوائم المرجعية' }, loadComponent: () => import('./businesses/admin/lookups/components/admin-lookups-home.component').then((m) => m.AdminLookupsHomeComponent) },
+          { path: 'lookups/types', data: { title: 'أنواع القوائم' }, loadComponent: () => import('./businesses/admin/lookups/lookup-types/components/lookup-types.component').then((m) => m.LookupTypesComponent) },
+          { path: 'lookups/items', data: { title: 'عناصر القوائم' }, loadComponent: () => import('./businesses/admin/lookups/lookup-items/components/lookup-items.component').then((m) => m.LookupItemsComponent) },
+          { path: 'access-denied', data: { title: 'غير مصرح بالوصول' }, loadComponent: () => import('./businesses/admin/access-denied/components/admin-access-denied.component').then((m) => m.AdminAccessDeniedComponent) }
         ]
       }
     ]
