@@ -170,6 +170,8 @@ export class AdminLayoutComponent implements OnInit {
 
     const routeMatches: Array<[RegExp, string]> = [
       [/dashboard|لوحة|تحكم|overview|home/, 'dashboard'],
+      [/analytics|تحليلات|visitor|visitors|pageviews|traffic/, 'analytics'],
+      [/support|ticket|tickets|شكاوى|دعم|helpdesk/, 'support'],
       [/users|user|مستخدم|accounts?/, 'users'],
       [/settings|setting|اعداد|إعداد|configuration|config/, 'settings'],
       [/cities|city|مدن|مدينة/, 'cities'],

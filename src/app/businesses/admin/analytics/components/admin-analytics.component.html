@@ -1,0 +1,183 @@
+<section class="analytics-page admin-page">
+  <header class="hero card-surface">
+    <div class="hero__copy">
+      <p class="eyebrow">Analytics</p>
+      <h1>تحليلات الزوار</h1>
+      <p class="muted">
+        لوحة حيّة للمشاهدات والزوار الفريدين، مع حركة يومية، أهم الصفحات، وسجل تفصيلي يمكن البحث فيه بسرعة.
+      </p>
+    </div>
+
+    <div class="hero__actions">
+      <button class="btn btn-ghost" type="button" (click)="resetFilters()">إعادة ضبط</button>
+      <button class="btn btn-primary" type="button" (click)="refresh()">تحديث</button>
+    </div>
+  </header>
+
+  <section class="filters-card card-surface">
+    <form class="filters" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+      <label class="field">
+        <span>بحث</span>
+        <input formControlName="search" type="search" placeholder="VisitorKey أو PageKey أو Path" />
+      </label>
+
+      <label class="field">
+        <span>من تاريخ</span>
+        <input formControlName="fromDate" type="date" />
+      </label>
+
+      <label class="field">
+        <span>إلى تاريخ</span>
+        <input formControlName="toDate" type="date" />
+      </label>
+
+      <div class="filters__actions">
+        <button class="btn btn-ghost" type="button" (click)="resetFilters()">مسح</button>
+        <button class="btn btn-primary" type="submit">تطبيق</button>
+      </div>
+    </form>
+  </section>
+
+  @if (overviewError()) {
+    <section class="alert-card card-surface">
+      <strong>تعذر تحميل التحليلات</strong>
+      <p>{{ friendlyOverviewError() }}</p>
+    </section>
+  }
+
+  <section class="kpi-grid">
+    @for (card of cards(); track card.label) {
+      <article class="kpi-card card-surface" [ngClass]="'kpi-card--' + card.tone">
+        <span>{{ card.label }}</span>
+        <strong>{{ card.value | number }}</strong>
+        <small>{{ card.hint }}</small>
+      </article>
+    }
+  </section>
+
+  <section class="analytics-grid">
+    <article class="card-surface chart-card">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Daily traffic</p>
+          <h2>الحركة اليومية</h2>
+        </div>
+        <span class="count-pill">{{ dailyTraffic().length }} يوم</span>
+      </div>
+
+      @if (loadingOverview()) {
+        <div class="empty-card">جارٍ تحميل بيانات الحركة اليومية...</div>
+      } @else if (dailyTraffic().length) {
+        <div class="bars-chart">
+          @for (day of dailyTraffic(); track trackByTraffic($index, day)) {
+            <div class="bar-row">
+              <div class="bar-row__label">
+                <strong>{{ formatDay(day.day) }}</strong>
+                <small>{{ day.uniqueVisitors | number }} زائر فريد</small>
+              </div>
+              <div class="bar-track" [attr.aria-label]="day.day">
+                <i [style.width.%]="(day.pageViews / maxTraffic()) * 100"></i>
+              </div>
+              <b>{{ day.pageViews | number }}</b>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-card">لا توجد بيانات يومية ضمن الفلترة الحالية.</div>
+      }
+    </article>
+
+    <article class="card-surface top-pages-card">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">Top pages</p>
+          <h2>أهم الصفحات</h2>
+        </div>
+        <span class="count-pill">{{ topPages().length }} صفحة</span>
+      </div>
+
+      @if (loadingOverview()) {
+        <div class="empty-card">جارٍ تحميل أهم الصفحات...</div>
+      } @else if (topPages().length) {
+        <div class="top-pages-list">
+          @for (page of topPages(); track trackByPage($index, page)) {
+            <div class="top-page-row">
+              <div class="top-page-row__copy">
+                <strong>{{ page.pageTitle || page.pageKey }}</strong>
+                <small>{{ page.path || page.pageKey }}</small>
+                <span>{{ page.uniqueVisitors | number }} زائر فريد</span>
+              </div>
+              <div class="bar-track">
+                <i [style.width.%]="(page.views / maxTopPages()) * 100"></i>
+              </div>
+              <b>{{ page.views | number }}</b>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-card">لا توجد صفحات بارزة بعد.</div>
+      }
+    </article>
+  </section>
+
+  <section class="card-surface table-card">
+    <div class="panel-head">
+      <div>
+        <p class="eyebrow">Page views</p>
+        <h2>سجل الزيارات التفصيلي</h2>
+      </div>
+      <div class="panel-head__meta">
+        <span class="count-pill">{{ pageViews()?.totalCount || 0 }} زيارة</span>
+        <button type="button" class="btn btn-ghost btn-sm" (click)="refresh()">تحديث</button>
+      </div>
+    </div>
+
+    @if (pageViewsError()) {
+      <div class="alert-card alert-card--inline">
+        <strong>تعذر تحميل السجل</strong>
+        <p>{{ friendlyPageViewsError() }}</p>
+      </div>
+    }
+
+    @if (loadingPageViews()) {
+      <div class="empty-card">جارٍ تحميل سجل الزيارات...</div>
+    } @else if (pageViewRows().length) {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>VisitorKey</th>
+              <th>PageKey</th>
+              <th>PageTitle</th>
+              <th>Path</th>
+              <th>Referrer</th>
+              <th>UserName</th>
+              <th>CreatedAt</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pageViewRows(); track trackByView($index, row)) {
+              <tr>
+                <td><span class="mono-chip">{{ row.visitorKey }}</span></td>
+                <td><span class="mono-chip">{{ row.pageKey }}</span></td>
+                <td>{{ row.pageTitle || '—' }}</td>
+                <td class="truncate">{{ row.path || '—' }}</td>
+                <td class="truncate">{{ row.referrer || '—' }}</td>
+                <td>{{ row.userName || '—' }}</td>
+                <td>{{ formatDateTime(row.createdAt) }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pagination-bar">
+        <button type="button" class="page-btn" (click)="setPage(pageNumber() - 1)" [disabled]="pageNumber() === 1">السابق</button>
+        <span>صفحة {{ pageNumber() }} من {{ totalPages() }}</span>
+        <button type="button" class="page-btn" (click)="setPage(pageNumber() + 1)" [disabled]="pageNumber() === totalPages()">التالي</button>
+      </footer>
+    } @else {
+      <div class="empty-card">لا توجد زيارات مطابقة لفلترة البحث الحالية.</div>
+    }
+  </section>
+</section>

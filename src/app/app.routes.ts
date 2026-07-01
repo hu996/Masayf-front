@@ -20,6 +20,9 @@ export const routes: Routes = [
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           { path: 'dashboard', data: { title: 'لوحة التحكم' }, loadComponent: () => import('./businesses/admin/dashboard/components/admin-dashboard.component').then((m) => m.AdminDashboardComponent) },
+          { path: 'analytics', data: { title: 'تحليلات الزوار' }, loadComponent: () => import('./businesses/admin/analytics/components/admin-analytics.component').then((m) => m.AdminAnalyticsComponent) },
+          { path: 'support', data: { title: 'الدعم الفني' }, loadComponent: () => import('./businesses/admin/support/components/admin-support.component').then((m) => m.AdminSupportComponent) },
+          { path: 'support/:id', data: { title: 'تفاصيل التذكرة' }, loadComponent: () => import('./businesses/admin/support/components/admin-support.component').then((m) => m.AdminSupportComponent) },
           { path: 'users', data: { title: 'إدارة المستخدمين' }, loadComponent: () => import('./businesses/admin/users/components/admin-users.component').then((m) => m.AdminUsersComponent) },
           { path: 'settings', data: { title: 'الإعدادات' }, loadComponent: () => import('./businesses/admin/settings/components/admin-settings.component').then((m) => m.AdminSettingsComponent) },
           { path: 'governorates', data: { title: 'المحافظات' }, loadComponent: () => import('./businesses/admin/governorates/components/admin-governorates.component').then((m) => m.AdminGovernoratesComponent) },

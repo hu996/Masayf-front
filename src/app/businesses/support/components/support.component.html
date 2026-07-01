@@ -1,0 +1,140 @@
+<section class="support-page">
+  <div class="container support-layout">
+    <form class="support-form card-surface" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">الدعم والشكاوى</p>
+          <h2>إرسال بلاغ</h2>
+          <p class="muted">املأ أقل قدر ممكن من البيانات، وباقي الحقول اختيارية.</p>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label>نوع البلاغ *</label>
+          <select formControlName="type">
+            @for (item of typeOptions; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field wide">
+          <label>العنوان *</label>
+          <input formControlName="subject" placeholder="اكتب عنوانًا مختصرًا" />
+        </div>
+
+        <div class="field wide">
+          <label>التفاصيل *</label>
+          <textarea rows="5" formControlName="message" placeholder="اكتب وصفًا بسيطًا للمشكلة أو الاقتراح..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>الفئة</label>
+          <input formControlName="category" placeholder="اختياري" />
+        </div>
+
+        <div class="field">
+          <label>الاسم الكامل *</label>
+          <input formControlName="fullName" placeholder="اكتب اسمك" [disabled]="isAnonymous()" />
+          @if (fullNameErrorMessage()) {
+            <small class="field-error">{{ fullNameErrorMessage() }}</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>البريد الإلكتروني *</label>
+          <input formControlName="email" type="email" placeholder="name@email.com" [disabled]="isAnonymous()" />
+          @if (emailErrorMessage()) {
+            <small class="field-error">{{ emailErrorMessage() }}</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>رقم الهاتف *</label>
+          <input
+            formControlName="phone"
+            type="tel"
+            placeholder="11 رقم"
+            inputmode="numeric"
+            maxlength="11"
+            autocomplete="tel"
+            (input)="onPhoneInput($event)"
+            [disabled]="isAnonymous()"
+          />
+          <small class="field-help">لازم يكون 11 رقم بالأرقام فقط.</small>
+          @if (phoneErrorMessage()) {
+            <small class="field-error">{{ phoneErrorMessage() }}</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>الأولوية *</label>
+          <select formControlName="priority">
+            @for (item of priorityOptions; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <label><input type="checkbox" formControlName="isAnonymous" /> إرسال البلاغ بشكل مجهول</label>
+        <label><input type="checkbox" formControlName="allowContactBack" [disabled]="isAnonymous()" /> السماح بالتواصل معي</label>
+      </div>
+
+      <app-file-uploader
+        label="مرفقات"
+        hint="اختياري. ارفع صورة واحدة أو أكثر بصيغة PNG أو JPG أو JPEG أو WEBP."
+        [files]="attachments()"
+        (filesChange)="attachments.set($event)"
+        (filesInvalid)="error.set($event)"
+        [maxFiles]="6"
+        [maxFileSizeMb]="8"
+      />
+
+      @if (error()) {
+        <p class="error-text" role="alert">{{ error() }}</p>
+      }
+
+      <div class="support-actions">
+        <button type="button" class="btn btn-ghost" (click)="resetForm()" [disabled]="loading()">مسح</button>
+        <button class="btn btn-primary" type="submit" [disabled]="loading()">
+          {{ loading() ? 'جارٍ الإرسال...' : 'إرسال' }}
+        </button>
+      </div>
+    </form>
+
+    @if (submittedTicket(); as ticket) {
+      <aside class="support-side">
+        <div class="card-surface receipt-card">
+          <div class="receipt-card__head">
+            <div>
+              <p class="eyebrow">تم الاستلام</p>
+              <h3>تم استلام البلاغ بنجاح</h3>
+            </div>
+            <span class="status-chip">{{ ticket.statusLabel }}</span>
+          </div>
+
+          <div class="receipt-grid">
+            <div><span>رقم التذكرة</span><strong>{{ ticket.ticketNumber }}</strong></div>
+            <div><span>النوع</span><strong>{{ ticket.typeLabel }}</strong></div>
+            <div><span>الوقت</span><strong>{{ ticket.createdAt | date:'short' }}</strong></div>
+            <div><span>الحالة</span><strong>{{ ticket.statusLabel }}</strong></div>
+          </div>
+
+          @if (ticket.attachments.length) {
+            <div class="receipt-attachments">
+              @for (attachment of ticket.attachments; track attachment.id || attachment.resolvedUrl) {
+                <a class="receipt-attachment" [href]="attachment.resolvedUrl" target="_blank" rel="noopener">
+                  <img [src]="attachment.resolvedUrl" [alt]="attachment.fileName" />
+                  <span>{{ attachment.fileName }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      </aside>
+    }
+  </div>
+</section>

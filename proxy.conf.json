@@ -1,12 +1,12 @@
 {
   "/api": {
-    "target": "http://localhost:59726",
+    "target": "http://masayef.runasp.net",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "warn"
   },
   "/uploads": {
-    "target": "http://localhost:59726",
+    "target": "http://masayef.runasp.net",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "warn"

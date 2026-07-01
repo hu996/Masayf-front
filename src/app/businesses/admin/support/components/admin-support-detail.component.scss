@@ -1,0 +1,270 @@
+.support-detail-page {
+  display: grid;
+  gap: 18px;
+}
+
+.detail-hero,
+.info-card,
+.action-card,
+.replies-card {
+  padding: 20px;
+}
+
+.detail-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+}
+
+.detail-hero__copy {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-hero__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(90px, 1fr));
+  gap: 10px;
+}
+
+.hero-chip {
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08), rgba(15, 118, 110, 0.05));
+  text-align: center;
+}
+
+.hero-chip span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.hero-chip strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.back-btn {
+  justify-self: start;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-weight: 800;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.8fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(14, 165, 233, 0.08);
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.info-grid div,
+.reply-card {
+  border-radius: 16px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.info-grid span,
+.text-block span,
+.attachments-section span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.info-grid strong {
+  display: block;
+}
+
+.text-block {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.text-block p {
+  margin: 0;
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.attachments-section {
+  display: grid;
+  gap: 10px;
+}
+
+.attachments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.attachment-card {
+  display: grid;
+  gap: 8px;
+  border-radius: 16px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: inherit;
+}
+
+.attachment-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.attachment-card strong {
+  word-break: break-word;
+  font-size: 0.88rem;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.field span {
+  font-weight: 800;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px 14px;
+  min-height: 46px;
+}
+
+.field textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.action-row--split {
+  justify-content: space-between;
+}
+
+.replies-list {
+  display: grid;
+  gap: 12px;
+}
+
+.reply-card {
+  display: grid;
+  gap: 8px;
+}
+
+.reply-card__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.reply-card p {
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.reply-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reply-attachments a {
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+}
+
+.loading-card,
+.alert-card {
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.alert-card {
+  color: #9a3412;
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+@media (max-width: 1100px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .detail-hero {
+    flex-direction: column;
+  }
+
+  .detail-hero__stats,
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-row {
+    flex-direction: column;
+  }
+
+  .action-row--split {
+    align-items: stretch;
+  }
+
+  .action-row .btn {
+    width: 100%;
+  }
+}

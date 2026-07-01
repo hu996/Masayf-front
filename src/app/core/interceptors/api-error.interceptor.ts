@@ -1,7 +1,7 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { EMPTY, catchError, throwError } from 'rxjs';
 import { ToastService } from '../services/toast.service';
 import { AdminAuthService } from '../../businesses/admin/auth/services/admin-auth.service';
 
@@ -18,6 +18,10 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      if (isAbortError(error)) {
+        return EMPTY;
+      }
+
       if (req.url.includes('/Admin/') && error.status === 401) {
         adminAuth.logout();
         void router.navigateByUrl('/admin/login');
@@ -60,4 +64,14 @@ function formatErrors(errors: ApiErrorBody['errors']): string {
     return errors.join(' - ');
   }
   return Object.values(errors).flat().join(' - ');
+}
+
+function isAbortError(error: HttpErrorResponse): boolean {
+  const name = (error.error as { name?: string } | null)?.name;
+  const message = typeof error.error === 'string' ? error.error : (error.message || '');
+
+  return error.status === 0 && (
+    name === 'AbortError' ||
+    /aborted|canceled|cancelled/i.test(message)
+  );
 }

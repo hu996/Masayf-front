@@ -1,0 +1,146 @@
+.uploader {
+  display: grid;
+  gap: 14px;
+}
+
+.uploader.disabled {
+  opacity: 0.72;
+}
+
+.uploader__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.uploader__head strong {
+  display: block;
+  font-size: 1rem;
+}
+
+.uploader__head p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.uploader__clear {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 0 14px;
+  min-height: 38px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.uploader__zone {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 170px;
+  padding: 18px;
+  text-align: center;
+  border: 1.5px dashed rgba(14, 165, 233, 0.35);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.05), rgba(15, 118, 110, 0.04));
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.uploader__zone:hover {
+  border-color: rgba(14, 165, 233, 0.55);
+  transform: translateY(-1px);
+}
+
+.uploader__zone input {
+  display: none;
+}
+
+.uploader__zone span {
+  font-size: 1.6rem;
+}
+
+.uploader__zone strong {
+  font-size: 1rem;
+}
+
+.uploader__zone small {
+  color: var(--muted);
+}
+
+.uploader__error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.uploader__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.uploader__card {
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+}
+
+.uploader__card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.uploader__fallback {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #f8fafc;
+  color: var(--primary-dark);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.uploader__meta {
+  display: grid;
+  gap: 2px;
+}
+
+.uploader__meta strong {
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+.uploader__meta small {
+  color: var(--muted);
+}
+
+.uploader__remove {
+  border: 0;
+  border-radius: 12px;
+  min-height: 38px;
+  background: #fff1f2;
+  color: #be123c;
+  font-weight: 800;
+}
+
+@media (max-width: 640px) {
+  .uploader__head {
+    flex-direction: column;
+  }
+
+  .uploader__clear {
+    width: 100%;
+  }
+}
