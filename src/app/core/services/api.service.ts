@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { map, Observable, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
@@ -8,7 +9,9 @@ type Params = Record<string, unknown>;
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly baseUrl = environment.apiBaseUrl.replace(/\/$/, '');
+  private readonly serverBaseUrl = (environment.backendBaseUrl || '').replace(/\/$/, '');
   private readonly getCache = new Map<string, { expiresAt: number; value: Observable<unknown> }>();
   private readonly cacheTtlMs = 60_000;
 
@@ -59,7 +62,8 @@ export class ApiService {
       throw new Error('رابط الطلب غير صحيح: لا يمكن إرسال قيمة غير رقمية.');
     }
 
-    return `${this.baseUrl}/${normalizedPath}`;
+    const baseUrl = isPlatformBrowser(this.platformId) ? this.baseUrl : (this.serverBaseUrl || this.baseUrl);
+    return `${baseUrl}/${normalizedPath}`;
   }
 
   private unwrap<T>(response: ApiResponse<T> | T): T {

@@ -1,0 +1,189 @@
+<section class="support-detail-page">
+  <header class="detail-hero card-surface">
+    <div class="detail-hero__copy">
+      <button type="button" class="back-btn" (click)="back()">رجوع إلى الجدول</button>
+      <p class="eyebrow">تفاصيل التذكرة</p>
+      @if (ticket(); as current) {
+        <h1>{{ current.ticketNumber }}</h1>
+        <p class="muted">{{ current.subject }}</p>
+      } @else {
+        <h1>تحميل تفاصيل الشكوى</h1>
+      }
+    </div>
+
+    @if (ticket(); as current) {
+      <div class="detail-hero__stats">
+        <div class="hero-chip">
+          <span>الحالة</span>
+          <strong>{{ statusLabel(current.status) }}</strong>
+        </div>
+        <div class="hero-chip">
+          <span>الأولوية</span>
+          <strong>{{ priorityLabel(current.priority) }}</strong>
+        </div>
+        <div class="hero-chip">
+          <span>النوع</span>
+          <strong>{{ typeLabel(current.type) }}</strong>
+        </div>
+      </div>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="loading-card card-surface">جاري تحميل تفاصيل التذكرة...</div>
+  } @else if (error()) {
+    <div class="alert-card card-surface">{{ error() }}</div>
+  } @else if (ticket(); as ticket) {
+    <div class="detail-grid">
+      <section class="card-surface info-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">معلومات أساسية</p>
+            <h2>بيانات التذكرة</h2>
+          </div>
+          <span class="status-pill">{{ statusLabel(ticket.status) }}</span>
+        </div>
+
+        <div class="info-grid">
+          <div>
+            <span>الاسم</span>
+            <strong>{{ ticket.isAnonymous ? 'مجهول' : ticket.fullName }}</strong>
+          </div>
+          <div>
+            <span>البريد</span>
+            <strong>{{ ticket.email || '—' }}</strong>
+          </div>
+          <div>
+            <span>الهاتف</span>
+            <strong>{{ ticket.phone || '—' }}</strong>
+          </div>
+          <div>
+            <span>النوع</span>
+            <strong>{{ typeLabel(ticket.type) }}</strong>
+          </div>
+          <div>
+            <span>الأولوية</span>
+            <strong>{{ priorityLabel(ticket.priority) }}</strong>
+          </div>
+          <div>
+            <span>التاريخ</span>
+            <strong>{{ ticket.createdAt | date : 'short' }}</strong>
+          </div>
+        </div>
+
+        <div class="text-block">
+          <span>الموضوع</span>
+          <p>{{ ticket.subject }}</p>
+        </div>
+
+        <div class="text-block">
+          <span>الرسالة</span>
+          <p>{{ ticket.message }}</p>
+        </div>
+
+        @if (ticket.attachments.length) {
+          <div class="attachments-section">
+            <span>المرفقات</span>
+            <div class="attachments-grid">
+              @for (attachment of ticket.attachments; track trackByAttachment($index, attachment)) {
+                <a class="attachment-card" [href]="attachmentUrl(attachment.resolvedUrl)" target="_blank" rel="noopener">
+                  <img [src]="attachmentUrl(attachment.resolvedUrl)" [alt]="attachment.fileName" />
+                  <strong>{{ attachment.fileName }}</strong>
+                </a>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="card-surface action-card" [formGroup]="replyForm">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">الإجراءات</p>
+            <h2>الرد والحالة</h2>
+          </div>
+        </div>
+
+        @if (actionError()) {
+          <div class="alert-card">{{ actionError() }}</div>
+        }
+
+        <label class="field">
+          <span>تغيير الحالة</span>
+          <select formControlName="status">
+            @for (item of statusOptions; track item.value) {
+              <option [value]="item.value">{{ item.label }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="action-row">
+          <button type="button" class="btn btn-primary" (click)="saveStatus()" [disabled]="saving() || !canClose()">حفظ الحالة</button>
+        </div>
+
+        <label class="field">
+          <span>إسناد إلى مستخدم إداري</span>
+          <select formControlName="assigneeUserId">
+            <option value="">اختر مستخدم</option>
+            @for (assignee of assignees(); track assignee.id) {
+              <option [value]="assignee.id">{{ assignee.label }}</option>
+            }
+          </select>
+        </label>
+
+        <div class="action-row">
+          <button type="button" class="btn btn-ghost" (click)="assign()" [disabled]="saving() || !canAssign()">إسناد</button>
+        </div>
+
+        <label class="field">
+          <span>الرد</span>
+          <textarea rows="7" formControlName="message" placeholder="اكتب الرد هنا..."></textarea>
+        </label>
+
+        <app-file-uploader
+          label="مرفقات الرد"
+          hint="يمكنك رفع صور أو ملفات توضيحية مع الرد."
+          [files]="replyAttachments()"
+          (filesChange)="replyAttachments.set($event)"
+          [maxFiles]="4"
+          [maxFileSizeMb]="8"
+        />
+
+        <div class="action-row action-row--split">
+          <button type="button" class="btn btn-primary" (click)="saveReply()" [disabled]="saving() || !canReply()">إرسال الرد</button>
+          <button type="button" class="btn btn-danger" (click)="deleteTicket()" [disabled]="saving() || !canDelete()">حذف</button>
+        </div>
+      </section>
+    </div>
+
+    @if (ticket.replies.length) {
+      <section class="card-surface replies-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">سجل الردود</p>
+            <h2>الردود السابقة</h2>
+          </div>
+        </div>
+
+        <div class="replies-list">
+          @for (reply of ticket.replies; track trackByReply($index, reply)) {
+            <article class="reply-card">
+              <div class="reply-card__head">
+                <strong>{{ reply.authorName || 'الدعم' }}</strong>
+                <small>{{ reply.createdAt | date : 'short' }}</small>
+              </div>
+              <p>{{ reply.message }}</p>
+              @if (reply.attachments.length) {
+                <div class="reply-attachments">
+                  @for (attachment of reply.attachments; track trackByAttachment($index, attachment)) {
+                    <a [href]="attachmentUrl(attachment.resolvedUrl)" target="_blank" rel="noopener">{{ attachment.fileName }}</a>
+                  }
+                </div>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

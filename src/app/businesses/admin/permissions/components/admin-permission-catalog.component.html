@@ -1,0 +1,215 @@
+<section class="permission-catalog">
+  <header class="catalog-hero card-surface">
+    <div class="catalog-hero__copy">
+      <p class="eyebrow">Permission Catalog</p>
+      <h2>الصلاحيات</h2>
+      <p class="muted">
+        عرض مضغوط للصلاحيات داخل مكوّن مستقل، مع إضافة وتعديل وحذف داخل الواجهة.
+      </p>
+    </div>
+
+    <div class="catalog-hero__actions">
+      <label class="role-select">
+        <span>عرض حسب الدور</span>
+        <select [value]="roleName()" (change)="changeRole($any($event.target).value)">
+          <option value="">كل الأدوار</option>
+          @for (role of roles(); track role.id) {
+            <option [value]="role.name">{{ role.displayName || role.name }}</option>
+          }
+        </select>
+      </label>
+
+      <div class="search-box">
+        <input
+          type="search"
+          [formControl]="filterForm.controls.search"
+          placeholder="ابحث في الصلاحيات..."
+          (input)="updateSearch($any($event.target).value)"
+        />
+        @if (searchText()) {
+          <button type="button" class="icon-btn" (click)="clearSearch()" aria-label="مسح البحث">×</button>
+        }
+      </div>
+
+      <button type="button" class="btn btn-primary" (click)="openCreate()" [disabled]="!canEdit()">إضافة صلاحية</button>
+      <button type="button" class="btn btn-secondary" (click)="refresh()">تحديث</button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="loading-card">جارٍ تحميل كتالوج الصلاحيات...</div>
+  } @else {
+    <section class="summary-row">
+      <article class="summary-card">
+        <span>المجموعات</span>
+        <strong>{{ filteredCatalog().length }}</strong>
+      </article>
+      <article class="summary-card accent">
+        <span>الصلاحيات الظاهرة</span>
+        <strong>{{ filteredCount() }}</strong>
+      </article>
+      <article class="summary-card">
+        <span>الإجمالي</span>
+        <strong>{{ permissionCount() }}</strong>
+      </article>
+    </section>
+
+    @if (errorMessage()) {
+      <div class="alert-state error">{{ errorMessage() }}</div>
+    }
+
+    <div class="catalog-grid">
+      @for (group of filteredCatalog(); track group.key) {
+        <article class="group-card card-surface">
+          <div class="group-card__head">
+            <div>
+              <p class="eyebrow">{{ group.key }}</p>
+              <h3>{{ group.label }}</h3>
+              <p>{{ group.items.length }} صلاحية</p>
+            </div>
+
+            <button type="button" class="btn btn-soft btn-sm" (click)="openCreate()" [disabled]="!canEdit()">إضافة</button>
+          </div>
+
+          <div class="permission-grid">
+            @for (permission of group.items; track permissionId(permission)) {
+              <article class="permission-card" [class.inactive]="permission.isActive === false">
+                <div class="permission-card__top">
+                  <div class="permission-card__title">
+                    <strong>{{ itemLabel(permission) }}</strong>
+                    <small>{{ itemEnglish(permission) }}</small>
+                  </div>
+
+                  <span [class]="badgeClass(permission)">{{ permission.isActive === false ? 'Inactive' : 'Active' }}</span>
+                </div>
+
+                <div class="permission-pill-row">
+                  <span>{{ permission.code || permission.key }}</span>
+                  <span>{{ permission.controller || '—' }}</span>
+                  <span>{{ permission.action || '—' }}</span>
+                  <span>{{ permission.isMenuItem ? 'Menu' : 'Action' }}</span>
+                </div>
+
+                <div class="permission-card__actions">
+                  <button type="button" class="btn btn-soft btn-sm" (click)="openEdit(permission)" [disabled]="!canEdit()">تعديل</button>
+                  <button type="button" class="btn btn-ghost btn-sm" (click)="askDelete(permission)" [disabled]="!canEdit()">حذف</button>
+                </div>
+              </article>
+            }
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (!filteredCatalog().length) {
+      <div class="empty-card">
+        <strong>لا توجد صلاحيات مطابقة.</strong>
+        <p>جرّب كلمة بحث مختلفة أو ألغِ فلتر الدور.</p>
+      </div>
+    }
+  }
+
+  @if (modalOpen()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+      <section class="modal-card card-surface" (click)="$event.stopPropagation()">
+        <header class="modal-card__head">
+          <div>
+            <p class="eyebrow">إدارة الصلاحية</p>
+            <h3>{{ modalTitle() }}</h3>
+            <p class="muted">الصلاحية الآن داخل مكوّن منفصل مع grid مضغوط بدل الصفوف الطويلة.</p>
+          </div>
+          <button type="button" class="icon-btn icon-btn--close" (click)="closeModal()">×</button>
+        </header>
+
+        <form class="modal-grid" [formGroup]="draftForm" (ngSubmit)="save()">
+          <label class="field">
+            <span>المجموعة</span>
+            <select formControlName="groupKey">
+              @for (group of groupOptions(); track group.key) {
+                <option [value]="group.key">{{ group.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>اسم المجموعة</span>
+            <input type="text" formControlName="groupLabel" placeholder="General" />
+          </label>
+
+          <label class="field">
+            <span>Key</span>
+            <input type="text" formControlName="key" placeholder="admin.places.create" />
+          </label>
+
+          <label class="field">
+            <span>Arabic Name</span>
+            <input type="text" formControlName="label" placeholder="إضافة مكان" />
+          </label>
+
+          <label class="field">
+            <span>English Name</span>
+            <input type="text" formControlName="labelEn" placeholder="Add place" />
+          </label>
+
+          <label class="field">
+            <span>Code</span>
+            <input type="text" formControlName="code" placeholder="ADMIN.PLACES.CREATE" />
+          </label>
+
+          <label class="field">
+            <span>Controller</span>
+            <input type="text" formControlName="controller" placeholder="Places" />
+          </label>
+
+          <label class="field">
+            <span>Action</span>
+            <input type="text" formControlName="action" placeholder="Create" />
+          </label>
+
+          <label class="field">
+            <span>Route</span>
+            <input type="text" formControlName="route" placeholder="/admin/places" />
+          </label>
+
+          <label class="toggle-row">
+            <input type="checkbox" formControlName="isMenuItem" />
+            <span>Menu Item</span>
+          </label>
+
+          <label class="toggle-row">
+            <input type="checkbox" formControlName="isActive" />
+            <span>Active</span>
+          </label>
+
+          @if (errorMessage()) {
+            <div class="alert-state error modal-alert">{{ errorMessage() }}</div>
+          }
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" (click)="closeModal()">إلغاء</button>
+            <button type="submit" class="btn btn-primary" [disabled]="saving()">
+              {{ saving() ? 'جارٍ الحفظ...' : 'حفظ الصلاحية' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+
+  @if (deleteOpen() && deletingPermission(); as permission) {
+    <div class="modal-backdrop" (click)="cancelDelete()">
+      <section class="confirm-card card-surface" (click)="$event.stopPropagation()">
+        <p class="eyebrow">تأكيد الحذف</p>
+        <h3>{{ itemLabel(permission) }}</h3>
+        <p>هل تريد حذف هذه الصلاحية من الواجهة؟</p>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" (click)="cancelDelete()">إلغاء</button>
+          <button type="button" class="btn btn-primary" (click)="confirmDelete()" [disabled]="deleting()">
+            {{ deleting() ? 'جارٍ الحذف...' : 'حذف' }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+</section>

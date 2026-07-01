@@ -1,0 +1,517 @@
+@if (canViewPlaces()) {
+  <section class="admin-page places-page">
+    <header class="hero card-surface">
+      <div class="hero__copy">
+        <p class="eyebrow">إدارة الأماكن</p>
+        <h2>إدارة الأماكن والصور</h2>
+        <p class="muted">قائمة رسمية للأماكن داخل لوحة الأدمن مع فلترة، إضافة، تعديل، تعطيل، وإدارة صور المكان من ملفات فقط.</p>
+      </div>
+
+      <div class="hero__actions">
+        <div class="search-box">
+          <span class="search-box__icon">⌕</span>
+          <input
+            type="search"
+            [value]="searchTerm()"
+            (input)="setSearch($any($event.target).value)"
+            placeholder="ابحث بالاسم أو المدينة أو النوع..."
+          />
+          @if (searchTerm()) {
+            <button class="btn btn-ghost btn-sm" type="button" (click)="clearSearch()">مسح</button>
+          }
+        </div>
+
+        @if (canCreatePlaces()) {
+          <button class="btn btn-primary" type="button" (click)="openCreate()">إضافة مكان جديد</button>
+        }
+      </div>
+    </header>
+
+    <section class="filters card-surface">
+      <div class="filter-row">
+        <label>
+          <span>المدينة</span>
+          <select [value]="cityFilter()" (change)="setCityFilter($any($event.target).value)">
+            <option value="">كل المدن</option>
+            @for (city of cityOptions(); track city.id) {
+              <option [value]="city.id">{{ city.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          <span>النوع</span>
+          <select [value]="typeFilter()" (change)="setTypeFilter($any($event.target).value)">
+            <option value="">كل الأنواع</option>
+            @for (type of typeOptions(); track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </label>
+
+        <button class="btn btn-ghost" type="button" (click)="clearFilters()">إعادة ضبط الفلاتر</button>
+        <button class="btn btn-ghost" type="button" (click)="refresh()">تحديث</button>
+      </div>
+    </section>
+
+    <section class="stats-row">
+      <article class="stat-card">
+        <span>إجمالي النتائج</span>
+        <strong>{{ filteredItems().length }}</strong>
+        <small>بعد تطبيق البحث والفلاتر</small>
+      </article>
+      <article class="stat-card accent">
+        <span>الصفحة الحالية</span>
+        <strong>{{ currentPage() }} / {{ totalPages() }}</strong>
+        <small>تنقل سهل بين الصفحات</small>
+      </article>
+      <article class="stat-card">
+        <span>عدد الأماكن المحملة</span>
+        <strong>{{ items().length }}</strong>
+        <small>من الـ API الحالي</small>
+      </article>
+    </section>
+
+    @if (loading()) {
+      <div class="skeleton-grid">
+        <div class="skeleton-card large"></div>
+        <div class="skeleton-card detail"></div>
+      </div>
+    } @else {
+      @if (errorMessage()) {
+        <div class="alert-state">{{ errorMessage() }}</div>
+      }
+
+      <div class="layout">
+        <section class="grid-card card-surface">
+          <div class="panel-head">
+            <div>
+              <h3>قائمة الأماكن</h3>
+              <p>الجدول يوضح البيانات الأساسية مع صورة رئيسية واضحة لكل مكان.</p>
+            </div>
+            <span class="count-pill">صفحة {{ currentPage() }} من {{ totalPages() }}</span>
+          </div>
+
+          @if (pagedItems().length) {
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>الصورة</th>
+                    <th>الاسم</th>
+                    <th>المدينة</th>
+                    <th>المنطقة</th>
+                    <th>النوع</th>
+                    <th>الحالة</th>
+                    <th>إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of pagedItems(); track item.id) {
+                    <tr [class.active-row]="selectedPlace()?.id === item.id">
+                      <td>
+                        <img class="thumb" [src]="placeImage(item)" [alt]="item.name" />
+                      </td>
+                      <td>
+                        <strong>{{ item.name }}</strong>
+                        <p class="muted small">{{ item.address || '—' }}</p>
+                      </td>
+                      <td>{{ cityLabel(item.cityName) }}</td>
+                      <td>{{ item.areaName || '—' }}</td>
+                      <td>{{ typeLabel(item.type) }}</td>
+                      <td>
+                        <span class="status-pill" [class.off]="!item.isActive">{{ statusLabel(item.isActive) }}</span>
+                      </td>
+                      <td>
+                        <div class="actions-cell">
+                          <button class="btn btn-soft btn-sm" type="button" (click)="view(item)">View</button>
+                          @if (canEditPlaces()) {
+                            <button class="btn btn-soft btn-sm" type="button" (click)="edit(item)">Edit</button>
+                          }
+                          @if (canManageImages()) {
+                            <button class="btn btn-soft btn-sm" type="button" (click)="openImages(item)">Manage Images</button>
+                          }
+                          @if (canDeletePlaces()) {
+                            <button class="btn btn-ghost btn-sm danger" type="button" (click)="remove(item)">Delete</button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() - 1)" [disabled]="currentPage() === 1">
+                السابق
+              </button>
+
+              @for (page of paginationPages(); track page) {
+                <button class="page-chip" type="button" [class.active]="page === currentPage()" (click)="changePage(page)">
+                  {{ page }}
+                </button>
+              }
+
+              <button class="btn btn-ghost btn-sm" type="button" (click)="changePage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+                التالي
+              </button>
+            </div>
+          } @else {
+            <div class="empty-card">
+              <strong>لا توجد أماكن مطابقة.</strong>
+              <p>يمكنك تغيير الفلاتر أو إنشاء مكان جديد من الأعلى.</p>
+            </div>
+          }
+        </section>
+
+        <aside class="detail-card card-surface">
+          @if (selectedPlace(); as item) {
+            <div class="detail-hero">
+              <img [src]="placeImage(item)" [alt]="item.name" />
+              <div class="detail-hero__badge" [class.off]="!item.isActive">{{ statusLabel(item.isActive) }}</div>
+            </div>
+
+            <div class="detail-body">
+              <p class="eyebrow">تفاصيل المكان</p>
+              <h3>{{ item.name }}</h3>
+              <p class="muted">{{ item.description || 'لا يوجد وصف تفصيلي لهذا المكان.' }}</p>
+
+              <div class="detail-meta">
+                <span class="meta-pill">المدينة: {{ cityLabel(item.cityName) }}</span>
+                <span class="meta-pill">المنطقة: {{ item.areaName || '—' }}</span>
+                <span class="meta-pill">النوع: {{ typeLabel(item.type) }}</span>
+              </div>
+
+              <div class="detail-meta">
+                <span class="meta-pill">السعر: {{ priceRange(item) }}</span>
+                @if (item.pricePerNight !== null && item.pricePerNight !== undefined) {
+                  <span class="meta-pill">ليلة: {{ item.pricePerNight }}</span>
+                }
+                @if (item.capacity !== null && item.capacity !== undefined) {
+                  <span class="meta-pill">السعة: {{ item.capacity }}</span>
+                }
+              </div>
+
+              <div class="detail-actions">
+                @if (canEditPlaces()) {
+                  <button class="btn btn-primary" type="button" (click)="edit(item)">تعديل</button>
+                }
+                @if (canManageImages()) {
+                  <button class="btn btn-ghost" type="button" (click)="openImages(item)">إدارة الصور</button>
+                }
+                @if (canDeletePlaces()) {
+                  <button class="btn btn-ghost" type="button" (click)="remove(item)">حذف</button>
+                }
+              </div>
+            </div>
+
+            <div class="gallery-block">
+              <div class="panel-head compact">
+                <div>
+                  <h4>صور المكان</h4>
+                  <p>عرض الصور القادمة من الباك مع تصحيح الروابط من helper موحّد.</p>
+                </div>
+                <button class="btn btn-ghost btn-sm" type="button" (click)="openImages(item)" [disabled]="!canManageImages()">Manage</button>
+              </div>
+
+              @if (loadingImages()) {
+                <div class="empty-card empty-card--tight">
+                  <strong>جارٍ تحميل الصور...</strong>
+                </div>
+              } @else if (selectedImages().length) {
+                <div class="gallery-grid">
+                  @for (image of selectedImages(); track image.id || image.imageUrl) {
+                    <figure class="gallery-item" [class.main]="image.isMain">
+                      <img [src]="imageUrl(image)" [alt]="image.caption || item.name" />
+                      @if (image.isMain) {
+                        <span class="gallery-badge">الرئيسية</span>
+                      }
+                    </figure>
+                  }
+                </div>
+              } @else {
+                <div class="empty-card empty-card--tight">
+                  <strong>لا توجد صور مرتبطة بهذا المكان.</strong>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-detail">
+              <div class="empty-detail__icon">◌</div>
+              <h3>اختر مكاناً من الجدول</h3>
+              <p>ستظهر هنا التفاصيل والصور المرتبطة به.</p>
+            </div>
+          }
+        </aside>
+      </div>
+    }
+
+    @if (modalOpen()) {
+      <div class="modal-backdrop" (click)="closeModal()">
+        <section class="modal-card" (click)="$event.stopPropagation()">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">الأماكن</p>
+              <h3>{{ editingId() ? 'تعديل مكان' : 'إضافة مكان جديد' }}</h3>
+            </div>
+            <button type="button" class="icon-close" (click)="closeModal()">×</button>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="save()" class="form">
+            <div class="form-grid">
+              <label>
+                المدينة
+                <select formControlName="cityId">
+                  <option value="">اختر المدينة</option>
+                  @for (city of cityOptions(); track city.id) {
+                    <option [value]="city.id">{{ city.name }}</option>
+                  }
+                </select>
+              </label>
+
+              <label>
+                المنطقة
+                <select formControlName="areaId">
+                  <option value="">اختر المنطقة</option>
+                  @for (area of areaOptions(); track area.id) {
+                    <option [value]="area.id">{{ area.name }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                اسم المكان
+                <input formControlName="name" placeholder="مثال: فندق النيل" />
+              </label>
+
+              <label>
+                النوع
+                <select formControlName="type">
+                  <option value="">اختر النوع</option>
+                  @for (type of typeOptions(); track type.value) {
+                    <option [value]="type.value">{{ type.label }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+
+            <label>
+              وصف مختصر
+              <textarea rows="4" formControlName="description" placeholder="أضف وصفاً رسمياً مختصراً للمكان"></textarea>
+            </label>
+
+            <label>
+              العنوان
+              <input formControlName="address" placeholder="مثال: الكورنيش - أمام البحر" />
+            </label>
+
+            <div class="form-grid">
+              <label>
+                خط العرض
+                <input type="number" formControlName="latitude" step="0.000001" />
+              </label>
+
+              <label>
+                خط الطول
+                <input type="number" formControlName="longitude" step="0.000001" />
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                السعر من
+                <input type="number" formControlName="priceFrom" min="0" />
+              </label>
+
+              <label>
+                السعر إلى
+                <input type="number" formControlName="priceTo" min="0" />
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                سعر الليلة
+                <input type="number" formControlName="pricePerNight" min="0" />
+              </label>
+
+              <label>
+                السعة
+                <input type="number" formControlName="capacity" min="0" />
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>
+                التقييم
+                <input type="number" formControlName="averageRating" min="0" max="5" step="0.1" />
+              </label>
+
+              <label>
+                مدة الزيارة بالساعات
+                <input type="number" formControlName="durationHours" min="0" step="0.5" />
+              </label>
+            </div>
+
+            <label>
+              الفئة
+              <input formControlName="category" placeholder="مثال: إقامة / معلم / نشاط" />
+            </label>
+
+            <label class="toggle-row">
+              <input type="checkbox" formControlName="isActive" />
+              <span>المكان نشط</span>
+            </label>
+
+            @if (errorMessage()) {
+              <div class="alert-state">{{ errorMessage() }}</div>
+            }
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                {{ saving() ? 'جارٍ الحفظ...' : 'حفظ المكان' }}
+              </button>
+              <button class="btn btn-ghost" type="button" (click)="closeModal()">إلغاء</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    }
+
+    @if (imageModalOpen()) {
+      <div class="modal-backdrop" (click)="closeImages()">
+        <section class="image-modal" (click)="$event.stopPropagation()">
+          <div class="panel-head compact">
+            <div>
+              <p class="eyebrow">إدارة الصور</p>
+              <h3>{{ selectedPlace()?.name }}</h3>
+            </div>
+            <button type="button" class="icon-close" (click)="closeImages()">×</button>
+          </div>
+
+          <div class="upload-box">
+            <div class="upload-box__head">
+              <div>
+                <strong>رفع صور جديدة</strong>
+                <p>صور كـ file فقط، مع اختيار الصورة الرئيسية قبل الرفع.</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" type="button" (click)="uploadImages()" [disabled]="savingImages() || !uploadDrafts().length">
+                {{ savingImages() ? 'جارٍ الرفع...' : 'رفع الصور' }}
+              </button>
+            </div>
+
+            <label class="upload-zone">
+              <input type="file" accept="image/*" multiple (change)="addUploadDrafts($event)" />
+              <span>اضغط لاختيار صور من الجهاز</span>
+              <small>لا يتم استخدام أي رابط URL من المستخدم.</small>
+            </label>
+
+            @if (uploadDrafts().length) {
+              <div class="upload-grid">
+                @for (draft of uploadDrafts(); track draft.previewUrl) {
+                  <article class="upload-card" [class.main]="draft.main">
+                    <img [src]="draft.previewUrl" [alt]="draft.file.name" />
+                    <div class="upload-card__actions">
+                      <button type="button" class="btn btn-soft btn-sm" (click)="setUploadMain($index)">
+                        {{ draft.main ? 'الصورة الرئيسية' : 'اجعلها الرئيسية' }}
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-sm danger" (click)="removeUploadDraft($index)">حذف</button>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="existing-box">
+            <div class="panel-head compact">
+              <div>
+                <strong>الصور الحالية</strong>
+                <p>يمكنك تعديل caption و sort order وتغيير الرئيسية أو الحذف أو الترتيب.</p>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" (click)="saveImageChanges()" [disabled]="savingImages()">
+                حفظ تعديلات الصور
+              </button>
+            </div>
+
+            @if (imageError()) {
+              <div class="alert-state">{{ imageError() }}</div>
+            }
+
+            @if (imageDrafts().length) {
+              <div class="image-grid">
+                @for (image of imageDrafts(); track image.id || image.imageUrl) {
+                  <article class="image-card" [class.main]="image.isMain">
+                    <img [src]="imageUrl(image)" [alt]="image.caption || 'Place image'" />
+
+                    <div class="image-card__fields">
+                      <label>
+                        Caption
+                        <input
+                          type="text"
+                          [value]="image.caption || ''"
+                          (input)="updateImageDraft($index, { caption: $any($event.target).value })"
+                        />
+                      </label>
+
+                      <label>
+                        Sort order
+                        <input
+                          type="number"
+                          min="1"
+                          [value]="image.sortOrder ?? ($index + 1)"
+                          (input)="updateImageDraft($index, { sortOrder: $any($event.target).value ? +$any($event.target).value : null })"
+                        />
+                      </label>
+                    </div>
+
+                    <div class="upload-card__actions">
+                      <button type="button" class="btn btn-soft btn-sm" (click)="setMainImage($index)">
+                        {{ image.isMain ? 'الرئيسية' : 'اجعلها الرئيسية' }}
+                      </button>
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="moveImage($index, -1)" [disabled]="$index === 0">أعلى</button>
+                      <button type="button" class="btn btn-ghost btn-sm" (click)="moveImage($index, 1)" [disabled]="$index === imageDrafts().length - 1">أسفل</button>
+                      <button type="button" class="btn btn-ghost btn-sm danger" (click)="removeImage(image)">حذف</button>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div class="empty-card empty-card--tight">
+                <strong>لا توجد صور حالياً.</strong>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+    }
+
+    @if (confirmTarget(); as item) {
+      <div class="modal-backdrop" (click)="closeConfirm()">
+        <section class="confirm-card" (click)="$event.stopPropagation()">
+          <p class="eyebrow">تأكيد الحذف</p>
+          <h3>تعطيل المكان</h3>
+          <p>هل تريد تعطيل <strong>{{ item.name }}</strong> من لوحة الإدارة؟</p>
+
+          <div class="modal-actions">
+            <button class="btn btn-danger" type="button" (click)="confirmRemove()" [disabled]="deleting()">
+              {{ deleting() ? 'جارٍ الحذف...' : 'تأكيد' }}
+            </button>
+            <button class="btn btn-ghost" type="button" (click)="closeConfirm()">إلغاء</button>
+          </div>
+        </section>
+      </div>
+    }
+  </section>
+} @else {
+  <section class="admin-page places-page">
+    <div class="empty-detail">
+      <div class="empty-detail__icon">!</div>
+      <h3>غير مصرح بالوصول</h3>
+      <p>لا توجد صلاحية لعرض شاشة الأماكن.</p>
+    </div>
+  </section>
+}

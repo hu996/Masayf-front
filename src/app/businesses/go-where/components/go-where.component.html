@@ -242,7 +242,7 @@
             <div class="experience-grid">
               @for (experience of primaryExperiences(); track trackByExperience($index, experience)) {
                 <article class="experience-card">
-                  <img [src]="experience.coverImageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'" [alt]="experience.title" />
+                  <img [src]="experienceImage(experience)" [alt]="experience.title" />
                   <div class="experience-body">
                     <div class="experience-meta">
                       <span>{{ experience.cityName }}</span>
@@ -385,7 +385,7 @@
             <div class="experience-grid explore-experiences">
               @for (experience of featuredExperiences().slice(0, 4); track trackByExperience($index, experience)) {
                 <article class="experience-card">
-                  <img [src]="experience.coverImageUrl || experience.coverImage || experience.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80'" [alt]="experience.title" />
+                  <img [src]="experienceImage(experience)" [alt]="experience.title" />
                   <div class="experience-body">
                     <h3>{{ experience.title }}</h3>
                     <p class="muted">{{ experience.summary || 'تجربة منشورة من أحد المسافرين.' }}</p>

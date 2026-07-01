@@ -1,0 +1,366 @@
+<section class="support-page admin-page">
+  <header class="hero card-surface">
+    <div class="hero__copy">
+      <p class="eyebrow">إدارة الدعم الفني</p>
+      <h1>تذاكر الدعم</h1>
+      <p class="muted">
+        متابعة الشكاوى والردود والإسناد والحذف من شاشة واحدة، مع فلاتر دقيقة وحالات واضحة لا تحتاج تخمين.
+      </p>
+    </div>
+
+    <div class="hero__actions">
+      <button type="button" class="btn btn-ghost" (click)="resetFilters()">إعادة ضبط</button>
+      <button type="button" class="btn btn-primary" (click)="refresh()">تحديث</button>
+    </div>
+  </header>
+
+  <section class="stats-grid">
+    <article class="stat-card card-surface stat-card--total">
+      <span>الإجمالي</span>
+      <strong>{{ quickStats().total | number }}</strong>
+    </article>
+    <article class="stat-card card-surface stat-card--new">
+      <span>جديدة</span>
+      <strong>{{ quickStats().newCount | number }}</strong>
+    </article>
+    <article class="stat-card card-surface stat-card--progress">
+      <span>قيد العمل</span>
+      <strong>{{ quickStats().inProgressCount | number }}</strong>
+    </article>
+    <article class="stat-card card-surface stat-card--resolved">
+      <span>تم الحل</span>
+      <strong>{{ quickStats().resolvedCount | number }}</strong>
+    </article>
+    <article class="stat-card card-surface stat-card--closed">
+      <span>مغلقة</span>
+      <strong>{{ quickStats().closedCount | number }}</strong>
+    </article>
+    <article class="stat-card card-surface stat-card--rejected">
+      <span>مرفوضة</span>
+      <strong>{{ quickStats().rejectedCount | number }}</strong>
+    </article>
+  </section>
+
+  <section class="filters-card card-surface">
+    <form class="filters" [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
+      <label class="field">
+        <span>بحث</span>
+        <input formControlName="search" type="search" placeholder="رقم التذكرة أو الموضوع أو الاسم" />
+      </label>
+
+      <label class="field">
+        <span>النوع</span>
+        <select formControlName="type">
+          <option value="">الكل</option>
+          @for (item of typeOptions; track item.value) {
+            <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>الحالة</span>
+        <select formControlName="status">
+          <option value="">الكل</option>
+          @for (item of statusOptions; track item.value) {
+            <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>الأولوية</span>
+        <select formControlName="priority">
+          <option value="">الكل</option>
+          @for (item of priorityOptions; track item.value) {
+            <option [value]="item.value">{{ item.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>من</span>
+        <input formControlName="fromDate" type="date" />
+      </label>
+
+      <label class="field">
+        <span>إلى</span>
+        <input formControlName="toDate" type="date" />
+      </label>
+
+      <div class="filters__actions">
+        <button type="button" class="btn btn-ghost" (click)="resetFilters()">مسح</button>
+        <button type="submit" class="btn btn-primary">تطبيق</button>
+      </div>
+    </form>
+  </section>
+
+  @if (ticketsError() && !tickets().length) {
+    <section class="alert-card card-surface">
+      <strong>تعذر تحميل التذاكر</strong>
+      <p>{{ ticketsError() }}</p>
+    </section>
+  }
+
+  <section class="support-layout">
+    <article class="card-surface list-card">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">قائمة التذاكر</p>
+          <h2>الجدول الرئيسي</h2>
+          <p class="muted">{{ totalCount() | number }} تذكرة</p>
+        </div>
+
+        <div class="panel-head__meta">
+          <span class="count-pill">صفحة {{ pageNumber() }} من {{ totalPages() }}</span>
+          <button type="button" class="btn btn-ghost btn-sm" (click)="refresh()">تحديث</button>
+        </div>
+      </div>
+
+      @if (loadingTickets()) {
+        <div class="empty-card">جارٍ تحميل تذاكر الدعم...</div>
+      } @else if (tickets().length) {
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>رقم التذكرة</th>
+                <th>الموضوع</th>
+                <th>النوع</th>
+                <th>الحالة</th>
+                <th>الأولوية</th>
+                <th>العميل</th>
+                <th>الإسناد</th>
+                <th>التاريخ</th>
+                <th>الإجراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of tickets(); track trackByTicket($index, ticket)) {
+                <tr>
+                  <td><span class="mono-chip">{{ ticket.ticketNumber }}</span></td>
+                  <td>
+                    <strong>{{ ticket.subject }}</strong>
+                    <div class="row-note">{{ ticket.messageSnippet }}</div>
+                  </td>
+                  <td>{{ ticket.typeLabel }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="'badge--' + statusTone(ticket.status)">
+                      {{ statusLabel(ticket.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge--soft" [ngClass]="'badge--' + priorityTone(ticket.priority)">
+                      {{ priorityLabel(ticket.priority) }}
+                    </span>
+                  </td>
+                  <td>{{ ticket.isAnonymous ? 'مجهول' : ticket.fullName }}</td>
+                  <td>{{ ticket.assignedToName || 'غير مسندة' }}</td>
+                  <td>{{ formatDateTime(ticket.createdAt) }}</td>
+                  <td>
+                    <button type="button" class="btn btn-soft btn-sm" (click)="openDetails(ticket)">عرض</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="pagination-bar">
+          <button type="button" class="page-btn" (click)="setPage(pageNumber() - 1)" [disabled]="pageNumber() === 1">السابق</button>
+          <span>صفحة {{ pageNumber() }} من {{ totalPages() }}</span>
+          <button type="button" class="page-btn" (click)="setPage(pageNumber() + 1)" [disabled]="pageNumber() === totalPages()">التالي</button>
+        </footer>
+      } @else {
+        <div class="empty-card">
+          <h3>لا توجد تذاكر مطابقة</h3>
+          <p>جرّب تعديل الفلاتر أو انتظر وصول تذاكر جديدة من شاشة الدعم العامة.</p>
+        </div>
+      }
+    </article>
+
+    <aside class="card-surface drawer-card" [class.drawer-card--open]="drawerOpen()">
+      @if (loadingTicket()) {
+        <div class="drawer-empty">جارٍ تحميل تفاصيل التذكرة...</div>
+      } @else if (ticketError()) {
+        <div class="drawer-empty drawer-empty--error">
+          <strong>تعذر تحميل التفاصيل</strong>
+          <p>{{ ticketError() }}</p>
+          <button type="button" class="btn btn-ghost" (click)="closeDetails()">العودة للقائمة</button>
+        </div>
+      } @else if (selectedTicket(); as ticket) {
+        <div class="drawer-head">
+          <div>
+            <p class="eyebrow">تفاصيل التذكرة</p>
+            <h2>{{ ticket.ticketNumber }}</h2>
+            <p class="muted">{{ ticket.subject }}</p>
+          </div>
+          <button type="button" class="icon-btn" (click)="closeDetails()" aria-label="إغلاق التفاصيل">×</button>
+        </div>
+
+        <div class="drawer-badges">
+          <span class="badge" [ngClass]="'badge--' + statusTone(ticket.status)">{{ statusLabel(ticket.status) }}</span>
+          <span class="badge badge--soft" [ngClass]="'badge--' + priorityTone(ticket.priority)">{{ priorityLabel(ticket.priority) }}</span>
+          <span class="badge badge--soft">{{ typeLabel(ticket.type) }}</span>
+        </div>
+
+        <section class="detail-grid">
+          <div>
+            <span>الاسم</span>
+            <strong>{{ ticket.isAnonymous ? 'مجهول' : ticket.fullName }}</strong>
+          </div>
+          <div>
+            <span>البريد</span>
+            <strong>{{ ticket.email || '—' }}</strong>
+          </div>
+          <div>
+            <span>الهاتف</span>
+            <strong>{{ ticket.phone || '—' }}</strong>
+          </div>
+          <div>
+            <span>الإسناد</span>
+            <strong>{{ ticket.assignedToName || 'غير مسندة' }}</strong>
+          </div>
+          <div>
+            <span>أول رد</span>
+            <strong>{{ firstResponseTime(ticket) }}</strong>
+          </div>
+          <div>
+            <span>زمن الإغلاق</span>
+            <strong>{{ resolvedTime(ticket) }}</strong>
+          </div>
+        </section>
+
+        <section class="content-block">
+          <span>الوصف</span>
+          <p>{{ ticket.message }}</p>
+        </section>
+
+        @if (ticket.attachments.length) {
+          <section class="content-block">
+            <span>المرفقات</span>
+            <div class="attachments-grid">
+              @for (attachment of ticket.attachments; track trackByAttachment($index, attachment)) {
+                <a class="attachment-card" [href]="attachmentUrl(attachment.resolvedUrl)" target="_blank" rel="noopener">
+                  @if (attachmentPreview(attachment)) {
+                    <img [src]="attachmentPreview(attachment)" [alt]="attachment.fileName" />
+                  } @else {
+                    <div class="attachment-card__placeholder">ملف</div>
+                  }
+                  <strong>{{ attachment.fileName }}</strong>
+                  <small>{{ formatTicketSize(attachment.size) }}</small>
+                </a>
+              }
+            </div>
+          </section>
+        }
+
+        @if (ticket.notes) {
+          <section class="content-block">
+            <span>الملخص الإداري</span>
+            <p>{{ ticket.notes }}</p>
+          </section>
+        }
+
+        <section class="drawer-actions" [formGroup]="replyForm">
+          @if (actionError()) {
+            <div class="alert-card alert-card--inline">
+              <strong>تعذر تنفيذ العملية</strong>
+              <p>{{ actionError() }}</p>
+            </div>
+          }
+
+          <div class="drawer-mini-grid">
+            <label class="field">
+              <span>الحالة</span>
+              <select formControlName="status">
+                @for (item of statusOptions; track item.value) {
+                  <option [value]="item.value">{{ item.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>الإسناد</span>
+              <select formControlName="assigneeUserId">
+                <option value="">اختر مستخدمًا</option>
+                @for (assignee of assignees(); track assignee.id) {
+                  <option [value]="assignee.id">{{ assignee.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          <label class="toggle-row">
+            <input type="checkbox" formControlName="isInternal" />
+            <span>رد داخلي غير ظاهر للعميل</span>
+          </label>
+
+          <label class="field">
+            <span>الرد</span>
+            <textarea rows="7" formControlName="message" placeholder="اكتب الرد هنا..."></textarea>
+          </label>
+
+          <div class="drawer-action-row">
+            <button type="button" class="btn btn-primary" (click)="saveReply()" [disabled]="saving() || !canReply()">إرسال الرد</button>
+            <button type="button" class="btn btn-ghost" (click)="saveStatus()" [disabled]="saving() || !canClose()">حفظ الحالة</button>
+          </div>
+
+          <div class="drawer-action-row drawer-action-row--split">
+            <button type="button" class="btn btn-ghost" (click)="assign()" [disabled]="saving() || !canAssign()">إسناد</button>
+            <button type="button" class="btn btn-danger" (click)="deleteTicket()" [disabled]="saving() || !canDelete()">حذف</button>
+          </div>
+        </section>
+
+        <section class="timeline-card">
+          <div class="panel-head panel-head--compact">
+            <div>
+              <p class="eyebrow">Timeline</p>
+              <h3>الرسالة والردود</h3>
+            </div>
+            <span class="count-pill">{{ ticket.replies.length }} رد</span>
+          </div>
+
+          <article class="timeline-item timeline-item--origin">
+            <div class="timeline-item__head">
+              <strong>التذكرة الأصلية</strong>
+              <small>{{ formatDateTime(ticket.createdAt) }}</small>
+            </div>
+            <p>{{ ticket.message }}</p>
+          </article>
+
+          @if (ticket.replies.length) {
+            <div class="timeline-list">
+              @for (reply of ticket.replies; track trackByReply($index, reply)) {
+                <article class="timeline-item">
+                  <div class="timeline-item__head">
+                    <strong>{{ reply.authorName || reply.authorRole || 'فريق الدعم' }}</strong>
+                    <small>{{ formatDateTime(reply.createdAt) }}</small>
+                  </div>
+                  <p>{{ reply.message }}</p>
+
+                  @if (reply.attachments.length) {
+                    <div class="reply-attachments">
+                      @for (attachment of reply.attachments; track trackByAttachment($index, attachment)) {
+                        <a [href]="attachmentUrl(attachment.resolvedUrl)" target="_blank" rel="noopener">
+                          {{ attachment.fileName }}
+                        </a>
+                      }
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="drawer-empty drawer-empty--soft">لا توجد ردود بعد.</div>
+          }
+        </section>
+      } @else {
+        <div class="drawer-empty">
+          <strong>اختر تذكرة</strong>
+          <p>ستظهر التفاصيل هنا بمجرد فتح أي تذكرة من الجدول.</p>
+        </div>
+      }
+    </aside>
+  </section>
+</section>

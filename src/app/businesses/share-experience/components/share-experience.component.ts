@@ -111,7 +111,7 @@ export class ShareExperienceComponent {
     overallRating: [5, [Validators.required, Validators.min(1), Validators.max(5)]],
     cleanlinessRating: [5, [Validators.min(1), Validators.max(5)]], priceRating: [4, [Validators.min(1), Validators.max(5)]],
     crowdRating: [3, [Validators.min(1), Validators.max(5)]], familyFriendlyRating: [5, [Validators.min(1), Validators.max(5)]],
-    youthFriendlyRating: [5, [Validators.min(1), Validators.max(5)]], imageUrls: ['']
+    youthFriendlyRating: [5, [Validators.min(1), Validators.max(5)]]
   });
 
   constructor() {
@@ -241,6 +241,7 @@ export class ShareExperienceComponent {
     ).subscribe(result => {
       this.loading.set(false);
       if (!result) return;
+      this.resetFormState();
       if (typeof localStorage !== 'undefined') localStorage.removeItem(this.draftKey);
       this.auth.refreshTripsCount();
       this.successMessage.set('تم إرسال التجربة للمراجعة بنجاح، وستظهر بعد اعتمادها.');
@@ -328,7 +329,7 @@ export class ShareExperienceComponent {
         cleanlinessRate: Number(v.cleanlinessRating)
       } : null,
       tripRating: null, expenses, visitedPlaces: [],
-      photos: this.lines(v.imageUrls).map((imageUrl, index) => ({ imageUrl, caption: null, isCover: index === 0 }))
+      photos: []
     };
   }
 
@@ -391,4 +392,79 @@ export class ShareExperienceComponent {
   private clearMessages(): void { this.errorMessage.set(''); this.successMessage.set(''); }
   private scrollTop(): void { if (typeof window !== 'undefined') window.scrollTo({ top: 320, behavior: 'smooth' }); }
   private isoDate(offset: number): string { const date = new Date(); date.setDate(date.getDate() + offset); return date.toISOString().slice(0, 10); }
+
+  private resetFormState(): void {
+    this.step.set(1);
+    this.form.reset({
+      title: '',
+      cityId: '',
+      tripDate: this.isoDate(0),
+      daysCount: 3,
+      nightsCount: 2,
+      peopleCount: 2,
+      tripType: 3,
+      userReportedTotalCost: 0,
+      costAccuracyType: 'approximate',
+      transportation: {
+        type: 'private-car',
+        fromLocation: '',
+        toLocation: '',
+        pricePerPerson: 0,
+        peopleCount: 2,
+        isRoundTrip: true,
+        fuelCost: 0,
+        tollCost: 0,
+        parkingCost: 0,
+        roadExtraCost: 0,
+        contributionCost: 0,
+        totalCost: 0,
+        costRange: '',
+        isApproximate: false
+      },
+      accommodation: {
+        type: 'hotel',
+        placeName: '',
+        areaName: '',
+        pricePerNight: 0,
+        nightsCount: 2,
+        roomsCount: 1,
+        peopleCount: 2,
+        includesBreakfast: false,
+        cleaningFees: 0,
+        utilitiesCost: 0,
+        serviceCost: 0,
+        contributionCost: 0,
+        totalCost: 0,
+        costRange: '',
+        isApproximate: false
+      },
+      food: {
+        type: 'mixed',
+        averageCostPerDay: 0,
+        daysCount: 3,
+        peopleCount: 2,
+        extraFoodCost: 0,
+        totalCost: 0,
+        costRange: '',
+        isApproximate: false
+      },
+      hasPaidActivities: false,
+      activities: [],
+      otherCosts: [],
+      description: '',
+      bestThing: '',
+      worstThing: '',
+      recommendToOthers: true,
+      overallRating: 5,
+      cleanlinessRating: 5,
+      priceRating: 4,
+      crowdRating: 3,
+      familyFriendlyRating: 5,
+      youthFriendlyRating: 5,
+    });
+    this.activities.clear();
+    this.otherCosts.clear();
+    this.uploadedPreviews.update(() => []);
+    this.selectedImageFiles.update(() => []);
+  }
 }
