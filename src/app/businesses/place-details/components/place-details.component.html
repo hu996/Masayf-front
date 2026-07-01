@@ -59,6 +59,23 @@
         </div>
       </header>
 
+      <section class="gallery">
+        @if (p.galleryImages.length) {
+          <div class="gallery-grid">
+            @for (image of p.galleryImages; track image.imageUrl || $index) {
+              <figure class="gallery-card">
+                <img loading="lazy" [src]="galleryImage(image)" [alt]="image.caption || p.name" />
+                @if (image.caption) {
+                  <figcaption>{{ image.caption }}</figcaption>
+                }
+              </figure>
+            }
+          </div>
+        } @else {
+          <div class="gallery-empty">لا توجد صور مضافة لهذا المكان بعد</div>
+        }
+      </section>
+
       <section class="content-layout">
         <div class="main-content">
           <section class="facts-strip">
